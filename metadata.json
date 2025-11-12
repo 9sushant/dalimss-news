@@ -1,0 +1,5 @@
+{
+  "name": "NextGen News",
+  "description": "A modern, Medium-like news and article publishing platform built with Next.js, Tailwind CSS, and SQLite. Users can write articles using Markdown, upload images and videos, and share their content.",
+  "requestFramePermissions": []
+}
