@@ -20,7 +20,11 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
     }
   };
 
-  const snippet = article.content.split('\n')[0]; // First paragraph as snippet
+  const snippet =
+  typeof article.content === "string"
+    ? article.content.replace(/<[^>]+>/g, '').split('\n')[0]
+    : "";
+ // First paragraph as snippet
 
   return (
     <article className="py-8 border-b border-slate-800">
