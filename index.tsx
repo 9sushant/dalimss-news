@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import Layout from './components/Layout';
 import HomePage from './pages/index';
-import NewArticlePage from './pages/new';
+import NewArticlePage from './pages/articles/new';
 import ArticlePage from './pages/articles/[slug]';
 import type { Article } from './types';
 import slugify from 'slugify';
