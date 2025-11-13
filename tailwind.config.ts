@@ -18,7 +18,8 @@ const config: Config = {
         serif: ["Lora", ...fontFamily.serif],
       },
 
-      typography: ({ theme }) => ({
+      typography: ({ theme }: { theme: any }) => ({
+
         DEFAULT: {
           css: {
             "--tw-prose-body": theme("colors.slate.700"),
