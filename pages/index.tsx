@@ -1,46 +1,126 @@
 import React from "react";
 import Link from "next/link";
-import ArticleCard from "../components/ArticleCard";
 import { Article } from "../types";
-import { DocumentPlusIcon } from "@heroicons/react/24/outline";
 
 interface HomeProps {
-  articles?: Article[]; // optional to prevent undefined
+  articles?: Article[];
 }
 
-const HomePage: React.FC<HomeProps> = ({ articles = [] }) => {
+export default function HomePage({ articles = [] }: HomeProps) {
+  if (articles.length === 0) {
+    return (
+      <div className="text-center py-40 text-white">
+        <p>Your feed is empty.</p>
+        <Link href="/articles/new" className="text-blue-400 underline">
+          Start Writing
+        </Link>
+      </div>
+    );
+  }
+
+  // Featured main story (center column big card)
+  const mainArticle = articles[0];
+
+  // Left column small list
+  const leftArticles = articles.slice(1, 6);
+
+  // Right column featured (e.g. videos)
+  const rightArticles = articles.slice(6, 10);
+
   return (
-    <div className="max-w-3xl mx-auto">
-      {articles.length > 0 ? (
-        <div>
-          {articles.map((article) => (
-            <ArticleCard key={article.id} article={article} />
+    <div className="max-w-7xl mx-auto px-4 py-10 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      {/* LEFT COLUMN */}
+      <div className="lg:col-span-3 space-y-6">
+        {leftArticles.map((a) => (
+          <Link key={a.id} href={`/articles/${a.slug}`} className="block">
+            <div className="flex gap-4 border-b border-slate-700 pb-4">
+              {a.mediaUrl && (
+                <img
+                  src={a.mediaUrl}
+                  className="w-24 h-20 rounded object-cover"
+                  alt=""
+                />
+              )}
+              <div>
+                <p className="text-sm font-semibold text-red-500">
+                  {a.category || "News"}
+                </p>
+                <p className="text-sm text-white">{a.title}</p>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {/* CENTER MAIN ARTICLE */}
+      <div className="lg:col-span-6">
+        <Link href={`/articles/${mainArticle.slug}`}>
+          <h1 className="text-3xl font-bold mb-4 text-white leading-tight hover:text-blue-300">
+            {mainArticle.title}
+          </h1>
+
+          {mainArticle.mediaUrl && (
+            <img
+              src={mainArticle.mediaUrl}
+              className="w-full h-72 rounded-lg object-cover"
+              alt=""
+            />
+          )}
+        </Link>
+
+        <p className="mt-4 text-slate-300">
+          {mainArticle.content?.substring(0, 200)}...
+        </p>
+
+        {/* Below the big article */}
+        <div className="mt-6 space-y-4">
+          {articles.slice(1, 4).map((a) => (
+            <Link
+              key={a.id}
+              href={`/articles/${a.slug}`}
+              className="flex gap-3 border-b border-slate-700 pb-3"
+            >
+              <img
+                src={a.mediaUrl || "/placeholder.jpg"}
+                className="w-28 h-20 rounded object-cover"
+                alt=""
+              />
+              <div>
+                <h3 className="text-white hover:text-blue-300">{a.title}</h3>
+                <p className="text-sm text-slate-400">
+                  {a.content.substring(0, 90)}...
+                </p>
+              </div>
+            </Link>
           ))}
         </div>
-      ) : (
-        <div className="text-center py-20 px-4">
-          <DocumentPlusIcon className="mx-auto h-16 w-16 text-slate-400" />
+      </div>
 
-          <h3 className="mt-4 text-2xl font-semibold text-slate-900 dark:text-white">
-            Your feed is empty
-          </h3>
+      {/* RIGHT COLUMN */}
+      <div className="lg:col-span-3 space-y-6">
 
-          <p className="mt-2 text-slate-500">
-            Be the first to publish a story on NextGen News.
-          </p>
+        <div className="bg-slate-900 p-4 rounded-xl border border-slate-700">
+          <h2 className="text-xl font-semibold text-white mb-3">
+            Featured Videos
+          </h2>
 
-          <div className="mt-6">
-            <Link
-              href="/articles/new"
-              className="inline-flex items-center px-5 py-2.5 border border-transparent shadow-sm text-sm font-medium rounded-full text-white bg-slate-900 hover:bg-slate-700 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-all"
-            >
-              Start Writing
+          {rightArticles.map((v) => (
+            <Link key={v.id} href={`/articles/${v.slug}`}>
+              <div className="mb-4">
+                <img
+                  src={v.mediaUrl}
+                  className="w-full h-40 rounded-lg object-cover"
+                  alt=""
+                />
+                <p className="mt-2 text-white hover:text-blue-300">{v.title}</p>
+              </div>
             </Link>
-          </div>
+          ))}
         </div>
-      )}
+
+      </div>
+
     </div>
   );
-};
-
-export default HomePage;
+}
