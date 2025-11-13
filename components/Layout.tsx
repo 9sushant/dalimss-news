@@ -1,20 +1,15 @@
-
-import React from 'react';
-import Nav from './Nav';
+import Nav from "@/components/Nav";
+import { ReactNode } from "react";
 
 interface LayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
-  return (
-    <div className="min-h-screen bg-black">
-      <Nav />
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {children}
-      </main>
-    </div>
-  );
-};
+const Layout = ({ children }: LayoutProps) => (
+  <div className="bg-black min-h-screen text-white">
+    <Nav />
+    <main className="container mx-auto px-6 py-10">{children}</main>
+  </div>
+);
 
 export default Layout;

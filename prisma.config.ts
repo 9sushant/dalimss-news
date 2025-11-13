@@ -1,12 +1,7 @@
-import { defineConfig, env } from "prisma/config";
+import { loadEnvConfig } from "@next/env";
 
-export default defineConfig({
-  schema: "prisma/schema.prisma",
-  migrations: {
-    path: "prisma/migrations",
-  },
-  engine: "classic",
-  datasource: {
-    url: env("DATABASE_URL"),
-  },
-});
+loadEnvConfig(process.cwd());
+
+export default {
+  schema: "./prisma/schema.prisma",
+};

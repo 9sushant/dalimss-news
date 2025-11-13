@@ -1,7 +1,10 @@
+// pages/api/articles/upload.ts
+
 import type { NextApiRequest, NextApiResponse } from "next";
 import formidable, { File } from "formidable";
 import fs from "fs";
 import path from "path";
+import prisma from "@/lib/prisma"; // ✅ import prisma client
 
 export const config = {
   api: {
@@ -9,10 +12,7 @@ export const config = {
   },
 };
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method not allowed" });
   }
@@ -35,22 +35,40 @@ export default async function handler(
     },
   });
 
-  form.parse(req, (err, _fields, files) => {
+  form.parse(req, async (err, _fields, files) => {
     if (err) {
       return res.status(500).json({ message: "Upload error", error: err });
     }
 
-    // ✅ Important fix for TypeScript
+    // ✅ Ensure correct file extraction for TypeScript
     const file = Array.isArray(files.file) ? files.file[0] : files.file;
     if (!file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
-    const fileUrl = `/uploads/${(file as File).newFilename}`;
+    const fileUrl = `/uploads/${(file as File).newFilename}`; // ✅ URL used in frontend
 
-    return res.status(200).json({
-      message: "Upload successful",
-      url: fileUrl,
-    });
+    try {
+      // ✅ Save file path to database (Article table with only media field)
+      const uploadedMedia = await prisma.article.create({
+        data: {
+          title: "Untitled Upload", // temporary placeholder (will edit article later)
+          slug: Date.now().toString(),
+          content: "",
+          mediaUrl: fileUrl,
+          mediaType: "image",
+          readTimeInMinutes: 1,
+        },
+      });
+
+      return res.status(200).json({
+        message: "File uploaded and stored in DB",
+        url: fileUrl,
+        savedRecord: uploadedMedia,
+      });
+    } catch (dbError) {
+      console.error("DB Save Error:", dbError);
+      return res.status(500).json({ message: "Failed to save in DB", error: dbError });
+    }
   });
 }

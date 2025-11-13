@@ -1,3 +1,4 @@
+//pages/articles/index.tsx
 import Link from "next/link";
 import { GetServerSideProps } from "next";
 

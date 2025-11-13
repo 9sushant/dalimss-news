@@ -2,8 +2,7 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/articles": "pages/articles.js",
   "/articles/new": "pages/articles/new.js",
-  "/api/articles": "pages/api/articles.js",
-  "/api/articles/upload": "pages/api/articles/upload.js"
+  "/": "pages/index.js",
+  "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js"
 }
