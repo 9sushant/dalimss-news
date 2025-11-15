@@ -95,21 +95,21 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
 export default ArticlePage;
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
-  const slug = String(params?.slug ?? "");
+  const slug = String(params?.slug || "");
 
-  // prepare OR conditions safely
-  const orConditions: any[] = [{ slug }];
+  const whereClause: any = {
+    OR: [{ slug }]
+  };
 
-  // if slug is a number, add id condition
+  // If slug is a number → add ID search
   const numericId = Number(slug);
   if (!isNaN(numericId)) {
-    orConditions.push({ id: numericId });
+    whereClause.OR.push({ id: numericId });
   }
 
+  // Fetch article safely
   const article = await prisma.article.findFirst({
-    where: {
-      OR: orConditions,
-    },
+    where: whereClause,
   });
 
   if (!article) {
