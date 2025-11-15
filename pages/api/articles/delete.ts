@@ -13,17 +13,25 @@ export default async function handler(
 
   const session = await getServerSession(req, res, authOptions);
 
-  if (!session || session.user.role !== "admin") {
+  // ✅ Fix TypeScript error: check all cases
+  if (!session || !session.user || session.user.role !== "admin") {
     return res.status(403).json({ error: "Forbidden: Admins only" });
   }
 
   const { id } = req.body;
 
+  if (!id) {
+    return res.status(400).json({ error: "Missing article ID" });
+  }
+
   try {
-    await prisma.article.delete({ where: { id: Number(id) } });
-    return res.json({ success: true });
+    await prisma.article.delete({
+      where: { id: Number(id) },
+    });
+
+    return res.status(200).json({ success: true });
   } catch (err) {
     console.error("DELETE ERROR:", err);
-    return res.status(500).json({ error: "Delete failed" });
+    return res.status(500).json({ error: "Delete failed", details: err });
   }
 }
