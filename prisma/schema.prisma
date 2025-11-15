@@ -9,17 +9,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  role          String    @default("user")  // <-- ADD THIS
-  accounts      Account[]
-  sessions      Session[]
-  articles      Article[]
+model Article {
+  id                Int      @id @default(autoincrement())
+  slug              String   @unique
+  title             String
+  content           String
+  mediaUrl          String?
+  mediaType         String?
+  readTimeInMinutes Int      <-- REQUIRED
+  createdAt         DateTime @default(now())
+  authorId          String?
+  author            User?    @relation(fields: [authorId], references: [id])
 }
+
 
 
 model Account {
