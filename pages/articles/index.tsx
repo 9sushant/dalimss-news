@@ -1,18 +1,19 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
- 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === "POST") {
+import { authOptions } from "../auth/[...nextauth]";
 
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // ---------------- POST (Create Article) ----------------
+  if (req.method === "POST") {
     const session = await getServerSession(req, res, authOptions);
-    if (!session) {
+
+    if (!session || !session.user) {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
     const { title, content, mediaUrl, mediaType } = req.body;
 
-    // 🚫 Prevent Untitled Uploads
     if (!title || title.trim().length < 3) {
       return res.status(400).json({ error: "Title is required" });
     }
@@ -22,11 +23,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     try {
-      const slug = title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)+/g, "")
-        + "-" +
+      const slug =
+        title
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)+/g, "") +
+        "-" +
         Date.now();
 
       const article = await prisma.article.create({
@@ -36,7 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           slug,
           mediaUrl,
           mediaType,
-          authorId: session.user?.id ?? null,
+          authorId: (session.user as any).id ?? null,
         },
       });
 
@@ -48,7 +50,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   }
 
-  // GET articles...
+  // ---------------- GET ARTICLES ----------------
   const articles = await prisma.article.findMany({
     orderBy: { createdAt: "desc" },
   });
