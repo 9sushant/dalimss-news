@@ -1,25 +1,27 @@
-// pages/api/auth/[...nextauth].ts
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import prisma from "../../../lib/prisma";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import prisma from "@/lib/prisma";
 
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
+
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
-  secret: process.env.NEXTAUTH_SECRET,
-  session: {
-    strategy: "database",
-  },
-  pages: {
-    signIn: "/auth/signin", // optional custom login page
-  },
-});
 
-export { handler as GET, handler as POST };
-export default handler;
+  callbacks: {
+    async session({ session, user }) {
+      if (session.user) {
+        session.user.role = user.role; // Include role in session
+      }
+      return session;
+    },
+  },
+};
+
+// ✅ Correct export for PAGES Router
+export default NextAuth(authOptions);
