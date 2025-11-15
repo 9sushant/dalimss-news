@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // ---------------- POST (Create Article) ----------------
+  // ----------- CREATE ARTICLE (POST) -----------
   if (req.method === "POST") {
     const session = await getServerSession(req, res, authOptions);
 
@@ -14,13 +14,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const { title, content, mediaUrl, mediaType } = req.body;
 
-    // Prevent Untitled Articles
     if (!title || title.trim().length < 3) {
-      return res.status(400).json({ error: "Title is required and must be at least 3 characters." });
+      return res.status(400).json({ error: "Title is required" });
     }
 
     if (!content || content.trim().length < 10) {
-      return res.status(400).json({ error: "Content is too short." });
+      return res.status(400).json({ error: "Content is too short" });
     }
 
     try {
@@ -39,6 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           slug,
           mediaUrl,
           mediaType,
+          readTimeInMinutes: Math.max(1, Math.ceil(content.length / 500)), // 🔥 FIXED required field
           authorId: (session.user as any).id ?? null,
         },
       });
@@ -50,7 +50,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   }
 
-  // ---------------- GET ARTICLES ----------------
+  // ----------- GET ALL ARTICLES -----------
   const articles = await prisma.article.findMany({
     orderBy: { createdAt: "desc" },
   });
