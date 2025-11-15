@@ -1,14 +1,12 @@
-// pages/articles/[slug].tsx
-
 import React from "react";
 import { GetServerSideProps } from "next";
-import { useRouter } from "next/router";
 import prisma from "../../lib/prisma";
 import * as RMarkdownModule from "react-markdown";
 import * as rRawModule from "rehype-raw";
 
 const getDefault = (m: any) =>
   m && typeof m.default === "function" ? m.default : null;
+
 const ReactMarkdown = getDefault(RMarkdownModule);
 const rehypeRaw = getDefault(rRawModule);
 
@@ -16,13 +14,13 @@ interface Article {
   id: number;
   slug: string;
   title: string;
-  content: string;
+  content: string | null;
   createdAt: string;
   mediaUrl?: string | null;
   mediaType?: string | null;
   authorName?: string;
   authorAvatarUrl?: string;
-  readTimeInMinutes?: number;
+  readTimeInMinutes?: number | null;
 }
 
 interface Props {
@@ -30,8 +28,6 @@ interface Props {
 }
 
 const ArticlePage: React.FC<Props> = ({ article }) => {
-  const router = useRouter();
-
   if (!article) {
     return (
       <div className="max-w-3xl mx-auto py-24 text-center text-xl text-white">
@@ -47,65 +43,49 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
     window.scrollTo(0, 0);
   }, [article]);
 
-  // 🔴 DELETE ARTICLE FUNCTION
-  const handleDelete = async () => {
-    const ok = confirm("Are you sure you want to delete this article?");
-    if (!ok) return;
-
-    const res = await fetch(`/api/articles/delete?id=${article.id}`, {
-      method: "DELETE",
-    });
-
-    if (res.ok) {
-      alert("Article deleted successfully.");
-      router.push("/articles");
-    } else {
-      alert("Failed to delete the article.");
-    }
-  };
-
   return (
     <article className="max-w-3xl mx-auto py-8 px-6 text-white">
-      {/* 🔴 DELETE BUTTON */}
-      <div className="flex justify-end mb-4">
-        <button
-          onClick={handleDelete}
-          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md"
-        >
-          Delete Article
-        </button>
-      </div>
-
+      {/* Header */}
       <header className="mb-6">
-        <h1 className="text-4xl font-bold text-white mb-3">{article.title}</h1>
+        <h1 className="text-4xl font-bold mb-3">{article.title}</h1>
         <div className="text-sm text-slate-400">
-          {formattedDate} • {article.readTimeInMinutes} min read
+          {formattedDate}
+          {article.readTimeInMinutes
+            ? ` • ${article.readTimeInMinutes} min read`
+            : ""}
         </div>
       </header>
 
-      {/* Media (Image or Video) */}
-      {article.mediaUrl &&
-        (article.mediaType === "image" ? (
-          <img
-            src={article.mediaUrl}
-            className="rounded-md my-6 w-full max-w-3xl mx-auto"
-            alt={article.title}
-          />
-        ) : (
-          <video
-            src={article.mediaUrl}
-            controls
-            className="rounded-md my-6 w-full max-w-3xl mx-auto"
-          ></video>
-        ))}
+      {/* Media Safe Render */}
+      {article.mediaUrl && (
+        <div className="my-6">
+          {article.mediaType === "video" ? (
+            <video
+              src={article.mediaUrl}
+              controls
+              className="rounded-md w-full max-h-[500px]"
+            />
+          ) : (
+            <img
+              src={article.mediaUrl}
+              className="rounded-md w-full"
+              alt="media"
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+              }}
+            />
+          )}
+        </div>
+      )}
 
+      {/* Content */}
       <div className="prose prose-invert max-w-none">
-        {typeof article.content === "string" && ReactMarkdown ? (
+        {ReactMarkdown ? (
           <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-            {article.content}
+            {article.content || "No content available."}
           </ReactMarkdown>
         ) : (
-          <pre>{String(article.content ?? "No content")}</pre>
+          <pre>{article.content || "No content available."}</pre>
         )}
       </div>
     </article>
@@ -117,13 +97,11 @@ export default ArticlePage;
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const slug = String(params?.slug ?? "");
 
-  const article = await prisma.article.findFirst({
+  let article = await prisma.article.findFirst({
     where: {
       OR: [
         { slug },
-        {
-          id: Number.isNaN(Number(slug)) ? undefined : Number(slug),
-        },
+        !isNaN(Number(slug)) ? { id: Number(slug) } : undefined,
       ],
     },
   });
