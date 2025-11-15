@@ -5,23 +5,23 @@ import prisma from "@/lib/prisma";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
+
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
+
   callbacks: {
     async session({ session, user }) {
       if (session.user) {
-        session.user.id = user.id;      // ✅ Add user ID
-        session.user.role = user.role;  // ✅ Add role
+        session.user.id = user.id;      // ✅ ADD THIS
+        session.user.role = user.role;  // ✅ FIX ROLE
       }
       return session;
     },
   },
-
 };
 
 export default NextAuth(authOptions);
-
