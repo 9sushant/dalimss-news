@@ -18,8 +18,6 @@ interface Article {
   createdAt: string;
   mediaUrl?: string | null;
   mediaType?: string | null;
-  authorName?: string;
-  authorAvatarUrl?: string;
   readTimeInMinutes?: number | null;
 }
 
@@ -31,21 +29,15 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
   if (!article) {
     return (
       <div className="max-w-3xl mx-auto py-24 text-center text-xl text-white">
-        Article not found.
+        Article not found or has been removed.
       </div>
     );
   }
 
   const formattedDate = new Date(article.createdAt).toLocaleDateString();
 
-  React.useEffect(() => {
-    document.title = `${article.title} | Dalimss News`;
-    window.scrollTo(0, 0);
-  }, [article]);
-
   return (
     <article className="max-w-3xl mx-auto py-8 px-6 text-white">
-      {/* Header */}
       <header className="mb-6">
         <h1 className="text-4xl font-bold mb-3">{article.title}</h1>
         <div className="text-sm text-slate-400">
@@ -56,48 +48,43 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
         </div>
       </header>
 
-{/* SAFE MEDIA RENDERER */}
-{article.mediaUrl ? (
-  <div className="my-6">
-    {(() => {
-      try {
-        if (article.mediaType === "video") {
-          return (
-            <video
-              src={article.mediaUrl}
-              controls
-              className="rounded-md w-full max-h-[500px]"
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-              }}
-            />
-          );
-        }
+      {/* SAFE MEDIA RENDERER */}
+      {article.mediaUrl ? (
+        <div className="my-6">
+          {(() => {
+            try {
+              if (article.mediaType === "video") {
+                return (
+                  <video
+                    src={article.mediaUrl}
+                    controls
+                    className="rounded-md w-full max-h-[500px]"
+                    onError={(e) => (e.currentTarget.style.display = "none")}
+                  />
+                );
+              }
+              return (
+                <img
+                  src={article.mediaUrl}
+                  className="rounded-md w-full"
+                  alt="media"
+                  onError={(e) => (e.currentTarget.style.display = "none")}
+                />
+              );
+            } catch (e) {
+              return (
+                <p className="text-slate-500 italic">
+                  Unable to load media.
+                </p>
+              );
+            }
+          })()}
+        </div>
+      ) : (
+        <p className="text-slate-500 italic my-6">No media included.</p>
+      )}
 
-        return (
-          <img
-            src={article.mediaUrl}
-            alt="media"
-            className="rounded-md w-full"
-            onError={(e) => {
-              e.currentTarget.style.display = "none";
-            }}
-          />
-        );
-      } catch (err) {
-        console.error("MEDIA RENDER FAILED:", err);
-        return (
-          <p className="text-slate-500 italic">Media unavailable.</p>
-        );
-      }
-    })()}
-  </div>
-) : (
-  <p className="text-slate-500 italic my-6">No media included.</p>
-)}
-
-
-      {/* Content */}
+      {/* SAFE MARKDOWN RENDER */}
       <div className="prose prose-invert max-w-none">
         {ReactMarkdown ? (
           <ReactMarkdown rehypePlugins={[rehypeRaw]}>
@@ -116,28 +103,22 @@ export default ArticlePage;
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const slug = String(params?.slug || "");
 
-  const whereClause: any = {
-    OR: [{ slug }]
-  };
+  const whereClause: any = { OR: [{ slug }] };
 
-  // If slug is a number → add ID search
   const numericId = Number(slug);
-  if (!isNaN(numericId)) {
-    whereClause.OR.push({ id: numericId });
-  }
+  if (!isNaN(numericId)) whereClause.OR.push({ id: numericId });
 
-  // Fetch article safely
-  const article = await prisma.article.findFirst({
-    where: whereClause,
-  });
+  let article = null;
 
-  if (!article) {
-    return { props: { article: null } };
+  try {
+    article = await prisma.article.findFirst({ where: whereClause });
+  } catch (err) {
+    console.error("DB ERROR:", err);
   }
 
   return {
     props: {
-      article: JSON.parse(JSON.stringify(article)),
+      article: article ? JSON.parse(JSON.stringify(article)) : null,
     },
   };
 };
