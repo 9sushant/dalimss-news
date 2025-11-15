@@ -56,27 +56,46 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
         </div>
       </header>
 
-      {/* Media Safe Render */}
-      {article.mediaUrl && (
-        <div className="my-6">
-          {article.mediaType === "video" ? (
+{/* SAFE MEDIA RENDERER */}
+{article.mediaUrl ? (
+  <div className="my-6">
+    {(() => {
+      try {
+        if (article.mediaType === "video") {
+          return (
             <video
               src={article.mediaUrl}
               controls
               className="rounded-md w-full max-h-[500px]"
-            />
-          ) : (
-            <img
-              src={article.mediaUrl}
-              className="rounded-md w-full"
-              alt="media"
               onError={(e) => {
                 e.currentTarget.style.display = "none";
               }}
             />
-          )}
-        </div>
-      )}
+          );
+        }
+
+        return (
+          <img
+            src={article.mediaUrl}
+            alt="media"
+            className="rounded-md w-full"
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+            }}
+          />
+        );
+      } catch (err) {
+        console.error("MEDIA RENDER FAILED:", err);
+        return (
+          <p className="text-slate-500 italic">Media unavailable.</p>
+        );
+      }
+    })()}
+  </div>
+) : (
+  <p className="text-slate-500 italic my-6">No media included.</p>
+)}
+
 
       {/* Content */}
       <div className="prose prose-invert max-w-none">
