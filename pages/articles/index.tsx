@@ -89,7 +89,6 @@ export default function AllArticlesPage({ articles }: Props) {
 }
 
 
-// FETCH ARTICLES (with filtering)
 export const getServerSideProps: GetServerSideProps = async () => {
   const baseUrl =
     process.env.NEXT_PUBLIC_BASE_URL ||
@@ -98,18 +97,28 @@ export const getServerSideProps: GetServerSideProps = async () => {
       : "http://localhost:3000");
 
   const apiUrl = `${baseUrl}/api/articles`;
+
   const res = await fetch(apiUrl);
   let articles = await res.json();
 
-  // ✅ Remove corrupted articles
-  articles = articles.filter(
-    (a: Article) =>
-      a.title &&
-      a.slug &&
-      a.mediaUrl &&                   // must have media
-      typeof a.mediaUrl === "string" &&
-      a.mediaUrl.startsWith("http")   // must be a valid URL
-  );
+  // 🔥 Check if media exists using HEAD request
+  async function mediaExists(url: string) {
+    try {
+      const head = await fetch(url, { method: "HEAD" });
+      return head.ok;
+    } catch {
+      return false;
+    }
+  }
 
-  return { props: { articles } };
+  // 🔥 Remove broken articles
+  const filtered = [];
+  for (const a of articles) {
+    if (!a.title || !a.slug || !a.mediaUrl) continue;
+
+    const ok = await mediaExists(a.mediaUrl);
+    if (ok) filtered.push(a);
+  }
+
+  return { props: { articles: filtered } };
 };
