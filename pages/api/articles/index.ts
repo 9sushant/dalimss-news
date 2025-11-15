@@ -1,54 +1,59 @@
-// pages/api/articles/index.ts
 import type { NextApiRequest, NextApiResponse } from "next";
-import prisma from "../../../lib/prisma";
-import slugify from "slugify";
+import prisma from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  try {
-    if (req.method === "GET") {
-      const articles = await prisma.article.findMany({
-        orderBy: { createdAt: "desc" },
-      });
-      return res.status(200).json(articles);
+  // ---------------- POST (Create Article) ----------------
+  if (req.method === "POST") {
+    const session = await getServerSession(req, res, authOptions);
+
+    if (!session || !session.user) {
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
-    if (req.method === "POST") {
-      const { title, content, mediaUrl, mediaType } = req.body || {};
+    const { title, content, mediaUrl, mediaType } = req.body;
 
-      if (!title || !content) {
-        return res.status(400).json({ error: "Title and content required" });
-      }
+    // Prevent Untitled Articles
+    if (!title || title.trim().length < 3) {
+      return res.status(400).json({ error: "Title is required and must be at least 3 characters." });
+    }
 
-      const baseSlug = slugify(title, { lower: true, strict: true });
-      let slug = baseSlug;
-      let counter = 1;
+    if (!content || content.trim().length < 10) {
+      return res.status(400).json({ error: "Content is too short." });
+    }
 
-      while (await prisma.article.findUnique({ where: { slug } })) {
-        slug = `${baseSlug}-${counter++}`;
-      }
+    try {
+      const slug =
+        title
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)+/g, "") +
+        "-" +
+        Date.now();
 
       const article = await prisma.article.create({
         data: {
-          slug,
           title,
           content,
+          slug,
           mediaUrl,
           mediaType,
-          readTimeInMinutes: Math.max(
-            1,
-            Math.round(content.split(/\s+/).length / 200)
-          ),
+          authorId: (session.user as any).id ?? null,
         },
       });
 
-      return res.status(201).json(article);
+      return res.status(200).json(article);
+    } catch (err) {
+      console.error("Create failed:", err);
+      return res.status(500).json({ error: "Create failed" });
     }
-
-    res.setHeader("Allow", ["GET", "POST"]);
-    return res.status(405).json({ message: `Method ${req.method} not allowed` });
-
-  } catch (error: any) {
-    console.error("🔥 API ERROR (/api/articles):", error);
-    return res.status(500).json({ error: error.message || "Server error" });
   }
+
+  // ---------------- GET ARTICLES ----------------
+  const articles = await prisma.article.findMany({
+    orderBy: { createdAt: "desc" },
+  });
+
+  return res.json(articles);
 }
