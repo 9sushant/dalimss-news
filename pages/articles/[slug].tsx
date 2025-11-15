@@ -38,6 +38,33 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
 
   return (
     <article className="max-w-3xl mx-auto py-8 px-6 text-white">
+
+      {/* DELETE BUTTON */}
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={async () => {
+            if (!confirm("Are you sure you want to delete this article?")) return;
+
+            const res = await fetch("/api/articles/delete", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id: article.id }),
+            });
+
+            const data = await res.json();
+            if (data.success) {
+              window.location.href = "/articles";
+            } else {
+              alert("Delete failed");
+            }
+          }}
+          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+        >
+          Delete Article
+        </button>
+      </div>
+
+      {/* HEADER */}
       <header className="mb-6">
         <h1 className="text-4xl font-bold mb-3">{article.title}</h1>
         <div className="text-sm text-slate-400">
@@ -48,7 +75,7 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
         </div>
       </header>
 
-      {/* SAFE MEDIA RENDERER */}
+      {/* MEDIA RENDERER */}
       {article.mediaUrl ? (
         <div className="my-6">
           {(() => {
@@ -63,6 +90,7 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
                   />
                 );
               }
+
               return (
                 <img
                   src={article.mediaUrl}
@@ -71,11 +99,9 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
                   onError={(e) => (e.currentTarget.style.display = "none")}
                 />
               );
-            } catch (e) {
+            } catch (err) {
               return (
-                <p className="text-slate-500 italic">
-                  Unable to load media.
-                </p>
+                <p className="text-slate-500 italic">Unable to load media.</p>
               );
             }
           })()}
@@ -84,7 +110,7 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
         <p className="text-slate-500 italic my-6">No media included.</p>
       )}
 
-      {/* SAFE MARKDOWN RENDER */}
+      {/* CONTENT */}
       <div className="prose prose-invert max-w-none">
         {ReactMarkdown ? (
           <ReactMarkdown rehypePlugins={[rehypeRaw]}>
