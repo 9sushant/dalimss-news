@@ -14,11 +14,13 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async session({ session, user }) {
       if (session.user) {
-        (session.user as any).role = user.role;
+        session.user.id = user.id;      // ✅ Add user ID
+        session.user.role = user.role;  // ✅ Add role
       }
       return session;
     },
   },
+
 };
 
 export default NextAuth(authOptions);
