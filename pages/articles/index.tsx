@@ -41,10 +41,12 @@ export default function AllArticlesPage({ articles }: Props) {
         {articles.map((a) => (
           <div
             key={a.id}
-            className="border border-slate-700 p-5 rounded-xl bg-slate-900 cursor-pointer hover:border-blue-500 transition"
+            className="border border-slate-700 p-5 rounded-xl bg-slate-900 hover:border-blue-500 transition"
           >
             <Link href={`/articles/${a.slug}`}>
-              <p className="text-xl font-semibold text-white mb-1">{a.title}</p>
+              <p className="text-xl font-semibold text-white mb-1">
+                {a.title}
+              </p>
             </Link>
 
             <p className="text-xs text-gray-400 mb-3">
@@ -59,6 +61,26 @@ export default function AllArticlesPage({ articles }: Props) {
                 onError={(e) => (e.currentTarget.style.display = "none")}
               />
             )}
+
+            {/* DELETE BUTTON */}
+            <button
+              onClick={async () => {
+                if (!confirm("Delete this article?")) return;
+
+                const res = await fetch("/api/articles/delete", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ id: a.id }),
+                });
+
+                const data = await res.json();
+                if (data.success) window.location.reload();
+                else alert("Delete failed");
+              }}
+              className="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm"
+            >
+              Delete Article
+            </button>
           </div>
         ))}
       </div>
@@ -101,7 +123,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
   const res = await fetch(apiUrl);
   let articles = await res.json();
 
-  // 🔥 Check if media exists using HEAD request
+  // HEAD request check
   async function mediaExists(url: string) {
     try {
       const head = await fetch(url, { method: "HEAD" });
@@ -111,7 +133,6 @@ export const getServerSideProps: GetServerSideProps = async () => {
     }
   }
 
-  // 🔥 Remove broken articles
   const filtered = [];
   for (const a of articles) {
     if (!a.title || !a.slug || !a.mediaUrl) continue;
