@@ -1,3 +1,5 @@
+// pages/articles/index.tsx
+
 import Link from "next/link";
 import { GetServerSideProps } from "next";
 
@@ -54,6 +56,7 @@ export default function AllArticlesPage({ articles }: Props) {
                 src={a.mediaUrl}
                 className="w-full h-56 object-cover rounded-lg"
                 alt=""
+                onError={(e) => (e.currentTarget.style.display = "none")}
               />
             )}
           </div>
@@ -71,6 +74,7 @@ export default function AllArticlesPage({ articles }: Props) {
                 src={a.mediaUrl}
                 className="w-full h-40 object-cover rounded-lg"
                 alt=""
+                onError={(e) => (e.currentTarget.style.display = "none")}
               />
             )}
 
@@ -85,7 +89,7 @@ export default function AllArticlesPage({ articles }: Props) {
 }
 
 
-// FETCH ARTICLES
+// FETCH ARTICLES (with filtering)
 export const getServerSideProps: GetServerSideProps = async () => {
   const baseUrl =
     process.env.NEXT_PUBLIC_BASE_URL ||
@@ -94,9 +98,18 @@ export const getServerSideProps: GetServerSideProps = async () => {
       : "http://localhost:3000");
 
   const apiUrl = `${baseUrl}/api/articles`;
-
   const res = await fetch(apiUrl);
-  const articles = await res.json();
+  let articles = await res.json();
+
+  // ✅ Remove corrupted articles
+  articles = articles.filter(
+    (a: Article) =>
+      a.title &&
+      a.slug &&
+      a.mediaUrl &&                   // must have media
+      typeof a.mediaUrl === "string" &&
+      a.mediaUrl.startsWith("http")   // must be a valid URL
+  );
 
   return { props: { articles } };
 };
