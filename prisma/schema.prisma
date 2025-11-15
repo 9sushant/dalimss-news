@@ -15,10 +15,12 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+  role          String    @default("user")  // <-- ADD THIS
   accounts      Account[]
   sessions      Session[]
   articles      Article[]
 }
+
 
 model Account {
   id                String  @id @default(cuid())
