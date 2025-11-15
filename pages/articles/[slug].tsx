@@ -97,12 +97,18 @@ export default ArticlePage;
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const slug = String(params?.slug ?? "");
 
-  let article = await prisma.article.findFirst({
+  // prepare OR conditions safely
+  const orConditions: any[] = [{ slug }];
+
+  // if slug is a number, add id condition
+  const numericId = Number(slug);
+  if (!isNaN(numericId)) {
+    orConditions.push({ id: numericId });
+  }
+
+  const article = await prisma.article.findFirst({
     where: {
-      OR: [
-        { slug },
-        !isNaN(Number(slug)) ? { id: Number(slug) } : undefined,
-      ],
+      OR: orConditions,
     },
   });
 
