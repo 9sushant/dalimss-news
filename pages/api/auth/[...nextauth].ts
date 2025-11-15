@@ -5,23 +5,21 @@ import prisma from "@/lib/prisma";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
-
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
-
   callbacks: {
     async session({ session, user }) {
       if (session.user) {
-        session.user.role = user.role; // Include role in session
+        (session.user as any).role = user.role;
       }
       return session;
     },
   },
 };
 
-// ✅ Correct export for PAGES Router
 export default NextAuth(authOptions);
+
