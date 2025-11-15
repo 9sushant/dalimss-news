@@ -34,13 +34,20 @@ const NewArticle: React.FC = () => {
 
   // 🟢 2. If logged in, show the form
   const handleMediaSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!title || title.trim().length < 3) {
+      alert("Please enter a title BEFORE uploading media.");
+      e.target.value = "";
+      return;
+    }
+  
     const file = e.target.files?.[0];
     if (!file) return;
-
+  
     setMediaFile(file);
     setMediaPreview(URL.createObjectURL(file));
     setMediaType(file.type.startsWith("video") ? "video" : "image");
   };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
