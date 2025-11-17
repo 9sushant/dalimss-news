@@ -1,4 +1,4 @@
-// ✅ FRONTEND PAGE — NO authOptions, NO server code
+// ✅ FRONTEND PAGE — CLEANED (Featured removed)
 import Link from "next/link";
 import { GetServerSideProps } from "next";
 
@@ -16,7 +16,7 @@ interface Props {
 
 export default function AllArticlesPage({ articles }: Props) {
   return (
-    <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-6 px-4 py-10">
+    <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-9 gap-6 px-4 py-10">
 
       {/* LEFT SIDEBAR */}
       <div className="hidden md:block md:col-span-3 space-y-6">
@@ -61,26 +61,7 @@ export default function AllArticlesPage({ articles }: Props) {
         ))}
       </div>
 
-      {/* RIGHT SIDEBAR */}
-      <div className="hidden md:block md:col-span-3 space-y-6">
-        <h2 className="text-xl font-semibold text-white">Featured</h2>
-
-        {articles.slice(6, 10).map((a) => (
-          <div key={a.id} className="space-y-2">
-            {a.mediaUrl && (
-              <img
-                src={a.mediaUrl}
-                className="w-full h-40 object-cover rounded-lg"
-                alt=""
-              />
-            )}
-
-            <Link href={`/articles/${a.slug}`}>
-              <p className="text-white text-sm hover:underline">{a.title}</p>
-            </Link>
-          </div>
-        ))}
-      </div>
+      {/* RIGHT SIDEBAR REMOVED */}
     </div>
   );
 }
