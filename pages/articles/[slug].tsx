@@ -42,26 +42,27 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
       {/* DELETE BUTTON */}
       <div className="flex justify-end mb-4">
         <button
-          onClick={async () => {
-            if (!confirm("Are you sure you want to delete this article?")) return;
+        onClick={async () => {
+          if (!confirm("Are you sure you want to delete this article?")) return;
+      
+          const res = await fetch("/api/articles/delete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ slug: article.slug }),
+          });
+      
+          const data = await res.json();
+          if (data.success) {
+            window.location.href = "/articles";
+          } else {
+            alert("Delete failed: " + data.error);
+          }
+        }}
+        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+      >
+        Delete Article
+      </button>
 
-            const res = await fetch("/api/articles/delete", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ id: article.id }),
-            });
-
-            const data = await res.json();
-            if (data.success) {
-              window.location.href = "/articles";
-            } else {
-              alert("Delete failed");
-            }
-          }}
-          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-        >
-          Delete Article
-        </button>
       </div>
 
       {/* HEADER */}
