@@ -58,7 +58,7 @@ export default function AllArticlesPage({ articles }: Props) {
               <img
                 src={a.mediaUrl}
                 className="w-full h-56 object-cover rounded-lg"
-                alt=""
+                alt={a.title}
               />
             )}
           </div>
@@ -88,8 +88,7 @@ export default function AllArticlesPage({ articles }: Props) {
         ))}
       </div>
 
-    </div>   {/* ✅ FIX: Closing parent <div> */}
-
+    </div>  // <-- ✔ properly closed parent div
   );
 }
 
