@@ -67,26 +67,27 @@ export default function AllArticlesPage({ articles }: Props) {
 
       {/* RIGHT SIDEBAR */}
       <div className="hidden md:block md:col-span-3 space-y-6">
-        <h2 className="text-xl font-semibold">Featured Media</h2>
+  <h2 className="text-xl font-semibold text-black">Featured Media</h2>
 
-        {articles.slice(6, 12).map((a) => (
-          <div key={a.id} className="space-y-2">
-            {a.mediaUrl && (
-              <img
-                src={a.mediaUrl}
-                className="w-full h-40 object-cover rounded-lg"
-                alt=""
-              />
-            )}
+  {articles.slice(0, 3).map((a) => (
+    <div key={a.id} className="space-y-2">
+      {a.mediaUrl && (
+        <img
+          src={a.mediaUrl}
+          className="w-full h-40 object-cover rounded-lg"
+          alt={a.title}
+        />
+      )}
 
-            <Link href={`/articles/${a.slug}`}>
-              <p className="text-black text-sm hover:underline">{a.title}</p>
-            </Link>
-          </div>
-        ))}
-      </div>
-
+      <Link href={`/articles/${a.slug}`}>
+        <p className="text-black text-sm hover:underline font-medium">
+          {a.title}
+        </p>
+      </Link>
     </div>
+  ))}
+</div>
+
   );
 }
 
