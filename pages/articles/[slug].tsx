@@ -37,7 +37,7 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
   const formattedDate = new Date(article.createdAt).toLocaleDateString();
 
   return (
-    <article className="max-w-3xl mx-auto py-8 px-6 text-white">
+    <article className="max-w-3xl mx-auto py-8 px-6 text-gray-900">
 
       {/* DELETE BUTTON */}
       <div className="flex justify-end mb-4">
@@ -67,8 +67,8 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
 
       {/* HEADER */}
       <header className="mb-6">
-        <h1 className="text-4xl font-bold mb-3">{article.title}</h1>
-        <div className="text-sm text-slate-400">
+        <h1 className="text-4xl font-bold mb-3 text-gray-900">{article.title}</h1>
+        <div className="text-sm text-gray-600">
           {formattedDate}
           {article.readTimeInMinutes
             ? ` • ${article.readTimeInMinutes} min read`
@@ -102,17 +102,17 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
               );
             } catch (err) {
               return (
-                <p className="text-slate-500 italic">Unable to load media.</p>
+                <p className="text-gray-500 italic">Unable to load media.</p>
               );
             }
           })()}
         </div>
       ) : (
-        <p className="text-slate-500 italic my-6">No media included.</p>
+        <p className="text-gray-500 italic my-6">No media included.</p>
       )}
 
       {/* CONTENT */}
-      <div className="prose prose-invert max-w-none">
+      <div className="prose max-w-none text-gray-800">
         {ReactMarkdown ? (
           <ReactMarkdown rehypePlugins={[rehypeRaw]}>
             {article.content || "No content available."}

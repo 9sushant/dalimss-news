@@ -1,70 +1,96 @@
-
 import React from 'react';
+import Link from 'next/link';
 import { Article } from '../types';
 
 interface ArticleCardProps {
   article: Article;
+  variant?: 'vertical' | 'horizontal' | 'compact';
 }
 
-const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
-  const formattedDate = new Date(article.createdAt).toLocaleDateString('en-US', {
+const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical' }) => {
+  const formattedDate = new Date(article.createdAt).toLocaleDateString('en-IN', {
     month: 'short',
     day: 'numeric',
   });
 
-  const handleNavClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    const href = event.currentTarget.getAttribute('href');
-    if (href) {
-        window.location.hash = href;
-    }
-  };
-
   const snippet =
-  typeof article.content === "string"
-    ? article.content.replace(/<[^>]+>/g, '').split('\n')[0]
-    : "";
- // First paragraph as snippet
+    typeof article.content === "string"
+      ? article.content.replace(/<[^>]+>/g, '').split('\n')[0].slice(0, 100) + "..."
+      : "";
 
+  // Horizontal Card (Image Left, Content Right)
+  if (variant === 'horizontal') {
+    return (
+      <div className="group flex gap-4 py-4 border-b border-gray-200">
+        {article.mediaUrl && (
+          <div className="flex-shrink-0 w-32 h-24 md:w-48 md:h-32 overflow-hidden rounded-md relative">
+             <img 
+                src={article.mediaUrl} 
+                alt={article.title}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+              />
+          </div>
+        )}
+        <div className="flex flex-col justify-between">
+          <Link href={`/articles/${article.slug}`}>
+            <h3 className="text-lg md:text-xl font-serif font-bold text-gray-900 leading-tight group-hover:text-[#E21B22] transition-colors">
+              {article.title}
+            </h3>
+          </Link>
+          <p className="hidden md:block text-sm text-gray-600 mt-2 line-clamp-2">
+            {snippet}
+          </p>
+          <div className="mt-2 text-xs text-gray-400 uppercase font-semibold">
+            {formattedDate}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Compact Card (Text only or small thumbnail)
+  if (variant === 'compact') {
+    return (
+      <div className="group py-3 border-b border-gray-100 last:border-0">
+        <Link href={`/articles/${article.slug}`} className="block">
+          <h4 className="text-sm md:text-base font-medium text-gray-800 group-hover:text-[#E21B22] leading-snug">
+            {article.title}
+          </h4>
+        </Link>
+        <span className="text-xs text-gray-400 mt-1 block">{formattedDate}</span>
+      </div>
+    );
+  }
+
+  // Default Vertical Card
   return (
-    <article className="py-8 border-b border-slate-800">
-        <div className="flex items-center gap-3 mb-4">
-            <img src={article.authorAvatarUrl} alt={article.authorName} className="w-6 h-6 rounded-full" loading="lazy" />
-            <span className="font-medium text-sm text-slate-200">{article.authorName}</span>
+    <div className="group flex flex-col h-full border border-gray-100 rounded-lg overflow-hidden bg-white hover:shadow-md transition-shadow">
+      {article.mediaUrl && (
+        <div className="w-full h-48 overflow-hidden relative">
+          <img 
+            src={article.mediaUrl} 
+            alt={article.title}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+          />
         </div>
-
-        <div className="flex justify-between items-start gap-8">
-            <div className="flex-1">
-                <a href={`#/articles/${article.slug}`} onClick={handleNavClick} className="block group">
-                    <h2 className="text-2xl font-bold text-white mb-2 leading-snug">
-                        {article.title}
-                    </h2>
-                    <p className="hidden md:block text-slate-400 font-serif text-base leading-relaxed max-h-20 overflow-hidden text-ellipsis">
-                        {snippet}
-                    </p>
-                </a>
-            </div>
-
-            {article.mediaUrl && article.mediaType === 'image' && (
-                <a href={`#/articles/${article.slug}`} onClick={handleNavClick} className="flex-shrink-0 w-28 h-28 md:w-40 md:h-28 bg-slate-800">
-                    <img 
-                        src={article.mediaUrl} 
-                        alt={article.title}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                    />
-                </a>
-            )}
+      )}
+      <div className="p-4 flex flex-col flex-grow">
+        <Link href={`/articles/${article.slug}`} className="block mb-2">
+          <h3 className="text-xl font-serif font-bold text-gray-900 leading-tight group-hover:text-[#E21B22] transition-colors">
+            {article.title}
+          </h3>
+        </Link>
+        <p className="text-sm text-gray-600 line-clamp-3 mb-4 flex-grow">
+          {snippet}
+        </p>
+        <div className="flex items-center justify-between text-xs text-gray-500 border-t border-gray-100 pt-3">
+          <span>{formattedDate}</span>
+          {article.authorName && <span className="font-medium text-gray-700">{article.authorName}</span>}
         </div>
-
-        <div className="flex justify-between items-center mt-6">
-            <div className="flex items-center flex-wrap gap-x-4 gap-y-2 text-sm text-slate-400">
-                <span>{formattedDate}</span>
-                <span className="hidden sm:inline">·</span>
-                <span className="hidden sm:inline">{article.readTimeInMinutes} min read</span>
-            </div>
-        </div>
-    </article>
+      </div>
+    </div>
   );
 };
 

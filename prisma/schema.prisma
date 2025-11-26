@@ -5,24 +5,10 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
-
-model Article {
-  id                Int      @id @default(autoincrement())
-  slug              String   @unique
-  title             String
-  content           String
-  mediaUrl          String?
-  mediaType         String?
-  readTimeInMinutes Int      <-- REQUIRED
-  createdAt         DateTime @default(now())
-  authorId          String?
-  author            User?    @relation(fields: [authorId], references: [id])
-}
-
-
 
 model Account {
   id                String  @id @default(cuid())
@@ -37,7 +23,8 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -48,6 +35,18 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  articles      Article[]
+  role          String    @default("user")
 }
 
 model VerificationToken {
@@ -65,8 +64,8 @@ model Article {
   content           String
   mediaUrl          String?
   mediaType         String?
-  readTimeInMinutes Int
+  readTimeInMinutes Int      @default(5)
   createdAt         DateTime @default(now())
-  authorId          String?  // relation to User (optional)
+  authorId          String?
   author            User?    @relation(fields: [authorId], references: [id])
 }

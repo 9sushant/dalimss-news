@@ -1,94 +1,123 @@
-// FRONTEND PAGE — Articles Listing
-import Link from "next/link";
 import { GetServerSideProps } from "next";
-
-interface Article {
-  id: number;
-  title: string;
-  slug: string;
-  mediaUrl?: string | null;
-  createdAt: string;
-}
+import Layout from "@/components/Layout";
+import ArticleCard from "@/components/ArticleCard";
+import { Article } from "@/types";
+import Link from "next/link";
+import { ChevronRightIcon } from "@heroicons/react/24/outline";
 
 interface Props {
   articles: Article[];
 }
 
+const SectionHeader = ({ title, href }: { title: string; href?: string }) => (
+  <div className="flex items-center justify-between border-b border-gray-200 pb-2 mb-4">
+    <h2 className="text-xl md:text-2xl font-bold font-serif text-black uppercase tracking-tight relative">
+      <span className="relative z-10 pr-4 bg-white">{title}</span>
+      <span className="absolute bottom-0 left-0 w-full h-[1px] bg-red-600 transform translate-y-[1px]"></span>
+    </h2>
+    {href && (
+      <Link href={href} className="text-xs font-bold text-red-600 hover:text-red-700 uppercase flex items-center">
+        View All <ChevronRightIcon className="h-3 w-3 ml-1" />
+      </Link>
+    )}
+  </div>
+);
+
 export default function AllArticlesPage({ articles }: Props) {
+  // Fallback if no articles
+  if (!articles || articles.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-20 text-center">
+        <h1 className="text-2xl font-bold text-gray-400">No articles found.</h1>
+      </div>
+    );
+  }
+
+  const heroArticle = articles[0];
+  const topStories = articles.slice(1, 5);
+  const latestNews = articles.slice(5, 12);
+  const sidebarNews = articles.slice(2, 8); // Just reusing for demo
+
   return (
-    <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-6 px-4 py-10 bg-white text-black">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        
+        {/* HERO SECTION */}
+        <section className="mb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            {/* Main Hero Story */}
+            <div className="lg:col-span-7">
+              <div className="h-full border border-gray-100 rounded-lg overflow-hidden group relative">
+                {heroArticle.mediaUrl && (
+                  <div className="w-full h-64 md:h-96 overflow-hidden">
+                    <img 
+                      src={heroArticle.mediaUrl} 
+                      alt={heroArticle.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  </div>
+                )}
+                <div className="p-6 bg-white absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-20 text-white">
+                  <Link href={`/articles/${heroArticle.slug}`}>
+                    <h1 className="text-3xl md:text-4xl font-serif font-bold leading-tight mb-2 hover:text-red-400 transition-colors">
+                      {heroArticle.title}
+                    </h1>
+                  </Link>
+                  <p className="hidden md:block text-gray-200 text-sm line-clamp-2 max-w-2xl">
+                    {typeof heroArticle.content === 'string' ? heroArticle.content.replace(/<[^>]+>/g, '').slice(0, 150) + '...' : ''}
+                  </p>
+                </div>
+              </div>
+            </div>
 
-      {/* LEFT SIDEBAR */}
-      <div className="hidden md:block md:col-span-3 space-y-6">
-        <h2 className="text-xl font-semibold mb-3">Latest News</h2>
-
-        {articles.slice(1, 6).map((a) => (
-          <div key={a.id} className="border-b border-gray-300 pb-4">
-            <p className="text-sm font-semibold text-red-600">News</p>
-
-            <Link href={`/articles/${a.slug}`}>
-              <p className="text-black hover:underline">{a.title}</p>
-            </Link>
-
-            <p className="text-xs text-gray-500">
-              {new Date(a.createdAt).toLocaleDateString()}
-            </p>
+            {/* Top Stories Grid */}
+            <div className="lg:col-span-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 h-full">
+                {topStories.map((article) => (
+                  <ArticleCard key={article.id} article={article} variant="vertical" />
+                ))}
+              </div>
+            </div>
           </div>
-        ))}
-      </div>
+        </section>
 
-      {/* MAIN COLUMN */}
-      <div className="md:col-span-6 space-y-6">
-        <h1 className="text-3xl font-bold mb-4">All Articles</h1>
+        {/* MAIN CONTENT GRID */}
+        <section>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            {/* Left Column: Latest News */}
+            <div className="lg:col-span-8">
+              <SectionHeader title="Latest News" />
+              <div className="flex flex-col gap-6">
+                {latestNews.map((article) => (
+                  <ArticleCard key={article.id} article={article} variant="horizontal" />
+                ))}
+              </div>
+            </div>
 
-        {articles.map((a) => (
-          <div
-            key={a.id}
-            className="border border-gray-300 p-5 rounded-xl bg-white hover:border-black transition"
-          >
-            <Link href={`/articles/${a.slug}`}>
-              <p className="text-xl font-semibold mb-1">{a.title}</p>
-            </Link>
+            {/* Right Sidebar */}
+            <div className="lg:col-span-4 space-y-8">
+              
+              {/* Most Read / Trending */}
+              <div className="bg-gray-50 p-5 rounded-lg border border-gray-100">
+                <SectionHeader title="Must Read" />
+                <div className="flex flex-col gap-0">
+                  {sidebarNews.map((article) => (
+                    <ArticleCard key={article.id} article={article} variant="compact" />
+                  ))}
+                </div>
+              </div>
 
-            <p className="text-xs text-gray-500 mb-3">
-              {new Date(a.createdAt).toLocaleDateString()}
-            </p>
+              {/* Advertisement / Promo Placeholder */}
+              <div className="w-full h-64 bg-gray-100 flex items-center justify-center text-gray-400 text-sm border border-gray-200 rounded-lg">
+                Advertisement
+              </div>
 
-            {a.mediaUrl && (
-              <img
-                src={a.mediaUrl}
-                className="w-full h-56 object-cover rounded-lg"
-                alt={a.title}
-              />
-            )}
+            </div>
           </div>
-        ))}
+        </section>
+
       </div>
-
-      {/* RIGHT SIDEBAR */}
-      <div className="hidden md:block md:col-span-3 space-y-6">
-        <h2 className="text-xl font-semibold text-black">Featured Media</h2>
-
-        {articles.slice(0, 3).map((a) => (
-          <div key={a.id} className="space-y-2">
-            {a.mediaUrl && (
-              <img
-                src={a.mediaUrl}
-                className="w-full h-40 object-cover rounded-lg"
-                alt={a.title}
-              />
-            )}
-
-            <Link href={`/articles/${a.slug}`}>
-              <p className="text-black text-sm hover:underline font-medium">
-                {a.title}
-              </p>
-            </Link>
-          </div>
-        ))}
-      </div>
-
-    </div>  // <-- ✔ properly closed parent div
   );
 }
 
@@ -100,10 +129,18 @@ export const getServerSideProps: GetServerSideProps = async () => {
       ? `https://${process.env.VERCEL_URL}`
       : "http://localhost:3000");
 
-  const apiUrl = `${baseUrl}/api/articles`;
-
-  const res = await fetch(apiUrl);
-  const articles = await res.json();
-
-  return { props: { articles } };
+  try {
+    const apiUrl = `${baseUrl}/api/articles`;
+    const res = await fetch(apiUrl);
+    
+    if (!res.ok) {
+        throw new Error(`Failed to fetch: ${res.status}`);
+    }
+    
+    const articles = await res.json();
+    return { props: { articles } };
+  } catch (error) {
+    console.error("Error fetching articles:", error);
+    return { props: { articles: [] } };
+  }
 };

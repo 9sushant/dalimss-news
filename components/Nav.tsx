@@ -1,62 +1,124 @@
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSession, signIn, signOut } from "next-auth/react";
-import { PencilSquareIcon } from "@heroicons/react/24/outline";
+import { 
+  MagnifyingGlassIcon, 
+  Bars3Icon, 
+  UserCircleIcon,
+  BellIcon
+} from "@heroicons/react/24/outline";
 
 const Nav: React.FC = () => {
   const { data: session } = useSession();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [currentDate, setCurrentDate] = useState("");
+
+  React.useEffect(() => {
+    setCurrentDate(new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+  }, []);
+
+
 
   return (
-    <header className="bg-black border-b border-slate-800 sticky top-0 z-50">
-      <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+    <header className="flex flex-col bg-white border-b border-gray-200 sticky top-0 z-50 font-sans">
+      {/* Top Utility Bar (Optional, similar to TOI top strip) */}
+      <div className="hidden md:flex justify-between items-center px-4 lg:px-8 py-1 bg-gray-50 text-xs text-gray-500 border-b border-gray-100">
+        <div className="flex gap-4">
+          <span>{currentDate}</span>
+          <span className="hover:text-red-600 cursor-pointer">E-Paper</span>
+        </div>
+        <div className="flex gap-4">
+          <span className="hover:text-red-600 cursor-pointer">App</span>
+          <span className="hover:text-red-600 cursor-pointer">Newsletter</span>
+        </div>
+      </div>
+
+      {/* Main Header */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 md:h-20">
+          
+          {/* Mobile Menu Button */}
+          <button 
+            className="md:hidden p-2 text-gray-700"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <Bars3Icon className="h-6 w-6" />
+          </button>
 
           {/* Logo */}
-          <Link href="/" className="text-2xl font-bold text-white">
-            Dalimss News
+          <Link href="/" className="flex-shrink-0 group">
+            <h1 className="text-3xl md:text-4xl font-serif font-bold tracking-tight text-black group-hover:text-gray-800">
+              Dalimss<span className="text-[#E21B22]">News</span>
+            </h1>
           </Link>
 
-          {/* Center link */}
-          <Link href="/articles" className="text-slate-300 hover:text-white">
-            All Articles
-          </Link>
+          {/* Desktop Search & Actions */}
+          <div className="hidden md:flex items-center gap-6">
+            <div className="relative">
+              <input 
+                type="text" 
+                placeholder="Search news..." 
+                className="pl-3 pr-10 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-red-600 w-64 transition-colors"
+              />
+              <MagnifyingGlassIcon className="h-4 w-4 text-gray-500 absolute right-3 top-1/2 -translate-y-1/2" />
+            </div>
 
-          <div className="flex items-center gap-5">
-
-            {/* Write */}
-            {session && (
-              <Link href="/articles/new" className="flex items-center gap-2 text-slate-300 hover:text-white">
-                <PencilSquareIcon className="h-6 w-6" />
-                Write
-              </Link>
-            )}
-
-            {/* Sign In / Out */}
-            {!session ? (
-              <button onClick={() => signIn("google")} className="text-blue-400">
-                Sign In
+            <div className="flex items-center gap-4">
+              <button className="text-gray-600 hover:text-red-600">
+                <BellIcon className="h-6 w-6" />
               </button>
-            ) : (
-              <>
-                <button onClick={() => signOut()} className="text-red-400">
-                  Sign Out
+
+              {!session ? (
+                <button 
+                  onClick={() => signIn("google")} 
+                  className="text-sm font-semibold text-gray-700 hover:text-red-600 flex items-center gap-1"
+                >
+                  <UserCircleIcon className="h-6 w-6" />
+                  Sign In
                 </button>
-
-                {/* Profile Image */}
-                {session.user?.image && (
-                  <Image
-                    src={session.user.image}
-                    alt="User Avatar"
-                    width={36}
-                    height={36}
-                    className="rounded-full border border-slate-600"
-                  />
-                )}
-              </>
-            )}
+              ) : (
+                <div className="flex items-center gap-3">
+                  {session.user?.image ? (
+                    <Image
+                      src={session.user.image}
+                      alt="User Avatar"
+                      width={32}
+                      height={32}
+                      className="rounded-full border border-gray-200"
+                    />
+                  ) : (
+                    <UserCircleIcon className="h-8 w-8 text-gray-700" />
+                  )}
+                  <button 
+                    onClick={() => signOut()} 
+                    className="text-xs font-medium text-red-600 hover:text-red-700 border border-red-200 px-2 py-1 rounded"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
+        </div>
+      </div>
 
+      {/* Navigation Bar */}
+      <nav className={`md:block ${isMenuOpen ? 'block' : 'hidden'} border-t border-gray-100 bg-white`}>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <ul className="flex flex-col md:flex-row md:items-center md:justify-center gap-1 md:gap-6 py-2 md:py-3 text-sm font-bold text-gray-800 uppercase tracking-wide">
+            {/* Navigation Links Removed */}
+            {session && (
+               <li>
+                <Link 
+                  href="/articles/new" 
+                  className="block py-2 md:py-0 text-[#E21B22] hover:text-red-700 transition-colors"
+                >
+                  Write Article
+                </Link>
+              </li>
+            )}
+          </ul>
         </div>
       </nav>
     </header>

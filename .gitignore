@@ -32,3 +32,6 @@ dist-ssr
 *.sw?
 
 /lib/generated/prisma
+.vercel
+.env*.local
+.next
