@@ -122,6 +122,32 @@ const Nav: React.FC = () => {
                 </Link>
               </li>
             )}
+            {/* Mobile Auth Buttons */}
+            <li className="md:hidden border-t border-gray-100 mt-2 pt-2">
+              {!session ? (
+                <button 
+                  onClick={() => signIn("google")} 
+                  className="block w-full text-left py-2 text-gray-700 hover:text-red-600"
+                >
+                  Sign In
+                </button>
+              ) : (
+                <div className="space-y-2">
+                   <div className="flex items-center gap-2 py-2 text-gray-600">
+                      {session.user?.image && (
+                        <Image src={session.user.image} width={24} height={24} className="rounded-full" alt="" />
+                      )}
+                      <span className="text-xs normal-case font-normal">{session.user?.name}</span>
+                   </div>
+                   <button 
+                    onClick={() => signOut()} 
+                    className="block w-full text-left py-2 text-red-600 hover:text-red-700"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </li>
           </ul>
         </div>
       </nav>
