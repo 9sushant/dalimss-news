@@ -39,8 +39,14 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
   return (
     <article className="max-w-3xl mx-auto py-8 px-6 text-gray-900">
 
-      {/* DELETE BUTTON */}
-      <div className="flex justify-end mb-4">
+      {/* EDIT & DELETE BUTTONS */}
+      <div className="flex justify-end mb-4 gap-4">
+        <a
+          href={`/articles/${article.slug}/edit`}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Edit Article
+        </a>
         <button
         onClick={async () => {
           if (!confirm("Are you sure you want to delete this article?")) return;
