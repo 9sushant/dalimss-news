@@ -108,10 +108,7 @@ export default function AllArticlesPage({ articles }: Props) {
                 </div>
               </div>
 
-              {/* Advertisement / Promo Placeholder */}
-              <div className="w-full h-64 bg-gray-100 flex items-center justify-center text-gray-400 text-sm border border-gray-200 rounded-lg">
-                Advertisement
-              </div>
+
 
             </div>
           </div>

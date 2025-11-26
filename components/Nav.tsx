@@ -107,7 +107,11 @@ const Nav: React.FC = () => {
       <nav className={`md:block ${isMenuOpen ? 'block' : 'hidden'} border-t border-gray-100 bg-white`}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <ul className="flex flex-col md:flex-row md:items-center md:justify-center gap-1 md:gap-6 py-2 md:py-3 text-sm font-bold text-gray-800 uppercase tracking-wide">
-            {/* Navigation Links Removed */}
+            <li>
+              <Link href="/" className="block py-2 md:py-0 hover:text-[#E21B22] transition-colors">
+                Home
+              </Link>
+            </li>
             {session && (
                <li>
                 <Link 
