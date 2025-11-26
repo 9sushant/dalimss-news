@@ -39,7 +39,7 @@ export default function AllArticlesPage({ articles }: Props) {
   const sidebarNews = articles.slice(2, 8); // Just reusing for demo
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-6 pt-2">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-6 pt-0">
         
         {/* HERO SECTION */}
         <section className="mb-12">
