@@ -4,6 +4,7 @@ import ArticleCard from "@/components/ArticleCard";
 import { Article } from "@/types";
 import Link from "next/link";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
+import { useSession } from "next-auth/react";
 
 interface Props {
   articles: Article[];
@@ -24,20 +25,49 @@ const SectionHeader = ({ title, href }: { title: string; href?: string }) => (
 );
 
 export default function HomePage({ articles }: Props) {
+  const { data: session } = useSession();
+
   // Fallback if no articles
   if (!articles || articles.length === 0) {
     return (
       <div className="container mx-auto px-4 py-20 text-center">
         <h1 className="text-2xl font-bold text-gray-400">No articles found.</h1>
-        <Link
-              href="/articles/new"
-              className="mt-6 inline-block bg-blue-600 px-5 py-2.5 rounded-full text-white hover:bg-blue-700"
-            >
-              Start Writing
-        </Link>
+        {session && session.user && (session.user.role === "admin" || session.user.email === "admin@dalimss.com" || session.user.email === "sushantgaurav@dalimss.com" || session.user.email === "dalimsssushant@gmail.com") && (
+          <Link
+            href="/articles/new"
+            className="mt-6 inline-block bg-blue-600 px-5 py-2.5 rounded-full text-white hover:bg-blue-700"
+          >
+            Start Writing
+          </Link>
+        )}
       </div>
     );
   }
+
+  const heroArticle = articles[0];
+  const topStories = articles.slice(1, 5);
+  const latestNews = articles.slice(5, 12);
+  const sidebarNews = articles.slice(2, 8); // Just reusing for demo
+
+  return (
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-6 pt-0">
+        
+        {/* HERO SECTION */}
+        <section className="mb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            {/* Main Hero Story */}
+            <div className="lg:col-span-7">
+              <div className="h-full border border-gray-100 rounded-lg overflow-hidden group relative">
+                {heroArticle.mediaUrl && (
+                  <div className="w-full h-64 md:h-96 overflow-hidden">
+                    <img 
+                      src={heroArticle.mediaUrl} 
+                      alt={heroArticle.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  </div>
+                )}
 
   const heroArticle = articles[0];
   const topStories = articles.slice(1, 5);
