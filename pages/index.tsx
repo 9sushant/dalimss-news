@@ -123,15 +123,18 @@ export default function HomePage({ articles }: Props) {
 }
 
 // Fetch articles
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
   const baseUrl =
     process.env.NEXT_PUBLIC_BASE_URL ||
     (process.env.NODE_ENV === "production"
       ? `https://${process.env.VERCEL_URL}`
       : "http://localhost:3000");
 
+  const { category } = context.query;
+  const queryString = category ? `?category=${category}` : "";
+
   try {
-    const apiUrl = `${baseUrl}/api/articles`;
+    const apiUrl = `${baseUrl}/api/articles${queryString}`;
     const res = await fetch(apiUrl);
     
     if (!res.ok) {

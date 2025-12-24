@@ -19,6 +19,9 @@ interface Article {
   mediaUrl?: string | null;
   mediaType?: string | null;
   readTimeInMinutes?: number | null;
+  customAuthor?: string | null;
+  category?: string | null;
+  sourceUrl?: string | null;
 }
 
 interface Props {
@@ -73,9 +76,16 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
 
       {/* HEADER */}
       <header className="mb-6">
+        {article.category && (
+          <span className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded mb-2">
+            {article.category}
+          </span>
+        )}
         <h1 className="text-4xl font-bold mb-3 text-gray-900">{article.title}</h1>
-        <div className="text-sm text-gray-600">
-          {formattedDate}
+        <div className="text-sm text-gray-600 flex items-center gap-2">
+          <span>By {article.customAuthor || "Unknown Author"}</span>
+          <span>•</span>
+          <span>{formattedDate}</span>
           {article.readTimeInMinutes
             ? ` • ${article.readTimeInMinutes} min read`
             : ""}
@@ -127,6 +137,13 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
           <pre>{article.content || "No content available."}</pre>
         )}
       </div>
+
+      {/* SOURCE LINK */}
+      {article.sourceUrl && (
+        <div className="mt-8 pt-4 border-t text-sm text-gray-500">
+          Source: <a href={article.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Original Post</a>
+        </div>
+      )}
     </article>
   );
 };

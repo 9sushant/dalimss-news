@@ -49,7 +49,7 @@ const Nav: React.FC = () => {
           {/* Logo */}
           <Link href="/" className="flex-shrink-0 group">
             <h1 className="text-3xl md:text-4xl font-serif font-bold tracking-tight text-black group-hover:text-gray-800">
-              Dalimss<span className="text-[#E21B22]">News</span>
+              Dalimss<span className="text-[#E21B22] pl-1">News</span>
             </h1>
           </Link>
 
@@ -112,7 +112,17 @@ const Nav: React.FC = () => {
                 Home
               </Link>
             </li>
-            {session && (
+            <li>
+              <Link href="/?category=Varanasi" className="block py-2 md:py-0 hover:text-[#E21B22] transition-colors">
+                Varanasi
+              </Link>
+            </li>
+            <li>
+              <Link href="/?category=Uttar Pradesh" className="block py-2 md:py-0 hover:text-[#E21B22] transition-colors">
+                Uttar Pradesh
+              </Link>
+            </li>
+            {session && session.user && (session.user.role === "admin" || session.user.email === "admin@dalimss.com") && (
                <li>
                 <Link 
                   href="/articles/new" 
@@ -133,11 +143,11 @@ const Nav: React.FC = () => {
                 </button>
               ) : (
                 <div className="space-y-2">
-                   <div className="flex items-center gap-2 py-2 text-gray-600">
+                  <div className="flex items-center gap-2 py-2 text-gray-600">
                       {session.user?.image && (
                         <Image src={session.user.image} width={24} height={24} className="rounded-full" alt="" />
                       )}
-                      <span className="text-xs normal-case font-normal">{session.user?.name}</span>
+                      <span className="text-xs normal-case font-normal">{session.user?.name} {(session.user?.role === "admin" || session.user?.email === "sushantgaurav@dalimss.com") && "(Admin)"}</span>
                    </div>
                    <button 
                     onClick={() => signOut()} 

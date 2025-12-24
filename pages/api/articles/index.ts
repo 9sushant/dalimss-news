@@ -12,7 +12,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(401).json({ error: "Unauthorized" });
     }
 
-    const { title, content, mediaUrl, mediaType } = req.body;
+    const { title, content, mediaUrl, mediaType, category } = req.body;
 
     if (!title || title.trim().length < 3) {
       return res.status(400).json({ error: "Title is required" });
@@ -38,8 +38,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           slug,
           mediaUrl,
           mediaType,
+          category, // ✅ Added Category
           readTimeInMinutes: Math.max(1, Math.ceil(content.length / 500)), // 🔥 FIXED required field
-          authorId: (session.user as any).id ?? null,
+          authorId: session.user.id ?? null,
         },
       });
 
@@ -51,7 +52,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   // ----------- GET ALL ARTICLES -----------
+  const { category } = req.query;
+  const where = category ? { category: String(category) } : {};
+
   const articles = await prisma.article.findMany({
+    where,
     orderBy: { createdAt: "desc" },
   });
 

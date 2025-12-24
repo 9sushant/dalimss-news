@@ -11,6 +11,7 @@ const NewArticle: React.FC = () => {
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<"image" | "video" | null>(null);
+  const [category, setCategory] = useState("General"); // Default category
   const [loading, setLoading] = useState(false);
 
   // 🟡 1. Handle loading and auth states INSIDE the component
@@ -82,6 +83,7 @@ const NewArticle: React.FC = () => {
           content,
           mediaUrl: uploadedMediaUrl,
           mediaType: finalMediaType,
+          category,
         }),
       });
 
@@ -110,6 +112,17 @@ const NewArticle: React.FC = () => {
           onChange={(e) => setTitle(e.target.value)}
           required
         />
+        
+        {/* Category Dropdown */}
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="w-full p-3 rounded bg-slate-900 border border-slate-700 text-white"
+        >
+          <option value="General">General</option>
+          <option value="Varanasi">Varanasi</option>
+          <option value="Uttar Pradesh">Uttar Pradesh</option>
+        </select>
 
         <textarea
           placeholder="Write markdown content..."
@@ -153,6 +166,36 @@ const NewArticle: React.FC = () => {
       </form>
     </div>
   );
+};
+
+export const getServerSideProps = async (context: any) => {
+  const { getSession } = await import("next-auth/react");
+  const session = await getSession(context);
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/api/auth/signin",
+        permanent: false,
+      },
+    };
+  }
+  
+  // Admin Check
+  const isAdmin = session.user?.role === "admin" || session.user?.email === "admin@dalimss.com";
+
+  if (!isAdmin) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
 };
 
 export default NewArticle;

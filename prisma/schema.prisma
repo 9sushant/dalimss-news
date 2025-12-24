@@ -65,6 +65,9 @@ model Article {
   mediaUrl          String?
   mediaType         String?
   readTimeInMinutes Int      @default(5)
+  category          String?
+  sourceUrl         String?
+  customAuthor      String?
   createdAt         DateTime @default(now())
   authorId          String?
   author            User?    @relation(fields: [authorId], references: [id])
