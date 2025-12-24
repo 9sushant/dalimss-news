@@ -122,7 +122,7 @@ const Nav: React.FC = () => {
                 Uttar Pradesh
               </Link>
             </li>
-            {session && session.user && (session.user.role === "admin" || session.user.email === "admin@dalimss.com") && (
+            {session && session.user && (session.user.role === "admin" || session.user.email === "admin@dalimss.com" || session.user.email === "sushantgaurav@dalimss.com") && (
                <li>
                 <Link 
                   href="/articles/new" 
