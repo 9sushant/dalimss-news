@@ -122,7 +122,7 @@ const Nav: React.FC = () => {
                 Uttar Pradesh
               </Link>
             </li>
-            {session && session.user && (session.user.role === "admin" || session.user.email === "admin@dalimss.com" || session.user.email === "sushantgaurav@dalimss.com") && (
+            {session && session.user && (session.user.role === "admin" || session.user.email === "admin@dalimss.com" || session.user.email === "sushantgaurav@dalimss.com" || session.user.email === "dalimsssushant@gmail.com") && (
                <li>
                 <Link 
                   href="/articles/new" 
@@ -147,7 +147,7 @@ const Nav: React.FC = () => {
                       {session.user?.image && (
                         <Image src={session.user.image} width={24} height={24} className="rounded-full" alt="" />
                       )}
-                      <span className="text-xs normal-case font-normal">{session.user?.name} {(session.user?.role === "admin" || session.user?.email === "sushantgaurav@dalimss.com") && "(Admin)"}</span>
+                      <span className="text-xs normal-case font-normal">{session.user?.name} {(session.user?.role === "admin" || session.user?.email === "sushantgaurav@dalimss.com" || session.user?.email === "dalimsssushant@gmail.com") && "(Admin)"}</span>
                    </div>
                    <button 
                     onClick={() => signOut()} 

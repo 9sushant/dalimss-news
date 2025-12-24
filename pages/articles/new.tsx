@@ -182,7 +182,7 @@ export const getServerSideProps = async (context: any) => {
   }
   
   // Admin Check
-  const isAdmin = session.user?.role === "admin" || session.user?.email === "admin@dalimss.com" || session.user?.email === "sushantgaurav@dalimss.com";
+  const isAdmin = session.user?.role === "admin" || session.user?.email === "admin@dalimss.com" || session.user?.email === "sushantgaurav@dalimss.com" || session.user?.email === "dalimsssushant@gmail.com";
 
   if (!isAdmin) {
     return {
