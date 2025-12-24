@@ -44,30 +44,6 @@ export default function HomePage({ articles }: Props) {
     );
   }
 
-  const heroArticle = articles[0];
-  const topStories = articles.slice(1, 5);
-  const latestNews = articles.slice(5, 12);
-  const sidebarNews = articles.slice(2, 8); // Just reusing for demo
-
-  return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-6 pt-0">
-        
-        {/* HERO SECTION */}
-        <section className="mb-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            
-            {/* Main Hero Story */}
-            <div className="lg:col-span-7">
-              <div className="h-full border border-gray-100 rounded-lg overflow-hidden group relative">
-                {heroArticle.mediaUrl && (
-                  <div className="w-full h-64 md:h-96 overflow-hidden">
-                    <img 
-                      src={heroArticle.mediaUrl} 
-                      alt={heroArticle.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  </div>
-                )}
 
   const heroArticle = articles[0];
   const topStories = articles.slice(1, 5);
