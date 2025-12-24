@@ -65,9 +65,7 @@ const Nav: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-4">
-              <button className="text-gray-600 hover:text-red-600">
-                <BellIcon className="h-6 w-6" />
-              </button>
+
 
               {!session ? (
                 <button 
