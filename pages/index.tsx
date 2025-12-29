@@ -47,7 +47,8 @@ export default function HomePage({ articles }: Props) {
 
   const heroArticle = articles[0];
   const topStories = articles.slice(1, 5);
-  const latestNews = articles.slice(5, 12);
+  // 🔥 UPDATED: "Latest News" now acts as a complete feed, including top stories
+  const latestNews = articles; 
   const sidebarNews = articles.slice(2, 8); // Just reusing for demo
 
   return (
