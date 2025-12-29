@@ -61,11 +61,16 @@ export default function HomePage({ articles }: Props) {
             <div className="lg:col-span-7">
               <div className="h-full border border-gray-100 rounded-lg overflow-hidden group relative">
                 {heroArticle.mediaUrl && (
-                  <div className="w-full h-64 md:h-96 overflow-hidden">
+                  <div className="w-full h-64 md:h-[500px] bg-black overflow-hidden relative">
+                    {/* Blurred Background for better aesthetics */}
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center opacity-50 blur-xl scale-110"
+                      style={{ backgroundImage: `url(${heroArticle.mediaUrl})` }}
+                    />
                     <img 
                       src={heroArticle.mediaUrl} 
                       alt={heroArticle.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      className="relative z-10 w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
                     />
                   </div>
                 )}
