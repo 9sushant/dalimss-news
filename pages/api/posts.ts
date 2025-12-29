@@ -59,6 +59,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json({ success: true, article });
   } catch (error) {
     console.error("Pipeline Publish Error:", error);
-    return res.status(500).json({ error: "Internal Server Error", details: error.message });
+    return res.status(500).json({ error: "Internal Server Error", details: (error as any).message });
   }
 }
