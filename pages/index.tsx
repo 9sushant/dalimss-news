@@ -60,7 +60,7 @@ export default function HomePage({ articles }: Props) {
             
             {/* Main Hero Story */}
             <div className="lg:col-span-7">
-              <div className="h-full border border-gray-100 rounded-lg overflow-hidden group relative">
+              <div className="h-full border border-gray-100 rounded-lg overflow-hidden group bg-white hover:shadow-md transition-shadow">
                 {heroArticle.mediaUrl && (
                   <div className="w-full h-64 md:h-[500px] bg-black overflow-hidden relative">
                     {/* Blurred Background for better aesthetics */}
@@ -75,15 +75,20 @@ export default function HomePage({ articles }: Props) {
                     />
                   </div>
                 )}
-                <div className="p-6 absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-20 text-white z-20">
+                <div className="p-6 flex flex-col">
                   <Link href={`/articles/${heroArticle.slug}`}>
-                    <h1 className="text-3xl md:text-4xl font-serif font-bold leading-tight mb-2 hover:text-red-400 transition-colors">
+                    <h1 className="text-3xl md:text-4xl font-serif font-bold leading-tight mb-3 text-gray-900 hover:text-red-600 transition-colors">
                       {heroArticle.title}
                     </h1>
                   </Link>
-                  <p className="hidden md:block text-gray-200 text-sm line-clamp-2 max-w-2xl">
-                    {typeof heroArticle.content === 'string' ? heroArticle.content.replace(/<[^>]+>/g, '').slice(0, 150) + '...' : ''}
+                  <p className="hidden md:block text-gray-600 text-base line-clamp-3 max-w-full">
+                    {typeof heroArticle.content === 'string' ? heroArticle.content.replace(/<[^>]+>/g, '').slice(0, 200) + '...' : ''}
                   </p>
+                  
+                  <div className="mt-4 flex items-center text-xs text-gray-500 font-semibold uppercase tracking-wider">
+                     <span className="text-red-600 mr-2">Latest Story</span>
+                     <span>• {new Date(heroArticle.createdAt).toLocaleDateString()}</span>
+                  </div>
                 </div>
               </div>
             </div>
