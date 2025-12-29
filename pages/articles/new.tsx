@@ -132,6 +132,9 @@ const NewArticle: React.FC = () => {
           onChange={(e) => setContent(e.target.value)}
           required
         />
+        <p className="text-sm text-gray-400 mt-1">
+          💡 <strong>Tip:</strong> To embed a <strong>YouTube video</strong> or <strong>Instagram Reel</strong>, simply paste the link on a new line!
+        </p>
 
         {/* Upload */}
         <label className="flex items-center justify-center w-60 px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-xl cursor-pointer transition-all">

@@ -127,10 +127,118 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
         <p className="text-gray-500 italic my-6">No media included.</p>
       )}
 
-      {/* CONTENT */}
       <div className="prose max-w-none text-gray-800">
         {ReactMarkdown ? (
-          <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+          <ReactMarkdown
+            rehypePlugins={[rehypeRaw]}
+            components={{
+              p: ({ children }: any) => {
+                let text = "";
+                if (typeof children === "string") {
+                  text = children;
+                } else if (
+                  Array.isArray(children) &&
+                  children.length === 1 &&
+                  typeof children[0] === "string"
+                ) {
+                  text = children[0];
+                }
+
+                if (text) {
+                  // YouTube Regex
+                  const ytMatch = text
+                    .trim()
+                    .match(
+                      /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)(?:&\S*)?$/
+                    );
+                  if (ytMatch && ytMatch[1]) {
+                    return (
+                      <div className="my-6 aspect-video w-full">
+                        <iframe
+                          src={`https://www.youtube.com/embed/${ytMatch[1]}`}
+                          title="YouTube video player"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          className="w-full h-full rounded-lg shadow-md"
+                        ></iframe>
+                      </div>
+                    );
+                  }
+
+                  // Instagram Regex
+                  const igMatch = text
+                    .trim()
+                    .match(
+                      /^(?:https?:\/\/)?(?:www\.)?instagram\.com\/(?:p|reel)\/([\w-]+)(?:\/?\S*)?$/
+                    );
+                  if (igMatch && igMatch[1]) {
+                    return (
+                      <div className="my-6 flex justify-center">
+                        <iframe
+                          src={`https://www.instagram.com/p/${igMatch[1]}/embed`}
+                          width="400"
+                          height="550"
+                          frameBorder="0"
+                          scrolling="no"
+                          allowTransparency={true}
+                          className="rounded-lg shadow-md bg-white border border-gray-200"
+                        ></iframe>
+                      </div>
+                    );
+                  }
+                }
+
+                return <p className="mb-4 whitespace-pre-line">{children}</p>;
+              },
+              // Make sure links also work if they are auto-linked
+              a: ({ href, children }: any) => {
+                const text = href || "";
+                 // YouTube
+                 const ytMatch = text
+                 .trim()
+                 .match(
+                   /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)(?:&\S*)?$/
+                 );
+               if (ytMatch && ytMatch[1]) {
+                 return (
+                   <div className="my-6 aspect-video w-full">
+                     <iframe
+                       src={`https://www.youtube.com/embed/${ytMatch[1]}`}
+                       title="YouTube video player"
+                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                       allowFullScreen
+                       className="w-full h-full rounded-lg shadow-md"
+                     ></iframe>
+                   </div>
+                 );
+               }
+
+               // Instagram
+               const igMatch = text
+                 .trim()
+                 .match(
+                   /^(?:https?:\/\/)?(?:www\.)?instagram\.com\/(?:p|reel)\/([\w-]+)(?:\/?\S*)?$/
+                 );
+               if (igMatch && igMatch[1]) {
+                 return (
+                   <div className="my-6 flex justify-center">
+                     <iframe
+                       src={`https://www.instagram.com/p/${igMatch[1]}/embed`}
+                       width="400"
+                       height="550"
+                       frameBorder="0"
+                       scrolling="no"
+                       allowTransparency={true}
+                       className="rounded-lg shadow-md bg-white border border-gray-200"
+                     ></iframe>
+                   </div>
+                 );
+               }
+               
+               return <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{children}</a>
+              }
+            }}
+          >
             {article.content || "No content available."}
           </ReactMarkdown>
         ) : (

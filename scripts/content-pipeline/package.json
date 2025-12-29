@@ -1,0 +1,17 @@
+{
+  "name": "dalimss-content-pipeline",
+  "version": "1.0.0",
+  "description": "Automated content pipeline for Dalimss News",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.0",
+    "node-cron": "^3.0.0",
+    "openai": "^4.0.0",
+    "rss-parser": "^3.13.0"
+  }
+}
