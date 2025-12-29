@@ -75,7 +75,7 @@ export default function HomePage({ articles }: Props) {
                     />
                   </div>
                 )}
-                <div className="p-6 bg-white absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-20 text-white z-20">
+                <div className="p-6 absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-20 text-white z-20">
                   <Link href={`/articles/${heroArticle.slug}`}>
                     <h1 className="text-3xl md:text-4xl font-serif font-bold leading-tight mb-2 hover:text-red-400 transition-colors">
                       {heroArticle.title}
