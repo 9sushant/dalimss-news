@@ -1,5 +1,6 @@
 import React from "react";
 import { GetServerSideProps } from "next";
+import { useSession } from "next-auth/react";
 import prisma from "../../lib/prisma";
 import * as RMarkdownModule from "react-markdown";
 import * as rRawModule from "rehype-raw";
@@ -29,6 +30,7 @@ interface Props {
 }
 
 const ArticlePage: React.FC<Props> = ({ article }) => {
+  const { data: session } = useSession();
   if (!article) {
     return (
       <div className="max-w-3xl mx-auto py-24 text-center text-xl text-white">
@@ -43,36 +45,38 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
     <article className="max-w-3xl mx-auto py-8 px-6 text-gray-900">
 
       {/* EDIT & DELETE BUTTONS */}
-      <div className="flex justify-end mb-4 gap-4">
-        <a
-          href={`/articles/${article.slug}/edit`}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          Edit Article
-        </a>
-        <button
-        onClick={async () => {
-          if (!confirm("Are you sure you want to delete this article?")) return;
-      
-          const res = await fetch("/api/articles/delete", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ slug: article.slug }),
-          });
-      
-          const data = await res.json();
-          if (data.success) {
-            window.location.href = "/articles";
-          } else {
-            alert("Delete failed: " + data.error);
-          }
-        }}
-        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-      >
-        Delete Article
-      </button>
-
-      </div>
+      {/* EDIT & DELETE BUTTONS (ADMIN ONLY) */}
+      {session && session.user && (session.user.role === "admin" || session.user.email === "admin@dalimss.com" || session.user.email === "sushantgaurav@dalimss.com" || session.user.email === "dalimsssushant@gmail.com") && (
+        <div className="flex justify-end mb-4 gap-4">
+          <a
+            href={`/articles/${article.slug}/edit`}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Edit Article
+          </a>
+          <button
+            onClick={async () => {
+              if (!confirm("Are you sure you want to delete this article?")) return;
+          
+              const res = await fetch("/api/articles/delete", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ slug: article.slug }),
+              });
+          
+              const data = await res.json();
+              if (data.success) {
+                window.location.href = "/articles";
+              } else {
+                alert("Delete failed: " + data.error);
+              }
+            }}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          >
+            Delete Article
+          </button>
+        </div>
+      )}
 
       {/* HEADER */}
       <header className="mb-6">
