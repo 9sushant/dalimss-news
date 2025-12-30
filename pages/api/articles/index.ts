@@ -52,8 +52,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   // ----------- GET ALL ARTICLES -----------
-  const { category } = req.query;
-  const where = category ? { category: String(category) } : {};
+  const { category, search } = req.query;
+  const where: any = {};
+
+  if (category) {
+    where.category = String(category);
+  }
+
+  if (search) {
+    where.OR = [
+      { title: { contains: String(search) } }, // Remove mode: 'insensitive' as seemingly not compatible with Sqlite in some versions or not enabled in schema
+      { content: { contains: String(search) } },
+    ];
+  }
 
   const articles = await prisma.article.findMany({
     where,

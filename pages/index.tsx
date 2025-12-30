@@ -147,8 +147,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       ? `https://${process.env.VERCEL_URL}`
       : "http://localhost:3000");
 
-  const { category } = context.query;
-  const queryString = category ? `?category=${category}` : "";
+  const { category, search } = context.query;
+  const params = new URLSearchParams();
+  if (category) params.append("category", String(category));
+  if (search) params.append("search", String(search));
+
+  const queryString = params.toString() ? `?${params.toString()}` : "";
 
   try {
     const apiUrl = `${baseUrl}/api/articles${queryString}`;

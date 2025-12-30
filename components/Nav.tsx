@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { 
   MagnifyingGlassIcon, 
@@ -11,14 +12,26 @@ import {
 
 const Nav: React.FC = () => {
   const { data: session } = useSession();
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   React.useEffect(() => {
     setCurrentDate(new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
   }, []);
 
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      router.push(`/?search=${encodeURIComponent(searchQuery)}`);
+    }
+  };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
 
   return (
     <header className="flex flex-col bg-white border-b border-gray-200 sticky top-0 z-50 font-sans">
@@ -47,10 +60,15 @@ const Nav: React.FC = () => {
           </button>
 
           {/* Logo */}
-          <Link href="/" className="flex-shrink-0 group">
-            <h1 className="text-3xl md:text-4xl font-serif font-bold tracking-tight text-black group-hover:text-gray-800">
-              Dalimss<span className="text-[#E21B22] pl-1">News</span>
-            </h1>
+          <Link href="/" className="flex-shrink-0">
+             <Image 
+               src="/logo.png" 
+               alt="Dalimss News" 
+               width={180} 
+               height={60} 
+               className="h-10 md:h-14 w-auto object-contain"
+               priority
+             />
           </Link>
 
           {/* Desktop Search & Actions */}
@@ -60,8 +78,14 @@ const Nav: React.FC = () => {
                 type="text" 
                 placeholder="Search news..." 
                 className="pl-3 pr-10 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-red-600 w-64 transition-colors"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
               />
-              <MagnifyingGlassIcon className="h-4 w-4 text-gray-500 absolute right-3 top-1/2 -translate-y-1/2" />
+              <MagnifyingGlassIcon 
+                className="h-4 w-4 text-gray-500 absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer hover:text-red-600" 
+                onClick={handleSearch}
+              />
             </div>
 
             <div className="flex items-center gap-4">
