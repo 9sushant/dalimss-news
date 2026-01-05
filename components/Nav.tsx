@@ -144,6 +144,11 @@ const Nav: React.FC = () => {
                 Uttar Pradesh
               </Link>
             </li>
+            <li>
+              <Link href="/?category=Education" className="block py-2 md:py-0 hover:text-[#E21B22] transition-colors">
+                Education
+              </Link>
+            </li>
             {session && session.user && (session.user.role === "admin" || session.user.email === "admin@dalimss.com" || session.user.email === "sushantgaurav@dalimss.com" || session.user.email === "dalimsssushant@gmail.com") && (
                <li>
                 <Link 

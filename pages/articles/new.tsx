@@ -122,6 +122,7 @@ const NewArticle: React.FC = () => {
           <option value="General">General</option>
           <option value="Varanasi">Varanasi</option>
           <option value="Uttar Pradesh">Uttar Pradesh</option>
+          <option value="Education">Education</option>
         </select>
 
         <textarea
