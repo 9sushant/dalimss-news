@@ -29,20 +29,46 @@ interface Props {
   article?: Article | null;
 }
 
+import Head from "next/head";
+
+// ... existing imports ...
+
 const ArticlePage: React.FC<Props> = ({ article }) => {
   const { data: session } = useSession();
+  
   if (!article) {
-    return (
-      <div className="max-w-3xl mx-auto py-24 text-center text-xl text-white">
-        Article not found or has been removed.
-      </div>
-    );
+     // ...
   }
 
   const formattedDate = new Date(article.createdAt).toLocaleDateString();
 
+  // Create clean description for SEO
+  const rawContent = article.content || "";
+  const seoDescription = rawContent
+    .replace(/<[^>]+>/g, "") // Strip HTML tags
+    .replace(/[#*`]/g, "") // Strip basic Markdown chars
+    .split("\n")[0] // Take first paragraph
+    .slice(0, 160) + "..."; // Limit length
+
   return (
     <article className="max-w-3xl mx-auto py-8 px-6 text-gray-900">
+      <Head>
+        <title>{article.title} | Dalimss News</title>
+        <meta name="description" content={seoDescription} />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content={article.title} />
+        <meta property="og:description" content={seoDescription} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={`https://dalimss.news/articles/${article.slug}`} />
+        {article.mediaUrl && <meta property="og:image" content={article.mediaUrl} />}
+        
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={article.title} />
+        <meta name="twitter:description" content={seoDescription} />
+        {article.mediaUrl && <meta name="twitter:image" content={article.mediaUrl} />}
+      </Head>
 
       {/* EDIT & DELETE BUTTONS */}
       {/* EDIT & DELETE BUTTONS (ADMIN ONLY) */}
