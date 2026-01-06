@@ -37,7 +37,11 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
   const { data: session } = useSession();
   
   if (!article) {
-     // ...
+    return (
+      <div className="max-w-3xl mx-auto py-24 text-center text-xl text-white">
+        Article not found or has been removed.
+      </div>
+    );
   }
 
   const formattedDate = new Date(article.createdAt).toLocaleDateString();
