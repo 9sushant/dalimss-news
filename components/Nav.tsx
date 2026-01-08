@@ -145,6 +145,11 @@ const Nav: React.FC = () => {
               </Link>
             </li>
             <li>
+              <Link href="/?category=India" className="block py-2 md:py-0 hover:text-[#E21B22] transition-colors">
+                India
+              </Link>
+            </li>
+            <li>
               <Link href="/?category=Education" className="block py-2 md:py-0 hover:text-[#E21B22] transition-colors">
                 Education
               </Link>
