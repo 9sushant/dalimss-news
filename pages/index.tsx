@@ -1,7 +1,7 @@
 import { GetServerSideProps } from "next";
 import Layout from "@/components/Layout";
 import ArticleCard from "@/components/ArticleCard";
-import NewsShortCard from "@/components/NewsShortCard";
+import NewsShortsSidebar from "@/components/NewsShortsSidebar";
 import { Article } from "@/types";
 import Link from "next/link";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
@@ -124,13 +124,9 @@ export default function HomePage({ articles }: Props) {
               
               {/* Most Read / Trending */}
               {/* Most Read / Trending */}
-              <div className="bg-gray-50/50 p-4 rounded-lg">
+              <div className="sticky top-4">
                 <SectionHeader title="News Shorts" />
-                <div className="flex flex-col gap-0 h-[800px] overflow-y-auto pr-2 custom-scrollbar">
-                  {sidebarNews.map((article) => (
-                    <NewsShortCard key={article.id} article={article} />
-                  ))}
-                </div>
+                <NewsShortsSidebar articles={articles} />
               </div>
 
             </div>
