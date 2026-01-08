@@ -99,12 +99,12 @@ export default function WebStoryPage({ story }: Props) {
         {/* Story Container - Smaller and more compact */}
         <div className="relative w-full max-w-[320px] md:max-w-[360px] h-auto max-h-[85vh] aspect-[9/16] mx-auto rounded-2xl overflow-hidden shadow-2xl">
           
-          {/* Close Button */}
+          {/* Close Button - Inside container but with proper z-index */}
           <Link 
             href="/"
-            className="absolute top-4 left-4 z-50 bg-black/50 backdrop-blur-sm p-2 rounded-full text-white hover:bg-black/70"
+            className="absolute top-3 left-3 z-[60] bg-black/60 backdrop-blur-sm p-2 rounded-full text-white hover:bg-red-600 transition-colors"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </Link>
@@ -112,16 +112,16 @@ export default function WebStoryPage({ story }: Props) {
           {/* Edit Button */}
           <Link 
             href={`/stories/${story.slug}/edit`}
-            className="absolute top-4 right-4 z-50 bg-black/50 backdrop-blur-sm p-2 rounded-full text-white hover:bg-black/70"
+            className="absolute top-3 right-3 z-[60] bg-black/60 backdrop-blur-sm p-2 rounded-full text-white hover:bg-blue-600 transition-colors"
             title="Edit Story"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
             </svg>
           </Link>
 
-          {/* Progress Bar */}
-          <div className="absolute top-4 left-12 right-4 z-50 flex gap-1">
+          {/* Progress Bar - Between the two buttons */}
+          <div className="absolute top-3.5 left-12 right-12 z-[55] flex gap-1">
             {story.pages.map((_, idx) => (
               <div 
                 key={idx}
