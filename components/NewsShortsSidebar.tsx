@@ -80,8 +80,8 @@ const NewsShortsSidebar = ({ articles }: Props) => {
           <div className="relative bg-white rounded-[32px] overflow-hidden">
             
             {/* Status Bar / Top Header */}
-            <div className="bg-[#ff8c00] py-2.5 px-4 flex items-center justify-center">
-              <span className="text-white text-sm font-bold tracking-wide">टॉप ख़बरें</span>
+            <div className="bg-[#dc2626] py-2.5 px-4 flex items-center justify-center">
+              <span className="text-white text-sm font-bold tracking-wide">Top News</span>
             </div>
 
             {/* Image Section */}
@@ -93,7 +93,7 @@ const NewsShortsSidebar = ({ articles }: Props) => {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+                <div className="w-full h-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center">
                   <span className="text-white text-xl font-bold opacity-40">DALIMSS NEWS</span>
                 </div>
               )}
@@ -115,14 +115,14 @@ const NewsShortsSidebar = ({ articles }: Props) => {
               
               {/* Title */}
               <Link href={`/articles/${currentArticle.slug}`}>
-                <h2 className="text-[18px] leading-[1.35] font-bold text-gray-900 mb-3 font-serif hover:text-[#ff5722] transition-colors line-clamp-3">
+                <h2 className="text-[18px] leading-[1.35] font-bold text-gray-900 mb-3 font-serif hover:text-[#dc2626] transition-colors line-clamp-3">
                   {currentArticle.title}
                 </h2>
               </Link>
 
               {/* Meta */}
               <div className="flex flex-wrap items-center gap-2 mb-3">
-                <span className="bg-[#ff6d00] text-white text-[10px] font-bold px-2.5 py-1 rounded">
+                <span className="bg-[#dc2626] text-white text-[10px] font-bold px-2.5 py-1 rounded">
                   {currentArticle.category || "News"}
                 </span>
                 <span className="text-[11px] text-gray-500 font-medium">
@@ -138,9 +138,9 @@ const NewsShortsSidebar = ({ articles }: Props) => {
               {/* Read More Button */}
               <Link
                 href={`/articles/${currentArticle.slug}`}
-                className="block w-full bg-[#ff6d00] hover:bg-[#ef6c00] text-white text-[14px] font-bold text-center py-3 rounded transition-colors"
+                className="block w-full bg-[#dc2626] hover:bg-[#b91c1c] text-white text-[14px] font-bold text-center py-3 rounded transition-colors"
               >
-                और पढ़ें
+                Read More
               </Link>
             </div>
 
@@ -170,7 +170,7 @@ const NewsShortsSidebar = ({ articles }: Props) => {
                         }, 300);
                       }}
                       className={`w-2 h-2 rounded-full transition-all ${
-                        idx === currentIndex % 5 ? 'bg-[#ff6d00] w-4' : 'bg-gray-300'
+                        idx === currentIndex % 5 ? 'bg-[#dc2626] w-4' : 'bg-gray-300'
                       }`}
                     />
                   ))}
