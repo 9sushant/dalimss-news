@@ -139,11 +139,7 @@ const Nav: React.FC = () => {
                 Varanasi
               </Link>
             </li>
-            <li>
-              <Link href="/?category=Uttar Pradesh" className="block py-2 md:py-0 hover:text-[#E21B22] transition-colors">
-                Uttar Pradesh
-              </Link>
-            </li>
+
             <li>
               <Link href="/?category=India" className="block py-2 md:py-0 hover:text-[#E21B22] transition-colors">
                 India
