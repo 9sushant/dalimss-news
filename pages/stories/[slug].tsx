@@ -94,10 +94,10 @@ export default function WebStoryPage({ story }: Props) {
       </Head>
 
       {/* Full Screen Story Viewer */}
-      <div className="fixed inset-0 bg-black flex items-center justify-center">
+      <div className="fixed inset-0 bg-black/95 flex items-center justify-center p-4 md:p-8">
         
-        {/* Story Container */}
-        <div className="relative w-full max-w-[400px] h-full max-h-[700px] mx-auto">
+        {/* Story Container - Smaller and more compact */}
+        <div className="relative w-full max-w-[320px] md:max-w-[360px] h-auto max-h-[85vh] aspect-[9/16] mx-auto rounded-2xl overflow-hidden shadow-2xl">
           
           {/* Close Button */}
           <Link 
@@ -133,7 +133,7 @@ export default function WebStoryPage({ story }: Props) {
           </div>
 
           {/* Story Image */}
-          <div className="absolute inset-0 rounded-xl overflow-hidden">
+          <div className="absolute inset-0 overflow-hidden">
             <img
               src={page.imageUrl}
               alt=""
@@ -145,14 +145,14 @@ export default function WebStoryPage({ story }: Props) {
           </div>
 
           {/* Content */}
-          <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
+          <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
             {page.heading && (
-              <h2 className="text-white text-2xl font-bold mb-2 drop-shadow-lg">
+              <h2 className="text-white text-lg md:text-xl font-bold mb-1 drop-shadow-lg line-clamp-3">
                 {page.heading}
               </h2>
             )}
             {page.text && (
-              <p className="text-white/90 text-base drop-shadow-md">
+              <p className="text-white/90 text-sm drop-shadow-md line-clamp-4">
                 {page.text}
               </p>
             )}
