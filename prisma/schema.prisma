@@ -73,3 +73,25 @@ model Article {
   authorId          String?
   author            User?    @relation(fields: [authorId], references: [id])
 }
+
+model WebStory {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique
+  title       String
+  coverImage  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  published   Boolean  @default(true)
+  pages       WebStoryPage[]
+}
+
+model WebStoryPage {
+  id          Int      @id @default(autoincrement())
+  storyId     Int
+  story       WebStory @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  imageUrl    String
+  heading     String?
+  text        String?
+  order       Int      @default(0)
+}
+

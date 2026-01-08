@@ -2,6 +2,7 @@ import { GetServerSideProps } from "next";
 import Layout from "@/components/Layout";
 import ArticleCard from "@/components/ArticleCard";
 import NewsShortsSidebar from "@/components/NewsShortsSidebar";
+import WebStoriesCarousel from "@/components/WebStoriesCarousel";
 import { Article } from "@/types";
 import Link from "next/link";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
@@ -9,6 +10,7 @@ import { useSession } from "next-auth/react";
 
 interface Props {
   articles: Article[];
+  stories: any[];
 }
 
 const SectionHeader = ({ title, href }: { title: string; href?: string }) => (
@@ -25,7 +27,7 @@ const SectionHeader = ({ title, href }: { title: string; href?: string }) => (
   </div>
 );
 
-export default function HomePage({ articles }: Props) {
+export default function HomePage({ articles, stories }: Props) {
   const { data: session } = useSession();
 
   // Fallback if no articles
@@ -55,6 +57,13 @@ export default function HomePage({ articles }: Props) {
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-6 pt-0">
         
+        {/* WEB STORIES CAROUSEL */}
+        {stories && stories.length > 0 && (
+          <section className="mb-8">
+            <WebStoriesCarousel stories={stories} />
+          </section>
+        )}
+
         {/* HERO SECTION */}
         <section className="mb-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -161,9 +170,21 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
     
     const articles = await res.json();
-    return { props: { articles } };
+
+    // Fetch Web Stories
+    let stories = [];
+    try {
+      const storiesRes = await fetch(`${baseUrl}/api/stories`);
+      if (storiesRes.ok) {
+        stories = await storiesRes.json();
+      }
+    } catch (e) {
+      console.error("Error fetching stories:", e);
+    }
+
+    return { props: { articles, stories } };
   } catch (error) {
     console.error("Error fetching articles:", error);
-    return { props: { articles: [] } };
+    return { props: { articles: [], stories: [] } };
   }
 };
