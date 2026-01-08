@@ -12,6 +12,7 @@ const NewArticle: React.FC = () => {
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<"image" | "video" | null>(null);
   const [category, setCategory] = useState("General"); // Default category
+  const [customAuthor, setCustomAuthor] = useState("");
   const [loading, setLoading] = useState(false);
 
   // 🟡 1. Handle loading and auth states INSIDE the component
@@ -84,6 +85,7 @@ const NewArticle: React.FC = () => {
           mediaUrl: uploadedMediaUrl,
           mediaType: finalMediaType,
           category,
+          customAuthor,
         }),
       });
 
@@ -113,6 +115,14 @@ const NewArticle: React.FC = () => {
           required
         />
         
+        <input
+          type="text"
+          placeholder="Author Name (Optional)"
+          className="w-full p-3 rounded bg-slate-900 border border-slate-700"
+          value={customAuthor}
+          onChange={(e) => setCustomAuthor(e.target.value)}
+        />
+        
         {/* Category Dropdown */}
         <select
           value={category}
@@ -122,6 +132,7 @@ const NewArticle: React.FC = () => {
           <option value="General">General</option>
           <option value="Varanasi">Varanasi</option>
           <option value="Uttar Pradesh">Uttar Pradesh</option>
+          <option value="India">India</option>
           <option value="Education">Education</option>
         </select>
 

@@ -11,6 +11,7 @@ interface Article {
   content: string | null;
   mediaUrl?: string | null;
   mediaType?: "image" | "video" | null;
+  customAuthor?: string | null;
 }
 
 interface Props {
@@ -26,6 +27,7 @@ const EditArticle: React.FC<Props> = ({ article }) => {
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [mediaPreview, setMediaPreview] = useState<string | null>(article?.mediaUrl || null);
   const [mediaType, setMediaType] = useState<"image" | "video" | null>(article?.mediaType || null);
+  const [customAuthor, setCustomAuthor] = useState(article?.customAuthor || "");
   const [loading, setLoading] = useState(false);
 
   // 🟡 1. Handle loading and auth states INSIDE the component
@@ -102,6 +104,7 @@ const EditArticle: React.FC<Props> = ({ article }) => {
           content,
           mediaUrl: uploadedMediaUrl,
           mediaType: finalMediaType,
+          customAuthor,
         }),
       });
 
@@ -129,6 +132,14 @@ const EditArticle: React.FC<Props> = ({ article }) => {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
+        />
+
+        <input
+          type="text"
+          placeholder="Author Name (Optional)"
+          className="w-full p-3 rounded bg-white border border-gray-300 text-gray-900"
+          value={customAuthor}
+          onChange={(e) => setCustomAuthor(e.target.value)}
         />
 
         <textarea
