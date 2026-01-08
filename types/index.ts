@@ -13,4 +13,5 @@ export interface Article {
   readTimeInMinutes: number;
   claps: number;
   commentsCount: number;
+  category?: string | null;
 }
