@@ -12,6 +12,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(401).json({ error: "Unauthorized" });
     }
 
+    const { role, email } = session.user;
+    const isAuthorized = role === "admin" || role === "editor" || email === "admin@dalimss.com" || email === "sushantgaurav@dalimss.com" || email === "dalimsssushant@gmail.com";
+
+    if (!isAuthorized) {
+       return res.status(403).json({ error: "Forbidden: Admins or Editors only" });
+    }
+
     const { title, content, mediaUrl, mediaType, category } = req.body;
 
     if (!title || title.trim().length < 3) {

@@ -47,6 +47,7 @@ model User {
   sessions      Session[]
   articles      Article[]
   role          String    @default("user")
+  password      String?
 }
 
 model VerificationToken {

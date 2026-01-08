@@ -76,7 +76,7 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
 
       {/* EDIT & DELETE BUTTONS */}
       {/* EDIT & DELETE BUTTONS (ADMIN ONLY) */}
-      {session && session.user && (session.user.role === "admin" || session.user.email === "admin@dalimss.com" || session.user.email === "sushantgaurav@dalimss.com" || session.user.email === "dalimsssushant@gmail.com") && (
+      {session && session.user && (session.user.role === "admin" || session.user.role === "editor" || session.user.email === "admin@dalimss.com" || session.user.email === "sushantgaurav@dalimss.com" || session.user.email === "dalimsssushant@gmail.com") && (
         <div className="flex justify-end mb-4 gap-4">
           <a
             href={`/articles/${article.slug}/edit`}
