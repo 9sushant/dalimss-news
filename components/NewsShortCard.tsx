@@ -8,7 +8,7 @@ interface Props {
 const NewsShortCard = ({ article }: Props) => {
   const cleanDescription = (html: string | null) => {
     if (!html) return "";
-    return html.replace(/<[^>]+>/g, "").slice(0, 150) + "...";
+    return html.replace(/<[^>]+>/g, "").slice(0, 200) + "...";
   };
 
   const formattedDate = new Date(article.createdAt).toLocaleDateString("en-IN", {
@@ -20,10 +20,10 @@ const NewsShortCard = ({ article }: Props) => {
   });
 
   return (
-    <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6 flex flex-col relative group hover:shadow-xl transition-shadow duration-300">
+    <div className="bg-white rounded-[20px] shadow-[0_2px_8px_rgba(0,0,0,0.1)] border border-gray-100 overflow-hidden mb-8 flex flex-col relative w-full h-auto max-w-sm mx-auto group">
       
-      {/* 1. Image Section */}
-      <div className="relative w-full h-[200px] overflow-hidden">
+      {/* 1. Image Section (Top Half) */}
+      <div className="relative w-full h-[240px] overflow-hidden">
         {article.mediaUrl ? (
           <img
             src={article.mediaUrl}
@@ -31,53 +31,57 @@ const NewsShortCard = ({ article }: Props) => {
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
         ) : (
-          <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
-            No Image
+          <div className="w-full h-full bg-gradient-to-br from-red-600 to-orange-500 flex items-center justify-center">
+            <span className="text-white text-2xl font-bold opacity-30">DALIMSS NEWS</span>
           </div>
         )}
         
-        {/* Category Badge overlay */}
-        {article.category && (
-            <span className="absolute top-3 left-3 bg-[#E21B22] text-white text-[10px] font-bold px-2 py-1 rounded shadow-sm uppercase tracking-wide">
-                {article.category}
-            </span>
-        )}
+        {/* Share/Action icons could go here if needed, keeping it clean for now */}
       </div>
 
-      {/* 2. Content */}
-      <div className="p-4 flex flex-col flex-grow">
+      {/* 2. Content Section */}
+      <div className="p-5 flex flex-col">
+        
+        {/* Title */}
         <Link href={`/articles/${article.slug}`}>
-          <h3 className="text-lg font-bold text-gray-900 leading-snug mb-2 hover:text-[#E21B22] transition-colors line-clamp-3">
+          <h3 className="text-[19px] leading-snug font-bold text-gray-900 mb-3 font-serif hover:text-[#f24e1e] transition-colors">
             {article.title}
           </h3>
         </Link>
-        <div className="flex items-center text-xs text-gray-500 mb-3 font-medium">
-             <span className="bg-orange-100 text-orange-800 px-2 py-0.5 rounded mr-2">Short News</span>
-            <span>{formattedDate}</span>
-        </div>
         
-        <p className="text-sm text-gray-600 leading-relaxed mb-4 flex-grow line-clamp-4">
+        {/* Meta Row: Tag & Date */}
+        <div className="flex items-center gap-3 mb-4">
+             <span className="bg-[#f06e39] text-white text-[10px] font-bold px-3 py-0.5 rounded-sm shadow-sm uppercase tracking-wide">
+                {article.category || "General"}
+            </span>
+            <span className="text-[11px] text-gray-500 font-medium">
+                {formattedDate}
+            </span>
+        </div>
+
+        {/* Description Snippet */}
+        <p className="text-[14px] text-gray-700 leading-relaxed mb-6 font-sans text-justify">
           {cleanDescription(article.content)}
         </p>
 
-        {/* 3. Footer / Action */}
-        <div className="mt-auto">
+        {/* Action Button */}
+        <div className="mb-4">
              <Link
                 href={`/articles/${article.slug}`}
-                className="block w-full text-center bg-[#ff5722] hover:bg-[#e64a19] text-white text-sm font-semibold py-2.5 rounded-lg transition-colors shadow-sm"
+                className="inline-block bg-[#ff6b3d] hover:bg-[#e65100] text-white text-[13px] font-semibold px-6 py-2 rounded-[4px] shadow-sm transition-colors"
               >
-                Read More
+                Read Article
               </Link>
         </div>
-        
-        {/* Decorative 'Swipe Up' hint (Optional, mainly for visual parity with request) */}
-        <div className="mt-3 text-center opacity-60">
-             <div className="flex flex-col items-center justify-center text-[10px] text-gray-500 uppercase tracking-widest gap-0.5">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3 animate-bounce">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
-                </svg>
+
+        {/* Swipe Hint */}
+        <div className="mt-2 flex items-center justify-center gap-2 opacity-60">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 animate-bounce text-gray-500">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18" />
+            </svg>
+             <span className="text-[10px] text-gray-500 uppercase tracking-widest font-medium">
                 Swipe for next
-             </div>
+             </span>
         </div>
       </div>
     </div>
