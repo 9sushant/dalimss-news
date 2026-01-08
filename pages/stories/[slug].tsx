@@ -1,7 +1,7 @@
 import { GetServerSideProps } from "next";
 import prisma from "@/lib/prisma";
 import Head from "next/head";
-import { useState, ReactElement } from "react";
+import { useState, ReactElement, useEffect } from "react";
 import Link from "next/link";
 
 interface StoryPage {
@@ -27,6 +27,10 @@ interface Props {
 
 export default function WebStoryPage({ story }: Props) {
   const [currentPage, setCurrentPage] = useState(0);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // Reset expansion when page changes
+
 
   if (!story) {
     return (
@@ -47,6 +51,12 @@ export default function WebStoryPage({ story }: Props) {
       setCurrentPage(currentPage + 1);
     }
   };
+
+  useEffect(() => {
+    setIsExpanded(false);
+  }, [currentPage]);
+
+
 
   const goPrev = () => {
     if (currentPage > 0) {
@@ -145,16 +155,33 @@ export default function WebStoryPage({ story }: Props) {
           </div>
 
           {/* Content */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
+
+          <div 
+            className={`absolute bottom-0 left-0 right-0 p-4 transition-all duration-300 ${isExpanded ? 'z-50 bg-black/90 h-[60%] overflow-y-auto rounded-t-2xl pointer-events-auto' : 'z-30 pointer-events-none'}`}
+            onClick={(e) => isExpanded && e.stopPropagation()} 
+          >
             {page.heading && (
               <h2 className="text-white text-lg md:text-xl font-bold mb-1 drop-shadow-lg line-clamp-3">
                 {page.heading}
               </h2>
             )}
             {page.text && (
-              <p className="text-white/90 text-sm drop-shadow-md line-clamp-4">
-                {page.text}
-              </p>
+              <>
+                <p className={`text-white/90 text-sm drop-shadow-md ${isExpanded ? '' : 'line-clamp-4'}`}>
+                  {page.text}
+                </p>
+                {page.text.length > 100 && (
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsExpanded(!isExpanded);
+                    }}
+                    className="text-blue-400 text-xs mt-1 font-bold z-40 relative hover:underline pointer-events-auto"
+                  >
+                    {isExpanded ? "See Less" : "See More"}
+                  </button>
+                )}
+              </>
             )}
           </div>
 
