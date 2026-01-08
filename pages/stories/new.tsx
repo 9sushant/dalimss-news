@@ -5,6 +5,7 @@ import Link from "next/link";
 
 interface StoryPageInput {
   imageUrl: string;
+  imageFile: File | null;
   heading: string;
   text: string;
 }
@@ -15,11 +16,13 @@ export default function CreateStoryPage() {
 
   const [title, setTitle] = useState("");
   const [coverImage, setCoverImage] = useState("");
+  const [coverFile, setCoverFile] = useState<File | null>(null);
   const [pages, setPages] = useState<StoryPageInput[]>([
-    { imageUrl: "", heading: "", text: "" },
+    { imageUrl: "", imageFile: null, heading: "", text: "" },
   ]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [uploadProgress, setUploadProgress] = useState("");
 
   if (status === "loading") {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -33,8 +36,40 @@ export default function CreateStoryPage() {
     );
   }
 
+  const uploadImage = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("/api/articles/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) throw new Error("Upload failed");
+    const data = await res.json();
+    return data.url;
+  };
+
+  const handleCoverFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setCoverFile(file);
+      setCoverImage(URL.createObjectURL(file));
+    }
+  };
+
+  const handlePageFileChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const updated = [...pages];
+      updated[index].imageFile = file;
+      updated[index].imageUrl = URL.createObjectURL(file);
+      setPages(updated);
+    }
+  };
+
   const addPage = () => {
-    setPages([...pages, { imageUrl: "", heading: "", text: "" }]);
+    setPages([...pages, { imageUrl: "", imageFile: null, heading: "", text: "" }]);
   };
 
   const removePage = (index: number) => {
@@ -43,7 +78,7 @@ export default function CreateStoryPage() {
     }
   };
 
-  const updatePage = (index: number, field: keyof StoryPageInput, value: string) => {
+  const updatePage = (index: number, field: "heading" | "text", value: string) => {
     const updated = [...pages];
     updated[index][field] = value;
     setPages(updated);
@@ -54,17 +89,60 @@ export default function CreateStoryPage() {
     setLoading(true);
     setError("");
 
-    if (!title || !coverImage || pages.some(p => !p.imageUrl)) {
-      setError("Please fill in title, cover image, and all page images.");
+    if (!title) {
+      setError("Please enter a title.");
+      setLoading(false);
+      return;
+    }
+
+    if (!coverFile && !coverImage) {
+      setError("Please upload a cover image.");
+      setLoading(false);
+      return;
+    }
+
+    if (pages.some(p => !p.imageFile && !p.imageUrl)) {
+      setError("Please upload an image for each page.");
       setLoading(false);
       return;
     }
 
     try {
+      // Upload cover image
+      setUploadProgress("Uploading cover image...");
+      let finalCoverUrl = coverImage;
+      if (coverFile) {
+        finalCoverUrl = await uploadImage(coverFile);
+      }
+
+      // Upload page images
+      const uploadedPages = [];
+      for (let i = 0; i < pages.length; i++) {
+        const page = pages[i];
+        setUploadProgress(`Uploading page ${i + 1} of ${pages.length}...`);
+        
+        let pageImageUrl = page.imageUrl;
+        if (page.imageFile) {
+          pageImageUrl = await uploadImage(page.imageFile);
+        }
+
+        uploadedPages.push({
+          imageUrl: pageImageUrl,
+          heading: page.heading,
+          text: page.text,
+        });
+      }
+
+      // Create story
+      setUploadProgress("Creating story...");
       const res = await fetch("/api/stories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, coverImage, pages }),
+        body: JSON.stringify({ 
+          title, 
+          coverImage: finalCoverUrl, 
+          pages: uploadedPages 
+        }),
       });
 
       if (!res.ok) {
@@ -78,6 +156,7 @@ export default function CreateStoryPage() {
       setError(err.message);
     } finally {
       setLoading(false);
+      setUploadProgress("");
     }
   };
 
@@ -95,6 +174,16 @@ export default function CreateStoryPage() {
             <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">{error}</div>
           )}
 
+          {uploadProgress && (
+            <div className="bg-blue-50 text-blue-600 p-3 rounded-lg text-sm flex items-center gap-2">
+              <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {uploadProgress}
+            </div>
+          )}
+
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Story Title</label>
@@ -108,20 +197,27 @@ export default function CreateStoryPage() {
             />
           </div>
 
-          {/* Cover Image */}
+          {/* Cover Image Upload */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Cover Image URL</label>
-            <input
-              type="url"
-              value={coverImage}
-              onChange={(e) => setCoverImage(e.target.value)}
-              placeholder="https://example.com/image.jpg"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900"
-              required
-            />
-            {coverImage && (
-              <img src={coverImage} alt="Cover preview" className="mt-2 h-32 object-cover rounded-lg" />
-            )}
+            <label className="block text-sm font-medium text-gray-700 mb-1">Cover Image</label>
+            <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-red-500 bg-gray-50 transition-colors">
+              {coverImage ? (
+                <img src={coverImage} alt="Cover preview" className="h-full w-full object-cover rounded-lg" />
+              ) : (
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <svg className="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <p className="text-sm text-gray-500">Click to upload cover image</p>
+                </div>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleCoverFileChange}
+              />
+            </label>
           </div>
 
           {/* Story Pages */}
@@ -131,7 +227,7 @@ export default function CreateStoryPage() {
               <button
                 type="button"
                 onClick={addPage}
-                className="text-sm bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded text-gray-700"
+                className="text-sm bg-red-100 hover:bg-red-200 px-3 py-1 rounded text-red-700 font-medium"
               >
                 + Add Page
               </button>
@@ -154,14 +250,26 @@ export default function CreateStoryPage() {
                   </div>
 
                   <div className="space-y-3">
-                    <input
-                      type="url"
-                      value={page.imageUrl}
-                      onChange={(e) => updatePage(idx, "imageUrl", e.target.value)}
-                      placeholder="Image URL (required)"
-                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm text-gray-900"
-                      required
-                    />
+                    {/* Page Image Upload */}
+                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-red-500 bg-white transition-colors">
+                      {page.imageUrl ? (
+                        <img src={page.imageUrl} alt="" className="h-full w-full object-cover rounded-lg" />
+                      ) : (
+                        <div className="flex flex-col items-center justify-center">
+                          <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                          </svg>
+                          <p className="text-xs text-gray-500 mt-1">Upload page image</p>
+                        </div>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handlePageFileChange(idx, e)}
+                      />
+                    </label>
+
                     <input
                       type="text"
                       value={page.heading}
@@ -176,9 +284,6 @@ export default function CreateStoryPage() {
                       rows={2}
                       className="w-full px-3 py-2 border border-gray-300 rounded text-sm text-gray-900"
                     />
-                    {page.imageUrl && (
-                      <img src={page.imageUrl} alt="" className="h-24 object-cover rounded" />
-                    )}
                   </div>
                 </div>
               ))}
@@ -189,9 +294,19 @@ export default function CreateStoryPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg disabled:opacity-50"
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            {loading ? "Creating..." : "Create Story"}
+            {loading ? (
+              <>
+                <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Creating...
+              </>
+            ) : (
+              "Create Story"
+            )}
           </button>
         </form>
       </div>
