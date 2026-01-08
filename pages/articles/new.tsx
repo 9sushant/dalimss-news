@@ -24,7 +24,7 @@ const NewArticle: React.FC = () => {
       <div className="text-center text-white mt-20">
         <p>You must be logged in to write an article.</p>
         <button
-          onClick={() => signIn("google")}
+          onClick={() => signIn()}
           className="bg-blue-600 px-6 py-2 rounded mt-4"
         >
           Sign In

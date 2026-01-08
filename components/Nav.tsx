@@ -93,7 +93,7 @@ const Nav: React.FC = () => {
 
               {!session ? (
                 <button 
-                  onClick={() => signIn("google")} 
+                  onClick={() => signIn()} 
                   className="text-sm font-semibold text-gray-700 hover:text-red-600 flex items-center gap-1"
                 >
                   <UserCircleIcon className="h-6 w-6" />
@@ -163,7 +163,7 @@ const Nav: React.FC = () => {
             <li className="md:hidden border-t border-gray-100 mt-2 pt-2">
               {!session ? (
                 <button 
-                  onClick={() => signIn("google")} 
+                  onClick={() => signIn()} 
                   className="block w-full text-left py-2 text-gray-700 hover:text-red-600"
                 >
                   Sign In

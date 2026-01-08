@@ -38,7 +38,7 @@ const EditArticle: React.FC<Props> = ({ article }) => {
       <div className="text-center text-gray-900 mt-20">
         <p>You must be logged in to edit an article.</p>
         <button
-          onClick={() => signIn("google")}
+          onClick={() => signIn()}
           className="bg-blue-600 px-6 py-2 rounded mt-4 text-white"
         >
           Sign In
