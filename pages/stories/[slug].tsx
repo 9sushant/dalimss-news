@@ -1,7 +1,7 @@
 import { GetServerSideProps } from "next";
 import prisma from "@/lib/prisma";
 import Head from "next/head";
-import { useState } from "react";
+import { useState, ReactElement } from "react";
 import Link from "next/link";
 
 interface StoryPage {
@@ -234,4 +234,9 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
     console.error("Story fetch error:", err);
     return { props: { story: null } };
   }
+};
+
+// Opt out of Layout - full screen story viewing experience
+WebStoryPage.getLayout = function getLayout(page: ReactElement) {
+  return <>{page}</>;
 };
