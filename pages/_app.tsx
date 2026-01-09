@@ -1,5 +1,5 @@
 import "@/styles/globals.css";
-import { Analytics } from "@vercel/analytics/react";
+import { Analytics } from "@vercel/analytics/next";
 import type { AppProps } from "next/app";
 import { SessionProvider } from "next-auth/react";
 import Layout from "@/components/Layout";
