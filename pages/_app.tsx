@@ -1,4 +1,5 @@
 import "@/styles/globals.css";
+import { Analytics } from "@vercel/analytics/react";
 import type { AppProps } from "next/app";
 import { SessionProvider } from "next-auth/react";
 import Layout from "@/components/Layout";
@@ -23,6 +24,7 @@ export default function App({
   return (
     <SessionProvider session={session}>
       {getLayout(<Component {...pageProps} />)}
+      <Analytics />
     </SessionProvider>
   );
 }
