@@ -13,6 +13,7 @@ const Layout = ({ children }: LayoutProps) => (
       <title>Dalimss News</title>
       <meta name="description" content="Dalimss News - Latest Updates" />
       <link rel="icon" href="/favicon.png" type="image/png" />
+      <link rel="icon" href="/favicon.ico" sizes="any" />
       <link rel="apple-touch-icon" href="/favicon.png" />
     </Head>
     <Nav />
