@@ -54,24 +54,38 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
     .split("\n")[0] // Take first paragraph
     .slice(0, 160) + "..."; // Limit length
 
+  // Create absolute image URL for OG
+  const siteUrl = "https://dalimss.news";
+  const defaultOgImage = `${siteUrl}/logo.jpg`;
+  const ogImageUrl = article.mediaUrl 
+    ? (article.mediaUrl.startsWith('http') ? article.mediaUrl : `${siteUrl}${article.mediaUrl}`)
+    : defaultOgImage;
+
   return (
     <article className="max-w-3xl mx-auto py-8 px-6 text-gray-900">
       <Head>
         <title>{article.title} | Dalimss News</title>
         <meta name="description" content={seoDescription} />
+        <link rel="canonical" href={`${siteUrl}/articles/${article.slug}`} />
         
         {/* Open Graph */}
+        <meta property="og:site_name" content="Dalimss News" />
         <meta property="og:title" content={article.title} />
         <meta property="og:description" content={seoDescription} />
         <meta property="og:type" content="article" />
-        <meta property="og:url" content={`https://dalimss.news/articles/${article.slug}`} />
-        {article.mediaUrl && <meta property="og:image" content={article.mediaUrl} />}
+        <meta property="og:url" content={`${siteUrl}/articles/${article.slug}`} />
+        <meta property="og:image" content={ogImageUrl} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={article.title} />
+        <meta property="og:locale" content="en_IN" />
         
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@dalimss_news" />
         <meta name="twitter:title" content={article.title} />
         <meta name="twitter:description" content={seoDescription} />
-        {article.mediaUrl && <meta name="twitter:image" content={article.mediaUrl} />}
+        <meta name="twitter:image" content={ogImageUrl} />
       </Head>
 
       {/* EDIT & DELETE BUTTONS */}

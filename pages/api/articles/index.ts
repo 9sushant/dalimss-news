@@ -30,13 +30,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     try {
+      // Generate short random ID (6 chars) instead of long timestamp
+      const shortId = Math.random().toString(36).substring(2, 8);
       const slug =
         title
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, "-")
-          .replace(/(^-|-$)+/g, "") +
+          .replace(/(^-|-$)+/g, "")
+          .substring(0, 50) + // Limit title part to 50 chars
         "-" +
-        Date.now();
+        shortId;
 
       const article = await prisma.article.create({
         data: {
