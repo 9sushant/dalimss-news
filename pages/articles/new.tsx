@@ -69,8 +69,12 @@ const NewArticle: React.FC = () => {
           body: formData,
         });
 
-        if (!uploadResp.ok) throw new Error("Upload failed");
         const uploadJson = await uploadResp.json();
+        
+        if (!uploadResp.ok) {
+          throw new Error(uploadJson.error || "Upload failed");
+        }
+        
         uploadedMediaUrl = uploadJson.url;
         finalMediaType = mediaType;
       }
