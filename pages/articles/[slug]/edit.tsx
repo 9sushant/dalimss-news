@@ -78,20 +78,46 @@ const EditArticle: React.FC<Props> = ({ article }) => {
       let uploadedMediaUrl: string | null = article.mediaUrl || null;
       let finalMediaType: "image" | "video" | null = article.mediaType || null;
 
-      // ✅ Upload media (if exists)
+      // ✅ Upload media directly to Cloudinary (bypasses Vercel's 4.5MB limit)
       if (mediaFile) {
-        const formData = new FormData();
-        formData.append("file", mediaFile);
-
-        const uploadResp = await fetch("/api/articles/upload", {
+        // Step 1: Get upload signature from our API
+        const signatureResp = await fetch("/api/articles/upload-signature", {
           method: "POST",
-          body: formData,
         });
+        
+        if (!signatureResp.ok) {
+          const signatureError = await signatureResp.json();
+          throw new Error(signatureError.error || "Failed to get upload signature");
+        }
+        
+        const { signature, timestamp, cloudName, apiKey, folder } = await signatureResp.json();
 
-        if (!uploadResp.ok) throw new Error("Upload failed");
-        const uploadJson = await uploadResp.json();
-        uploadedMediaUrl = uploadJson.url;
+        // Step 2: Upload directly to Cloudinary
+        const cloudinaryFormData = new FormData();
+        cloudinaryFormData.append("file", mediaFile);
+        cloudinaryFormData.append("signature", signature);
+        cloudinaryFormData.append("timestamp", String(timestamp));
+        cloudinaryFormData.append("api_key", apiKey);
+        cloudinaryFormData.append("folder", folder);
+
+        const cloudinaryResp = await fetch(
+          `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
+          {
+            method: "POST",
+            body: cloudinaryFormData,
+          }
+        );
+
+        if (!cloudinaryResp.ok) {
+          const cloudinaryError = await cloudinaryResp.json();
+          throw new Error(cloudinaryError.error?.message || "Cloudinary upload failed");
+        }
+
+        const cloudinaryResult = await cloudinaryResp.json();
+        uploadedMediaUrl = cloudinaryResult.secure_url;
         finalMediaType = mediaType;
+        
+        console.log("✅ Media uploaded:", uploadedMediaUrl);
       }
 
       // ✅ Update article
@@ -108,13 +134,16 @@ const EditArticle: React.FC<Props> = ({ article }) => {
         }),
       });
 
-      if (!resp.ok) throw new Error("Failed to update article");
-      const updatedArticle = await resp.json();
+      const updatedData = await resp.json();
+      
+      if (!resp.ok) {
+        throw new Error(updatedData.error || "Failed to update article");
+      }
 
-      router.push(`/articles/${updatedArticle.slug}`);
-    } catch (err) {
+      router.push(`/articles/${updatedData.slug}`);
+    } catch (err: any) {
       console.error("❌ Update error:", err);
-      alert("Error while updating article. Check console for details.");
+      alert(err.message || "Error while updating article.");
     } finally {
       setLoading(false);
     }
