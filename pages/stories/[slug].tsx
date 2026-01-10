@@ -157,16 +157,15 @@ export default function WebStoryPage({ story }: Props) {
           {/* Content */}
 
           <div 
-            className={`absolute bottom-0 left-0 right-0 p-4 transition-all duration-300 ${isExpanded ? 'z-50 bg-black/90 h-[60%] overflow-y-auto rounded-t-2xl' : 'z-30'}`}
-            onClick={(e) => isExpanded && e.stopPropagation()} 
+            className={`absolute bottom-0 left-0 right-0 p-4 z-[40] transition-all duration-300 ${isExpanded ? 'bg-black/95 h-[70%] overflow-y-auto rounded-t-2xl' : ''}`}
           >
             {page.heading && (
-              <h2 className="text-white text-lg md:text-xl font-bold mb-1 drop-shadow-lg line-clamp-3">
+              <h2 className="text-white text-lg md:text-xl font-bold mb-2 drop-shadow-lg line-clamp-3">
                 {page.heading}
               </h2>
             )}
             {page.text && (
-              <>
+              <div>
                 <p className={`text-white/90 text-sm drop-shadow-md ${isExpanded ? '' : 'line-clamp-3'}`}>
                   {page.text}
                 </p>
@@ -176,17 +175,29 @@ export default function WebStoryPage({ story }: Props) {
                       e.stopPropagation();
                       setIsExpanded(!isExpanded);
                     }}
-                    className="bg-blue-500/80 hover:bg-blue-600 text-white text-xs mt-2 px-3 py-1 rounded-full font-semibold z-[70] relative shadow-lg"
+                    className="bg-blue-500 hover:bg-blue-600 text-white text-xs mt-3 px-4 py-1.5 rounded-full font-semibold shadow-lg inline-block"
                   >
                     {isExpanded ? "See Less ↑" : "See More ↓"}
                   </button>
                 )}
-              </>
+              </div>
+            )}
+            
+            {/* Back to Home - only on last page */}
+            {currentPage === totalPages - 1 && (
+              <div className="mt-4 flex justify-center">
+                <Link
+                  href="/"
+                  className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full font-semibold shadow-lg"
+                >
+                  Back to Home
+                </Link>
+              </div>
             )}
           </div>
 
-          {/* Navigation Areas */}
-          <div className="absolute inset-0 flex z-20">
+          {/* Navigation Areas - Only cover top 60% to allow bottom content to be clickable */}
+          <div className="absolute inset-x-0 top-0 h-[60%] flex z-20">
             {/* Left tap area */}
             <div 
               className="w-1/3 h-full cursor-pointer"
@@ -222,17 +233,7 @@ export default function WebStoryPage({ story }: Props) {
             </button>
           )}
 
-          {/* End of Story */}
-          {currentPage === totalPages - 1 && (
-            <div className="absolute bottom-20 left-0 right-0 flex justify-center z-30">
-              <Link
-                href="/"
-                className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full font-semibold"
-              >
-                Back to Home
-              </Link>
-            </div>
-          )}
+
         </div>
       </div>
     </>
