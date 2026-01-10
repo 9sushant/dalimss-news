@@ -54,12 +54,25 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
     .split("\n")[0] // Take first paragraph
     .slice(0, 160) + "..."; // Limit length
 
-  // Create absolute image URL for OG
+  // Create absolute image URL for OG with Cloudinary compression
   const siteUrl = "https://dalimss.news";
   const defaultOgImage = `${siteUrl}/logo.jpg`;
-  const ogImageUrl = article.mediaUrl 
-    ? (article.mediaUrl.startsWith('http') ? article.mediaUrl : `${siteUrl}${article.mediaUrl}`)
-    : defaultOgImage;
+  
+  // Apply Cloudinary transformations for compressed OG image (under 300KB for WhatsApp)
+  let ogImageUrl = defaultOgImage;
+  if (article.mediaUrl) {
+    if (article.mediaUrl.includes('res.cloudinary.com')) {
+      // Add transformations: auto quality, auto format (webp/jpg), width 1200, crop to fit
+      ogImageUrl = article.mediaUrl.replace(
+        '/upload/',
+        '/upload/q_auto,f_jpg,w_1200,c_limit/'
+      );
+    } else if (article.mediaUrl.startsWith('http')) {
+      ogImageUrl = article.mediaUrl;
+    } else {
+      ogImageUrl = `${siteUrl}${article.mediaUrl}`;
+    }
+  }
 
   return (
     <article className="max-w-3xl mx-auto py-8 px-6 text-gray-900">
