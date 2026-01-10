@@ -157,7 +157,7 @@ export default function WebStoryPage({ story }: Props) {
           {/* Content */}
 
           <div 
-            className={`absolute bottom-0 left-0 right-0 p-4 transition-all duration-300 ${isExpanded ? 'z-50 bg-black/90 h-[60%] overflow-y-auto rounded-t-2xl pointer-events-auto' : 'z-30 pointer-events-none'}`}
+            className={`absolute bottom-0 left-0 right-0 p-4 transition-all duration-300 ${isExpanded ? 'z-50 bg-black/90 h-[60%] overflow-y-auto rounded-t-2xl' : 'z-30'}`}
             onClick={(e) => isExpanded && e.stopPropagation()} 
           >
             {page.heading && (
@@ -167,18 +167,18 @@ export default function WebStoryPage({ story }: Props) {
             )}
             {page.text && (
               <>
-                <p className={`text-white/90 text-sm drop-shadow-md ${isExpanded ? '' : 'line-clamp-4'}`}>
+                <p className={`text-white/90 text-sm drop-shadow-md ${isExpanded ? '' : 'line-clamp-3'}`}>
                   {page.text}
                 </p>
-                {page.text.length > 100 && (
+                {page.text.length > 50 && (
                   <button 
                     onClick={(e) => {
                       e.stopPropagation();
                       setIsExpanded(!isExpanded);
                     }}
-                    className="text-blue-400 text-xs mt-1 font-bold z-40 relative hover:underline pointer-events-auto"
+                    className="bg-blue-500/80 hover:bg-blue-600 text-white text-xs mt-2 px-3 py-1 rounded-full font-semibold z-[70] relative shadow-lg"
                   >
-                    {isExpanded ? "See Less" : "See More"}
+                    {isExpanded ? "See Less ↑" : "See More ↓"}
                   </button>
                 )}
               </>
