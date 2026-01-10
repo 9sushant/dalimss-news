@@ -59,24 +59,46 @@ const NewArticle: React.FC = () => {
       let uploadedMediaUrl: string | null = null;
       let finalMediaType: "image" | "video" | null = null;
 
-      // ✅ Upload media (if exists)
+      // ✅ Upload media directly to Cloudinary (bypasses Vercel's 4.5MB limit)
       if (mediaFile) {
-        const formData = new FormData();
-        formData.append("file", mediaFile);
-
-        const uploadResp = await fetch("/api/articles/upload", {
+        // Step 1: Get upload signature from our API
+        const signatureResp = await fetch("/api/articles/upload-signature", {
           method: "POST",
-          body: formData,
         });
-
-        const uploadJson = await uploadResp.json();
         
-        if (!uploadResp.ok) {
-          throw new Error(uploadJson.error || "Upload failed");
+        if (!signatureResp.ok) {
+          const signatureError = await signatureResp.json();
+          throw new Error(signatureError.error || "Failed to get upload signature");
         }
         
-        uploadedMediaUrl = uploadJson.url;
+        const { signature, timestamp, cloudName, apiKey, folder } = await signatureResp.json();
+
+        // Step 2: Upload directly to Cloudinary
+        const cloudinaryFormData = new FormData();
+        cloudinaryFormData.append("file", mediaFile);
+        cloudinaryFormData.append("signature", signature);
+        cloudinaryFormData.append("timestamp", String(timestamp));
+        cloudinaryFormData.append("api_key", apiKey);
+        cloudinaryFormData.append("folder", folder);
+
+        const cloudinaryResp = await fetch(
+          `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
+          {
+            method: "POST",
+            body: cloudinaryFormData,
+          }
+        );
+
+        if (!cloudinaryResp.ok) {
+          const cloudinaryError = await cloudinaryResp.json();
+          throw new Error(cloudinaryError.error?.message || "Cloudinary upload failed");
+        }
+
+        const cloudinaryResult = await cloudinaryResp.json();
+        uploadedMediaUrl = cloudinaryResult.secure_url;
         finalMediaType = mediaType;
+        
+        console.log("✅ Media uploaded:", uploadedMediaUrl);
       }
 
       // ✅ Create article
@@ -93,13 +115,16 @@ const NewArticle: React.FC = () => {
         }),
       });
 
-      if (!resp.ok) throw new Error("Failed to publish article");
-      const article = await resp.json();
+      const articleData = await resp.json();
+      
+      if (!resp.ok) {
+        throw new Error(articleData.error || "Failed to publish article");
+      }
 
-      router.push(`/articles/${article.slug}`);
-    } catch (err) {
+      router.push(`/articles/${articleData.slug}`);
+    } catch (err: any) {
       console.error("❌ Publish error:", err);
-      alert("Error while publishing article. Check console for details.");
+      alert(err.message || "Error while publishing article.");
     } finally {
       setLoading(false);
     }
