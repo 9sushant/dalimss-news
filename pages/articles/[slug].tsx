@@ -58,14 +58,14 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
   const siteUrl = "https://dalimss.news";
   const defaultOgImage = `${siteUrl}/logo.jpg`;
   
-  // Apply Cloudinary transformations for compressed OG image (under 300KB for WhatsApp)
+  // Apply Cloudinary transformations for OG image (1200x630 is optimal for social sharing)
   let ogImageUrl = defaultOgImage;
   if (article.mediaUrl) {
     if (article.mediaUrl.includes('res.cloudinary.com')) {
-      // Add transformations: auto quality, auto format (webp/jpg), width 1200, crop to fit
+      // Fixed dimensions 1200x630, quality 80, force jpg format, crop to fill
       ogImageUrl = article.mediaUrl.replace(
         '/upload/',
-        '/upload/q_auto,f_jpg,w_1200,c_limit/'
+        '/upload/c_fill,w_1200,h_630,q_80,f_jpg/'
       );
     } else if (article.mediaUrl.startsWith('http')) {
       ogImageUrl = article.mediaUrl;
@@ -81,13 +81,15 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
         <meta name="description" content={seoDescription} />
         <link rel="canonical" href={`${siteUrl}/articles/${article.slug}`} />
         
-        {/* Open Graph */}
+        {/* Open Graph - Essential for WhatsApp/Facebook */}
         <meta property="og:site_name" content="Dalimss News" />
         <meta property="og:title" content={article.title} />
         <meta property="og:description" content={seoDescription} />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={`${siteUrl}/articles/${article.slug}`} />
         <meta property="og:image" content={ogImageUrl} />
+        <meta property="og:image:secure_url" content={ogImageUrl} />
+        <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content={article.title} />
