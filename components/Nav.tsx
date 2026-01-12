@@ -35,15 +35,13 @@ const Nav: React.FC = () => {
 
   return (
     <header className="flex flex-col bg-white border-b border-gray-200 sticky top-0 z-50 font-sans">
-      {/* Top Utility Bar (Optional, similar to TOI top strip) */}
+      {/* Top Utility Bar */}
       <div className="hidden md:flex justify-between items-center px-4 lg:px-8 py-1 bg-gray-50 text-xs text-gray-500 border-b border-gray-100">
         <div className="flex gap-4">
           <span>{currentDate}</span>
-          <span className="hover:text-red-600 cursor-pointer">E-Paper</span>
         </div>
         <div className="flex gap-4">
-          <span className="hover:text-red-600 cursor-pointer">App</span>
-          <span className="hover:text-red-600 cursor-pointer">Newsletter</span>
+          {/* Reserved for future links */}
         </div>
       </div>
 
