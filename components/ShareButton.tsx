@@ -39,7 +39,11 @@ const ShareButton: React.FC<ShareButtonProps> = ({
     try {
       await navigator.clipboard.writeText(fullUrl);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      // Close dropdown after brief feedback
+      setTimeout(() => {
+        setCopied(false);
+        setIsOpen(false);
+      }, 800);
     } catch (err) {
       // Fallback for older browsers
       const textArea = document.createElement('textarea');
@@ -49,7 +53,11 @@ const ShareButton: React.FC<ShareButtonProps> = ({
       document.execCommand('copy');
       document.body.removeChild(textArea);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      // Close dropdown after brief feedback
+      setTimeout(() => {
+        setCopied(false);
+        setIsOpen(false);
+      }, 800);
     }
   };
 
