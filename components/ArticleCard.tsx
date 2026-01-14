@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Article } from '../types';
+import ShareButton from './ShareButton';
 
 interface ArticleCardProps {
   article: Article;
@@ -48,8 +49,13 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
           <p className="hidden md:block text-sm text-gray-600 mt-2 line-clamp-2">
             {snippet}
           </p>
-          <div className="mt-2 text-xs text-gray-400 uppercase font-semibold">
-            {formattedDate}
+          <div className="mt-2 flex items-center justify-between">
+            <span className="text-xs text-gray-400 uppercase font-semibold">{formattedDate}</span>
+            <ShareButton 
+              url={`/articles/${article.slug}`} 
+              title={article.title} 
+              variant="minimal"
+            />
           </div>
         </div>
       </div>
@@ -65,7 +71,14 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
             {article.title}
           </h4>
         </Link>
-        <span className="text-xs text-gray-400 mt-1 block">{formattedDate}</span>
+        <div className="flex items-center justify-between mt-1">
+          <span className="text-xs text-gray-400">{formattedDate}</span>
+          <ShareButton 
+            url={`/articles/${article.slug}`} 
+            title={article.title} 
+            variant="minimal"
+          />
+        </div>
       </div>
     );
   }
@@ -93,8 +106,15 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
           {snippet}
         </p>
         <div className="flex items-center justify-between text-xs text-gray-500 border-t border-gray-100 pt-3">
-          <span>{formattedDate}</span>
-          {article.authorName && <span className="font-medium text-gray-700">{article.authorName}</span>}
+          <div className="flex items-center gap-2">
+            <span>{formattedDate}</span>
+            {article.authorName && <span className="font-medium text-gray-700">• {article.authorName}</span>}
+          </div>
+          <ShareButton 
+            url={`/articles/${article.slug}`} 
+            title={article.title} 
+            variant="minimal"
+          />
         </div>
       </div>
     </div>

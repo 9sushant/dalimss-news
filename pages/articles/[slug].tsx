@@ -30,6 +30,7 @@ interface Props {
 }
 
 import Head from "next/head";
+import ShareButton from "@/components/ShareButton";
 
 // ... existing imports ...
 
@@ -151,13 +152,20 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
           </span>
         )}
         <h1 className="text-4xl font-bold mb-3 text-gray-900">{article.title}</h1>
-        <div className="text-sm text-gray-600 flex items-center gap-2">
+        <div className="text-sm text-gray-600 flex flex-wrap items-center gap-2">
           <span>By {article.customAuthor || "Unknown Author"}</span>
           <span>•</span>
           <span>{formattedDate}</span>
           {article.readTimeInMinutes
-            ? ` • ${article.readTimeInMinutes} min read`
-            : ""}
+            ? <><span>•</span><span>{article.readTimeInMinutes} min read</span></>
+            : null}
+          <div className="ml-auto">
+            <ShareButton 
+              url={`/articles/${article.slug}`} 
+              title={article.title} 
+              variant="full"
+            />
+          </div>
         </div>
       </header>
 
