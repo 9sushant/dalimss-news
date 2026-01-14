@@ -72,6 +72,11 @@ model Article {
   createdAt         DateTime @default(now())
   authorId          String?
   author            User?    @relation(fields: [authorId], references: [id])
+  
+  // SEO Fields
+  metaTitle       String?
+  metaDescription String?
+  focusKeyword    String?
 }
 
 model WebStory {

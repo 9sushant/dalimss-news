@@ -14,4 +14,7 @@ export interface Article {
   claps: number;
   commentsCount: number;
   category?: string | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  focusKeyword?: string | null;
 }

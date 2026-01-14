@@ -1,4 +1,6 @@
+
 import React, { useState } from "react";
+import SeoEditor from "@/components/SeoEditor";
 import { useRouter } from "next/router";
 import { signIn, useSession } from "next-auth/react";
 
@@ -13,6 +15,8 @@ const NewArticle: React.FC = () => {
   const [mediaType, setMediaType] = useState<"image" | "video" | null>(null);
   const [category, setCategory] = useState("General"); // Default category
   const [customAuthor, setCustomAuthor] = useState("");
+
+  const [seoData, setSeoData] = useState({ metaTitle: "", metaDescription: "", focusKeyword: "" });
   const [loading, setLoading] = useState(false);
 
   // 🟡 1. Handle loading and auth states INSIDE the component
@@ -112,6 +116,7 @@ const NewArticle: React.FC = () => {
           mediaType: finalMediaType,
           category,
           customAuthor,
+          ...seoData, // ✅ Send SEO Data
         }),
       });
 
@@ -199,6 +204,12 @@ const NewArticle: React.FC = () => {
             )}
           </div>
         )}
+
+        <SeoEditor 
+            title={title} 
+            description={content}
+            onUpdate={setSeoData}
+        />
 
         <button
           type="submit"

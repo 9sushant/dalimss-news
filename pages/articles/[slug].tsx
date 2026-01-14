@@ -23,6 +23,8 @@ interface Article {
   customAuthor?: string | null;
   category?: string | null;
   sourceUrl?: string | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
 }
 
 interface Props {
@@ -84,14 +86,14 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
   return (
     <article className="max-w-3xl mx-auto py-8 px-6 text-gray-900">
       <Head>
-        <title>{article.title} | Dalimss News</title>
-        <meta name="description" content={seoDescription} />
+        <title>{article.metaTitle || article.title} | Dalimss News</title>
+        <meta name="description" content={article.metaDescription || seoDescription} />
         <link rel="canonical" href={`${siteUrl}/articles/${article.slug}`} />
         
         {/* Open Graph - Essential for WhatsApp/Facebook */}
         <meta property="og:site_name" content="Dalimss News" />
-        <meta property="og:title" content={article.title} />
-        <meta property="og:description" content={seoDescription} />
+        <meta property="og:title" content={article.metaTitle || article.title} />
+        <meta property="og:description" content={article.metaDescription || seoDescription} />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={`${siteUrl}/articles/${article.slug}`} />
         <meta property="og:image" content={ogImageUrl} />
@@ -99,14 +101,14 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
         <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content={article.title} />
+        <meta property="og:image:alt" content={article.metaTitle || article.title} />
         <meta property="og:locale" content="en_IN" />
         
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@dalimss_news" />
-        <meta name="twitter:title" content={article.title} />
-        <meta name="twitter:description" content={seoDescription} />
+        <meta name="twitter:title" content={article.metaTitle || article.title} />
+        <meta name="twitter:description" content={article.metaDescription || seoDescription} />
         <meta name="twitter:image" content={ogImageUrl} />
       </Head>
 
