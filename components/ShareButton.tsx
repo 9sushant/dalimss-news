@@ -30,14 +30,16 @@ const ShareButton: React.FC<ShareButtonProps> = ({
   }, []);
 
   const fullUrl = url.startsWith('http') ? url : `https://dalimss.news${url}`;
-  const encodedUrl = encodeURIComponent(fullUrl);
+  // Add cache-busting parameter to force WhatsApp/Facebook to refetch preview
+  const shareUrl = fullUrl.includes('?') ? `${fullUrl}&v=${Date.now()}` : `${fullUrl}?v=${Date.now()}`;
+  const encodedUrl = encodeURIComponent(shareUrl);
   const encodedTitle = encodeURIComponent(title);
 
   const handleCopy = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     try {
-      await navigator.clipboard.writeText(fullUrl);
+      await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
       // Close dropdown after brief feedback
       setTimeout(() => {
@@ -47,7 +49,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({
     } catch (err) {
       // Fallback for older browsers
       const textArea = document.createElement('textarea');
-      textArea.value = fullUrl;
+      textArea.value = shareUrl;
       document.body.appendChild(textArea);
       textArea.select();
       document.execCommand('copy');
@@ -69,7 +71,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({
         await navigator.share({
           title: title,
           text: title,
-          url: fullUrl,
+          url: shareUrl,
         });
       } catch (err) {
         // User cancelled or share failed
