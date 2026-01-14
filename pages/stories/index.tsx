@@ -2,6 +2,7 @@ import { GetServerSideProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import prisma from "@/lib/prisma";
 
 interface StoryPage {
   id: number;
@@ -152,24 +153,21 @@ export default function StoriesPage({ stories }: Props) {
 }
 
 export const getServerSideProps: GetServerSideProps = async () => {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    (process.env.NODE_ENV === "production"
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000");
-
   try {
-    const res = await fetch(`${baseUrl}/api/stories`);
+    const stories = await (prisma as any).webStory.findMany({
+      where: { published: true },
+      include: { pages: { orderBy: { order: "asc" } } },
+      orderBy: { createdAt: "desc" },
+    });
     
-    if (!res.ok) {
-      throw new Error(`Failed to fetch stories: ${res.status}`);
-    }
-    
-    const stories = await res.json();
-    
-    return { props: { stories } };
+    return { 
+      props: { 
+        stories: JSON.parse(JSON.stringify(stories)) 
+      } 
+    };
   } catch (error) {
     console.error("Error fetching stories:", error);
     return { props: { stories: [] } };
   }
 };
+
