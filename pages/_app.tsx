@@ -21,22 +21,44 @@ export default function App({
 }: AppPropsWithLayout) {
   const router = useRouter();
 
-  // Suppress "Loading initial props cancelled" errors
-  // This is expected Next.js behavior when navigation is interrupted
+  // Suppress common Next.js navigation errors
+  // These are expected behaviors when navigation is interrupted or same-URL navigation occurs
   useEffect(() => {
     const handleRouteChangeError = (err: Error & { cancelled?: boolean }, url: string) => {
       if (err.cancelled) {
         // Navigation was cancelled - this is expected behavior
-        // Silently ignore this error
+        return;
+      }
+      if (err.message?.includes('hard navigate to the same URL')) {
+        // Same URL navigation - this is expected behavior
+        return;
+      }
+      if (err.message?.includes('Loading initial props cancelled')) {
+        // Props loading was cancelled - this is expected behavior
         return;
       }
       console.error('Route change error:', err, url);
     };
 
+    // Also suppress these errors from appearing as unhandled rejections
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const message = event.reason?.message || '';
+      if (
+        message.includes('hard navigate to the same URL') ||
+        message.includes('Loading initial props cancelled') ||
+        message.includes('Invariant: attempted to hard navigate')
+      ) {
+        event.preventDefault();
+        return;
+      }
+    };
+
     router.events.on('routeChangeError', handleRouteChangeError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
 
     return () => {
       router.events.off('routeChangeError', handleRouteChangeError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
     };
   }, [router.events]);
 
