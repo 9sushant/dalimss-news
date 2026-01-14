@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Article } from "@/types";
 
@@ -6,18 +7,25 @@ interface Props {
 }
 
 const NewsShortCard = ({ article }: Props) => {
+  const [formattedDate, setFormattedDate] = useState<string>('');
+
+  // Format date on client-side only to prevent hydration mismatch
+  useEffect(() => {
+    setFormattedDate(
+      new Date(article.createdAt).toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    );
+  }, [article.createdAt]);
+
   const cleanDescription = (html: string | null) => {
     if (!html) return "";
     return html.replace(/<[^>]+>/g, "").slice(0, 250) + "...";
   };
-
-  const formattedDate = new Date(article.createdAt).toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 
   return (
     <div className="relative mx-auto w-full max-w-[360px] bg-white rounded-[24px] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.3)] border-[6px] border-gray-900 overflow-hidden mb-10 group">

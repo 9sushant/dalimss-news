@@ -61,7 +61,7 @@ const WebStoriesCarousel = ({ stories }: Props) => {
                 <h3 className="text-white text-sm font-bold leading-tight line-clamp-2">
                   {story.title}
                 </h3>
-                <p className="text-white/60 text-[10px] mt-1">
+                <p className="text-white/60 text-[10px] mt-1" suppressHydrationWarning>
                   {new Date(story.createdAt).toLocaleDateString("en-IN", {
                     day: "numeric",
                     month: "short",

@@ -1,4 +1,5 @@
 import { GetServerSideProps } from "next";
+import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import ArticleCard from "@/components/ArticleCard";
 import NewsShortsSidebar from "@/components/NewsShortsSidebar";
@@ -29,6 +30,14 @@ const SectionHeader = ({ title, href }: { title: string; href?: string }) => (
 
 export default function HomePage({ articles, stories }: Props) {
   const { data: session } = useSession();
+  const [heroDate, setHeroDate] = useState<string>('');
+
+  // Format hero article date on client-side only to avoid hydration mismatch
+  useEffect(() => {
+    if (articles && articles.length > 0) {
+      setHeroDate(new Date(articles[0].createdAt).toLocaleDateString());
+    }
+  }, [articles]);
 
   // Fallback if no articles
   if (!articles || articles.length === 0) {
@@ -97,7 +106,7 @@ export default function HomePage({ articles, stories }: Props) {
                   
                   <div className="mt-4 flex items-center text-xs text-gray-500 font-semibold uppercase tracking-wider">
                      <span className="text-red-600 mr-2">Latest Story</span>
-                     <span>• {new Date(heroArticle.createdAt).toLocaleDateString()}</span>
+                     <span suppressHydrationWarning>• {heroDate}</span>
                   </div>
                 </div>
               </div>

@@ -9,6 +9,7 @@ interface Props {
 const NewsShortsSidebar = ({ articles }: Props) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [formattedDate, setFormattedDate] = useState<string>('');
 
   // Auto-slide every 5 seconds
   useEffect(() => {
@@ -20,6 +21,21 @@ const NewsShortsSidebar = ({ articles }: Props) => {
 
     return () => clearInterval(interval);
   }, [articles.length, currentIndex]);
+
+  // Format date on client-side only to prevent hydration mismatch
+  useEffect(() => {
+    if (articles && articles.length > 0 && articles[currentIndex]) {
+      setFormattedDate(
+        new Date(articles[currentIndex].createdAt).toLocaleDateString("en-IN", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      );
+    }
+  }, [articles, currentIndex]);
 
   const handleNext = () => {
     setIsAnimating(true);
@@ -49,24 +65,28 @@ const NewsShortsSidebar = ({ articles }: Props) => {
     }, 300);
   };
 
+  // Reset currentIndex when articles array changes to avoid accessing undefined indices
+  useEffect(() => {
+    if (articles && articles.length > 0) {
+      setCurrentIndex(0);
+    }
+  }, [articles]);
+
   if (!articles || articles.length === 0) {
     return null;
   }
 
   const currentArticle = articles[currentIndex];
 
+  // Safety check: if currentArticle is undefined, reset to first article
+  if (!currentArticle) {
+    return null;
+  }
+
   const cleanDescription = (html: string | null) => {
     if (!html) return "";
     return html.replace(/<[^>]+>/g, "").slice(0, 280);
   };
-
-  const formattedDate = new Date(currentArticle.createdAt).toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 
   return (
     <div className="w-full">

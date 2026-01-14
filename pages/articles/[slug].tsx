@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { GetServerSideProps } from "next";
 import { useSession } from "next-auth/react";
 import prisma from "../../lib/prisma";
@@ -35,6 +35,14 @@ import Head from "next/head";
 
 const ArticlePage: React.FC<Props> = ({ article }) => {
   const { data: session } = useSession();
+  const [formattedDate, setFormattedDate] = useState<string>('');
+
+  // Format date on client-side only to prevent hydration mismatch
+  useEffect(() => {
+    if (article) {
+      setFormattedDate(new Date(article.createdAt).toLocaleDateString());
+    }
+  }, [article]);
   
   if (!article) {
     return (
@@ -43,8 +51,6 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
       </div>
     );
   }
-
-  const formattedDate = new Date(article.createdAt).toLocaleDateString();
 
   // Create clean description for SEO
   const rawContent = article.content || "";

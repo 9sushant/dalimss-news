@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Article } from '../types';
 
@@ -8,10 +8,17 @@ interface ArticleCardProps {
 }
 
 const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical' }) => {
-  const formattedDate = new Date(article.createdAt).toLocaleDateString('en-IN', {
-    month: 'short',
-    day: 'numeric',
-  });
+  const [formattedDate, setFormattedDate] = useState<string>('');
+
+  useEffect(() => {
+    // Format date only on client side to avoid hydration mismatch
+    setFormattedDate(
+      new Date(article.createdAt).toLocaleDateString('en-IN', {
+        month: 'short',
+        day: 'numeric',
+      })
+    );
+  }, [article.createdAt]);
 
   const snippet =
     typeof article.content === "string"
