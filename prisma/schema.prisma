@@ -87,6 +87,7 @@ model WebStory {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   published   Boolean  @default(true)
+  relatedLink String?
   pages       WebStoryPage[]
 }
 

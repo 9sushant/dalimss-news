@@ -30,7 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(403).json({ error: "Forbidden" });
     }
 
-    const { title, coverImage, pages } = req.body;
+    const { title, coverImage, pages, relatedLink } = req.body;
 
     if (!title || !coverImage || !pages || pages.length === 0) {
       return res.status(400).json({ error: "Title, cover image, and at least one page are required" });
@@ -46,6 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         title,
         slug,
         coverImage,
+        relatedLink,
         pages: {
           create: pages.map((page: any, idx: number) => ({
             imageUrl: page.imageUrl,

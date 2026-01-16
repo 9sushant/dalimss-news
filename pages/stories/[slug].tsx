@@ -33,6 +33,7 @@ interface WebStory {
   title: string;
   coverImage: string;
   createdAt: string;
+  relatedLink: string | null;
   pages: StoryPage[];
 }
 
@@ -56,6 +57,10 @@ export default function WebStoryPage({ story }: Props) {
 
   // Format date to ISO string for metadata if needed
   const datePublished = new Date(story.createdAt).toISOString();
+
+  // Use the related link if provided, otherwise default to home
+  const ctaLink = story.relatedLink || "/";
+  const ctaText = story.relatedLink ? "Read Full Story" : "Read More News";
 
   return (
     <>
@@ -241,7 +246,7 @@ export default function WebStoryPage({ story }: Props) {
              {index === story.pages.length - 1 && (
                  <amp-story-cta-layer>
                     <div className="cta-container">
-                        <a href="/" className="cta-button">Read More News</a>
+                        <a href={ctaLink} className="cta-button">{ctaText}</a>
                     </div>
                  </amp-story-cta-layer>
              )}

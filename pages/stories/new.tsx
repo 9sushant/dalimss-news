@@ -15,6 +15,7 @@ export default function CreateStoryPage() {
   const router = useRouter();
 
   const [title, setTitle] = useState("");
+  const [relatedLink, setRelatedLink] = useState("");
   const [coverImage, setCoverImage] = useState("");
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [pages, setPages] = useState<StoryPageInput[]>([
@@ -140,7 +141,8 @@ export default function CreateStoryPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           title, 
-          coverImage: finalCoverUrl, 
+          coverImage: finalCoverUrl,
+          relatedLink,
           pages: uploadedPages 
         }),
       });
@@ -194,6 +196,18 @@ export default function CreateStoryPage() {
               placeholder="Enter story title..."
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900"
               required
+            />
+          </div>
+
+          {/* Related Link */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Related Article Link (Optional)</label>
+            <input
+              type="url"
+              value={relatedLink}
+              onChange={(e) => setRelatedLink(e.target.value)}
+              placeholder="https://dalimss.news/articles/..."
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900"
             />
           </div>
 
