@@ -16,7 +16,9 @@ const SeoEditor: React.FC<SeoEditorProps> = ({ title: draftTitle, description: d
 
   // Initialize with draft content if empty
   useEffect(() => {
-    if (!metaTitle && draftTitle) setMetaTitle(draftTitle.slice(0, 60));
+    // UPDATED: Don't truncate title initially so we don't lose the keyword if it's at the end
+    if (!metaTitle && draftTitle) setMetaTitle(draftTitle);
+    
     if (!metaDescription && draftContent) {
       // Strip markdown/html
       const plainText = draftContent.replace(/[#*`]/g, "").slice(0, 160);
@@ -36,22 +38,30 @@ const SeoEditor: React.FC<SeoEditorProps> = ({ title: draftTitle, description: d
       setScore(0);
       return;
     }
-    const keyword = focusKeyword.toLowerCase();
+    const keyword = focusKeyword.toLowerCase().trim();
+    if (!keyword) return;
 
     // 1. Keyword in Title
     if (metaTitle.toLowerCase().includes(keyword)) newScore += 20;
+    
     // 2. Keyword in Description
     if (metaDescription.toLowerCase().includes(keyword)) newScore += 20;
-    // 3. Keyword in URL (simulated)
-    if (articleSlug?.toLowerCase().includes(keyword)) newScore += 10;
+    
+    // 3. Keyword in URL (simulated) - handle spaces as hyphens
+    const slugKeyword = keyword.replace(/\s+/g, '-');
+    if (articleSlug?.toLowerCase().includes(slugKeyword)) newScore += 10;
+    
     // 4. Title length (40-60 good)
-    if (metaTitle.length >= 40 && metaTitle.length <= 60) newScore += 15;
+    if (metaTitle.length >= 20 && metaTitle.length <= 70) newScore += 15; // Relaxed range slightly
     else if (metaTitle.length > 0) newScore += 5;
+    
     // 5. Description length (120-160 good)
-    if (metaDescription.length >= 120 && metaDescription.length <= 160) newScore += 15;
+    if (metaDescription.length >= 100 && metaDescription.length <= 165) newScore += 15; // Relaxed range
     else if (metaDescription.length > 0) newScore += 5;
+    
     // 6. Keyword at the beginning of title
     if (metaTitle.toLowerCase().startsWith(keyword)) newScore += 10;
+    
      // 7. Content length is substantial (proxy check)
     if (draftContent.length > 300) newScore += 10;
 
@@ -60,13 +70,13 @@ const SeoEditor: React.FC<SeoEditorProps> = ({ title: draftTitle, description: d
 
   const Checks = () => {
      if (!focusKeyword) return null;
-     const k = focusKeyword.toLowerCase();
+     const k = focusKeyword.toLowerCase().trim();
      return (
         <div className="space-y-2 mt-4 text-sm">
              <CheckItem label="Keyword in SEO Title" valid={metaTitle.toLowerCase().includes(k)} />
              <CheckItem label="Keyword in Meta Description" valid={metaDescription.toLowerCase().includes(k)} />
-             <CheckItem label="Title has good length (40-60 chars)" valid={metaTitle.length >= 40 && metaTitle.length <= 60} />
-             <CheckItem label="Description has good length (120-160 chars)" valid={metaDescription.length >= 120 && metaDescription.length <= 160} />
+             <CheckItem label="Title has good length (20-70 chars)" valid={metaTitle.length >= 20 && metaTitle.length <= 70} />
+             <CheckItem label="Description has good length (100-165 chars)" valid={metaDescription.length >= 100 && metaDescription.length <= 165} />
              <CheckItem label="Keyword at start of Title" valid={metaTitle.toLowerCase().startsWith(k)} />
         </div>
      )
