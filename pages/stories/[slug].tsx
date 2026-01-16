@@ -70,6 +70,7 @@ export default function WebStoryPage({ story }: Props) {
         <noscript dangerouslySetInnerHTML={{ __html: `<style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style>` }} />
 
         {/* Required Scripts for Web Stories */}
+        <script async src="https://cdn.ampproject.org/v0.js" />
         <script async key="amp-story" custom-element="amp-story" src="https://cdn.ampproject.org/v0/amp-story-1.0.js" />
         
         {/* Schema.org for Web Stories */}
