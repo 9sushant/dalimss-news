@@ -65,10 +65,12 @@ export default function App({
   // Use the page's getLayout if defined, otherwise use default Layout
   const getLayout = Component.getLayout ?? ((page) => <Layout>{page}</Layout>);
 
+  const isStory = router.pathname.startsWith('/stories/') && !router.pathname.includes('/edit') && !router.pathname.includes('/new');
+
   return (
     <SessionProvider session={session}>
       {getLayout(<Component {...pageProps} />)}
-      <Analytics />
+      {!isStory && <Analytics />}
     </SessionProvider>
   );
 }

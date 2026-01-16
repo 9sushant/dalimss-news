@@ -11,7 +11,7 @@ class MyDocument extends Document {
         <Head />
         <body>
           <Main />
-          <NextScript />
+          {!isStory && <NextScript />}
         </body>
       </Html>
     );
