@@ -17,7 +17,7 @@ declare global {
   }
 }
 
-export const config = { amp: true };
+export const config = { unstable_runtimeJS: false };
 
 interface StoryPage {
   id: number;
@@ -60,10 +60,15 @@ export default function WebStoryPage({ story }: Props) {
   return (
     <>
       <Head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1" />
         <title>{story.title}</title>
-        <meta name="description" content={story.title} />
         <link rel="canonical" href={`https://dalimss.news/stories/${story.slug}`} />
         
+        {/* AMP Boilerplate */}
+        <style amp-boilerplate="" dangerouslySetInnerHTML={{ __html: `body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}` }} />
+        <noscript dangerouslySetInnerHTML={{ __html: `<style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style>` }} />
+
         {/* Required Scripts for Web Stories */}
         <script async key="amp-story" custom-element="amp-story" src="https://cdn.ampproject.org/v0/amp-story-1.0.js" />
         
@@ -97,79 +102,7 @@ export default function WebStoryPage({ story }: Props) {
             })
           }}
         />
-      </Head>
-
-      {/* AMP Story Component */}
-      <amp-story
-        standalone=""
-        title={story.title}
-        publisher="Dalimss News"
-        publisher-logo-src={publisherLogoSrc}
-        poster-portrait-src={story.coverImage}
-      >
-        {/* Cover Page */}
-        <amp-story-page id="cover" auto-advance-after="7s">
-          <amp-story-grid-layer template="fill">
-            <amp-img 
-              src={story.coverImage} 
-              width="720" 
-              height="1280" 
-              layout="responsive"
-              alt={story.title}
-            />
-          </amp-story-grid-layer>
-          <amp-story-grid-layer template="vertical" className="bottom-align">
-             <div className="gradient-overlay"></div>
-             <div className="content-wrapper">
-                <h1 className="title">{story.title}</h1>
-                <p className="tap-to-read">Tap to read more</p>
-             </div>
-          </amp-story-grid-layer>
-        </amp-story-page>
-
-        {/* Story Pages */}
-        {story.pages.map((page, index) => (
-          <amp-story-page key={page.id} id={`page-${index + 1}`} auto-advance-after="10s">
-            {/* Background Image */}
-            <amp-story-grid-layer template="fill">
-              <amp-img
-                src={page.imageUrl}
-                width="720"
-                height="1280"
-                layout="responsive"
-                alt={page.heading || ""}
-                animate-in="zoom-out"
-                scale-start="1.1" 
-                scale-end="1"
-              />
-            </amp-story-grid-layer>
-
-            {/* Content Layer */}
-            <amp-story-grid-layer template="vertical" className="bottom-align">
-               <div className="gradient-overlay"></div>
-               <div className="content-wrapper">
-                  {page.heading && (
-                    <h2 className="heading" animate-in="fly-in-bottom">{page.heading}</h2>
-                  )}
-                  {page.text && (
-                    <p className="text" animate-in="fade-in" animate-in-delay="0.3s">{page.text}</p>
-                  )}
-               </div>
-            </amp-story-grid-layer>
-
-             {/* Last Page Call to Action */}
-             {index === story.pages.length - 1 && (
-                 <amp-story-cta-layer>
-                    <div className="cta-container">
-                        <a href="/" className="cta-button">Read More News</a>
-                    </div>
-                 </amp-story-cta-layer>
-             )}
-          </amp-story-page>
-        ))}
-      </amp-story>
-
-      <style jsx global>{`
+        <style amp-custom="" dangerouslySetInnerHTML={{ __html: `
         amp-story {
           font-family: 'Roboto', sans-serif;
           color: #fff;
@@ -242,7 +175,78 @@ export default function WebStoryPage({ story }: Props) {
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             text-transform: uppercase;
         }
-      `}</style>
+        `}} />
+      </Head>
+
+      {/* AMP Story Component */}
+      <amp-story
+        standalone=""
+        title={story.title}
+        publisher="Dalimss News"
+        publisher-logo-src={publisherLogoSrc}
+        poster-portrait-src={story.coverImage}
+      >
+        {/* Cover Page */}
+        <amp-story-page id="cover" auto-advance-after="7s">
+          <amp-story-grid-layer template="fill">
+            <amp-img 
+              src={story.coverImage} 
+              width="720" 
+              height="1280" 
+              layout="responsive"
+              alt={story.title}
+            />
+          </amp-story-grid-layer>
+          <amp-story-grid-layer template="vertical" className="bottom-align">
+             <div className="gradient-overlay"></div>
+             <div className="content-wrapper">
+                <h1 className="title">{story.title}</h1>
+                <p className="tap-to-read">Tap to read more</p>
+             </div>
+          </amp-story-grid-layer>
+        </amp-story-page>
+
+        {/* Story Pages */}
+        {story.pages.map((page, index) => (
+          <amp-story-page key={page.id} id={`page-${index + 1}`} auto-advance-after="10s">
+            {/* Background Image */}
+            <amp-story-grid-layer template="fill">
+              <amp-img
+                src={page.imageUrl}
+                width="720"
+                height="1280"
+                layout="responsive"
+                alt={page.heading || ""}
+                animate-in="zoom-out"
+                scale-start="1.1" 
+                scale-end="1"
+              />
+            </amp-story-grid-layer>
+
+            {/* Content Layer */}
+            <amp-story-grid-layer template="vertical" className="bottom-align">
+               <div className="gradient-overlay"></div>
+               <div className="content-wrapper">
+                  {page.heading && (
+                    <h2 className="heading" animate-in="fly-in-bottom">{page.heading}</h2>
+                  )}
+                  {page.text && (
+                    <p className="text" animate-in="fade-in" animate-in-delay="0.3s">{page.text}</p>
+                  )}
+               </div>
+            </amp-story-grid-layer>
+
+             {/* Last Page Call to Action */}
+             {index === story.pages.length - 1 && (
+                 <amp-story-cta-layer>
+                    <div className="cta-container">
+                        <a href="/" className="cta-button">Read More News</a>
+                    </div>
+                 </amp-story-cta-layer>
+             )}
+          </amp-story-page>
+        ))}
+      </amp-story>
     </>
   );
 }
