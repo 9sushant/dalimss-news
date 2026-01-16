@@ -18,6 +18,16 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     },
   });
 
+  const stories = await prisma.webStory.findMany({
+      select: {
+          slug: true,
+          updatedAt: true,
+      },
+      orderBy: {
+          updatedAt: "desc"
+      }
+  });
+
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
       <url>
@@ -44,6 +54,18 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
          <changefreq>daily</changefreq>
          <priority>0.8</priority>
       </url>
+      ${stories
+        .map((story) => {
+            return `
+            <url>
+                <loc>${baseUrl}/stories/${story.slug}</loc>
+                <lastmod>${new Date(story.updatedAt).toISOString()}</lastmod>
+                <changefreq>daily</changefreq>
+                <priority>0.9</priority>
+            </url>
+            `;
+        })
+        .join("")}
       ${articles
         .map((article) => {
           return `

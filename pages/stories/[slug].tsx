@@ -1,8 +1,23 @@
 import { GetServerSideProps } from "next";
 import prisma from "@/lib/prisma";
 import Head from "next/head";
-import { useState, ReactElement, useEffect } from "react";
+import { ReactElement } from "react";
 import Link from "next/link";
+// Define custom element types for TypeScript
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'amp-story': any;
+      'amp-story-page': any;
+      'amp-story-grid-layer': any;
+      'amp-story-cta-layer': any;
+      'amp-img': any;
+      'amp-video': any;
+    }
+  }
+}
+
+export const config = { amp: true };
 
 interface StoryPage {
   id: number;
@@ -26,50 +41,31 @@ interface Props {
 }
 
 export default function WebStoryPage({ story }: Props) {
-  const [currentPage, setCurrentPage] = useState(0);
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  // Reset expansion when page changes
-
-
   if (!story) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black text-white">
+      <div className="min-h-screen flex items-center justify-center bg-black text-white font-sans">
         <div className="text-center">
           <h1 className="text-2xl mb-4">Story not found</h1>
-          <Link href="/" className="text-red-500 hover:underline">Go Home</Link>
+          <a href="/" className="text-red-500 hover:underline">Go Home</a>
         </div>
       </div>
     );
   }
 
-  const page = story.pages[currentPage];
-  const totalPages = story.pages.length;
+  const publisherLogoSrc = "https://dalimss.news/logo.png"; 
 
-  const goNext = () => {
-    if (currentPage < totalPages - 1) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  useEffect(() => {
-    setIsExpanded(false);
-  }, [currentPage]);
-
-
-
-  const goPrev = () => {
-    if (currentPage > 0) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
+  // Format date to ISO string for metadata if needed
+  const datePublished = new Date(story.createdAt).toISOString();
 
   return (
     <>
       <Head>
-        <title>{story.title} | Dalimss News</title>
+        <title>{story.title}</title>
         <meta name="description" content={story.title} />
         <link rel="canonical" href={`https://dalimss.news/stories/${story.slug}`} />
+        
+        {/* Required Scripts for Web Stories */}
+        <script async key="amp-story" custom-element="amp-story" src="https://cdn.ampproject.org/v0/amp-story-1.0.js" />
         
         {/* Schema.org for Web Stories */}
         <script
@@ -84,8 +80,8 @@ export default function WebStoryPage({ story }: Props) {
               },
               "headline": story.title,
               "image": story.pages.map(p => p.imageUrl),
-              "datePublished": story.createdAt,
-              "dateModified": story.createdAt,
+              "datePublished": datePublished,
+              "dateModified": datePublished,
               "author": {
                 "@type": "Organization",
                 "name": "Dalimss News"
@@ -95,7 +91,7 @@ export default function WebStoryPage({ story }: Props) {
                 "name": "Dalimss News",
                 "logo": {
                   "@type": "ImageObject",
-                  "url": "https://dalimss.news/logo.png"
+                  "url": publisherLogoSrc
                 }
               }
             })
@@ -103,139 +99,150 @@ export default function WebStoryPage({ story }: Props) {
         />
       </Head>
 
-      {/* Full Screen Story Viewer */}
-      <div className="fixed inset-0 bg-black/95 flex items-center justify-center p-4 md:p-8">
-        
-        {/* Story Container - Smaller and more compact */}
-        <div className="relative w-full max-w-[320px] md:max-w-[360px] h-auto max-h-[85vh] aspect-[9/16] mx-auto rounded-2xl overflow-hidden shadow-2xl">
-          
-          {/* Close Button - Inside container but with proper z-index */}
-          <Link 
-            href="/"
-            className="absolute top-3 left-3 z-[60] bg-black/60 backdrop-blur-sm p-2 rounded-full text-white hover:bg-red-600 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </Link>
+      {/* AMP Story Component */}
+      <amp-story
+        standalone=""
+        title={story.title}
+        publisher="Dalimss News"
+        publisher-logo-src={publisherLogoSrc}
+        poster-portrait-src={story.coverImage}
+      >
+        {/* Cover Page */}
+        <amp-story-page id="cover" auto-advance-after="7s">
+          <amp-story-grid-layer template="fill">
+            <amp-img 
+              src={story.coverImage} 
+              width="720" 
+              height="1280" 
+              layout="responsive"
+              alt={story.title}
+            />
+          </amp-story-grid-layer>
+          <amp-story-grid-layer template="vertical" className="bottom-align">
+             <div className="gradient-overlay"></div>
+             <div className="content-wrapper">
+                <h1 className="title">{story.title}</h1>
+                <p className="tap-to-read">Tap to read more</p>
+             </div>
+          </amp-story-grid-layer>
+        </amp-story-page>
 
-          {/* Edit Button */}
-          <Link 
-            href={`/stories/${story.slug}/edit`}
-            className="absolute top-3 right-3 z-[60] bg-black/60 backdrop-blur-sm p-2 rounded-full text-white hover:bg-blue-600 transition-colors"
-            title="Edit Story"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
-            </svg>
-          </Link>
-
-          {/* Progress Bar - Between the two buttons */}
-          <div className="absolute top-3.5 left-12 right-12 z-[55] flex gap-1">
-            {story.pages.map((_, idx) => (
-              <div 
-                key={idx}
-                className={`h-1 flex-1 rounded-full transition-all ${
-                  idx < currentPage ? 'bg-white' : idx === currentPage ? 'bg-white/80' : 'bg-white/30'
-                }`}
+        {/* Story Pages */}
+        {story.pages.map((page, index) => (
+          <amp-story-page key={page.id} id={`page-${index + 1}`} auto-advance-after="10s">
+            {/* Background Image */}
+            <amp-story-grid-layer template="fill">
+              <amp-img
+                src={page.imageUrl}
+                width="720"
+                height="1280"
+                layout="responsive"
+                alt={page.heading || ""}
+                animate-in="zoom-out"
+                scale-start="1.1" 
+                scale-end="1"
               />
-            ))}
-          </div>
+            </amp-story-grid-layer>
 
-          {/* Story Image */}
-          <div className="absolute inset-0 overflow-hidden">
-            <img
-              src={page.imageUrl}
-              alt=""
-              className="w-full h-full object-cover"
-            />
-            
-            {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
-          </div>
+            {/* Content Layer */}
+            <amp-story-grid-layer template="vertical" className="bottom-align">
+               <div className="gradient-overlay"></div>
+               <div className="content-wrapper">
+                  {page.heading && (
+                    <h2 className="heading" animate-in="fly-in-bottom">{page.heading}</h2>
+                  )}
+                  {page.text && (
+                    <p className="text" animate-in="fade-in" animate-in-delay="0.3s">{page.text}</p>
+                  )}
+               </div>
+            </amp-story-grid-layer>
 
-          {/* Content */}
+             {/* Last Page Call to Action */}
+             {index === story.pages.length - 1 && (
+                 <amp-story-cta-layer>
+                    <div className="cta-container">
+                        <a href="/" className="cta-button">Read More News</a>
+                    </div>
+                 </amp-story-cta-layer>
+             )}
+          </amp-story-page>
+        ))}
+      </amp-story>
 
-          <div 
-            className={`absolute bottom-0 left-0 right-0 p-4 z-[40] transition-all duration-300 ${isExpanded ? 'bg-black/95 h-[70%] overflow-y-auto rounded-t-2xl' : ''}`}
-          >
-            {page.heading && (
-              <h2 className="text-white text-lg md:text-xl font-bold mb-2 drop-shadow-lg line-clamp-3">
-                {page.heading}
-              </h2>
-            )}
-            {page.text && (
-              <div>
-                <p className={`text-white/90 text-sm drop-shadow-md ${isExpanded ? '' : 'line-clamp-3'}`}>
-                  {page.text}
-                </p>
-                {page.text.length > 50 && (
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsExpanded(!isExpanded);
-                    }}
-                    className="bg-blue-500 hover:bg-blue-600 text-white text-xs mt-3 px-4 py-1.5 rounded-full font-semibold shadow-lg inline-block"
-                  >
-                    {isExpanded ? "See Less ↑" : "See More ↓"}
-                  </button>
-                )}
-              </div>
-            )}
-            
-            {/* Back to Home - only on last page */}
-            {currentPage === totalPages - 1 && (
-              <div className="mt-4 flex justify-center">
-                <Link
-                  href="/"
-                  className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full font-semibold shadow-lg"
-                >
-                  Back to Home
-                </Link>
-              </div>
-            )}
-          </div>
-
-          {/* Navigation Areas - Only cover top 60% to allow bottom content to be clickable */}
-          <div className="absolute inset-x-0 top-0 h-[60%] flex z-20">
-            {/* Left tap area */}
-            <div 
-              className="w-1/3 h-full cursor-pointer"
-              onClick={goPrev}
-            />
-            {/* Right tap area */}
-            <div 
-              className="w-2/3 h-full cursor-pointer"
-              onClick={goNext}
-            />
-          </div>
-
-          {/* Navigation Arrows */}
-          {currentPage > 0 && (
-            <button 
-              onClick={goPrev}
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-30 bg-white/20 backdrop-blur-sm p-2 rounded-full text-white hover:bg-white/30"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-              </svg>
-            </button>
-          )}
-          
-          {currentPage < totalPages - 1 && (
-            <button 
-              onClick={goNext}
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-30 bg-white/20 backdrop-blur-sm p-2 rounded-full text-white hover:bg-white/30"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-              </svg>
-            </button>
-          )}
-
-
-        </div>
-      </div>
+      <style jsx global>{`
+        amp-story {
+          font-family: 'Roboto', sans-serif;
+          color: #fff;
+        }
+        amp-story-page {
+          background-color: #000;
+        }
+        .bottom-align {
+          align-content: end;
+          padding: 0;
+        }
+        .gradient-overlay {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          height: 60%;
+          background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0));
+          z-index: 1;
+        }
+        .content-wrapper {
+          position: relative;
+          z-index: 2;
+          padding: 32px 24px 48px;
+        }
+        .title {
+          font-weight: 800;
+          font-size: 2.5em;
+          line-height: 1.1;
+          margin-bottom: 16px;
+          text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        .tap-to-read {
+          font-size: 1em;
+          opacity: 0.8;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+        .heading {
+          font-weight: 700;
+          font-size: 1.8em;
+          margin-bottom: 12px;
+          text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+          line-height: 1.2;
+        }
+        .text {
+          font-size: 1.1em;
+          line-height: 1.5;
+          opacity: 0.95;
+          background: rgba(0,0,0,0.3);
+          padding: 12px;
+          border-radius: 8px;
+          backdrop-filter: blur(4px);
+        }
+        .cta-container {
+            position: absolute;
+            bottom: 40px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        .cta-button {
+            background-color: #ef4444; /* Red 500 */
+            color: white;
+            padding: 12px 32px;
+            border-radius: 99px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1em;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            text-transform: uppercase;
+        }
+      `}</style>
     </>
   );
 }
@@ -264,7 +271,3 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   }
 };
 
-// Opt out of Layout - full screen story viewing experience
-WebStoryPage.getLayout = function getLayout(page: ReactElement) {
-  return <>{page}</>;
-};
