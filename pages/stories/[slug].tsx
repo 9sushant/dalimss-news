@@ -276,3 +276,5 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   }
 };
 
+// Opt out of layout for AMP stories
+WebStoryPage.getLayout = (page: ReactElement) => page;
