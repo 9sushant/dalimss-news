@@ -28,9 +28,60 @@ const SectionHeader = ({ title, href }: { title: string; href?: string }) => (
   </div>
 );
 
+// ... imports
+import { useRouter } from "next/router";
+
 export default function HomePage({ articles, stories }: Props) {
   const { data: session } = useSession();
+  const router = useRouter(); // <--- Added router
   const [heroDate, setHeroDate] = useState<string>('');
+  
+  // Pagination State
+  const [newsList, setNewsList] = useState<Article[]>(articles);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(articles.length >= 15);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  // Sync newsList when initial articles change (e.g. navigation)
+  useEffect(() => {
+    setNewsList(articles);
+    setPage(1);
+    setHasMore(articles.length >= 15);
+  }, [articles]);
+
+  const loadMore = async () => {
+    if (loadingMore) return;
+    setLoadingMore(true);
+    
+    try {
+      const nextPage = page + 1;
+      
+      // Construct query params
+      const params = new URLSearchParams();
+      params.append("page", String(nextPage));
+      params.append("limit", "15");
+      
+      const { category, search } = router.query;
+      if (category) params.append("category", String(category));
+      if (search) params.append("search", String(search));
+
+      const res = await fetch(`/api/articles?${params.toString()}`);
+      if (!res.ok) throw new Error("Failed to load more");
+      
+      const newArticles = await res.json();
+      
+      setNewsList((prev) => [...prev, ...newArticles]);
+      setPage(nextPage);
+      
+      if (newArticles.length < 15) {
+        setHasMore(false);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   // Format hero article date on client-side only to avoid hydration mismatch
   useEffect(() => {
@@ -59,8 +110,8 @@ export default function HomePage({ articles, stories }: Props) {
 
   const heroArticle = articles[0];
   const topStories = articles.slice(1, 5);
-  // 🔥 UPDATED: "Latest News" now acts as a complete feed, including top stories
-  const latestNews = articles; 
+  // 🔥 UPDATED: Use newsList for pagination
+  const latestNews = newsList; 
   const sidebarNews = articles.slice(2, 8); // Just reusing for demo
 
   return (
@@ -135,6 +186,19 @@ export default function HomePage({ articles, stories }: Props) {
                   <ArticleCard key={article.id} article={article} variant="horizontal" />
                 ))}
               </div>
+
+              {/* Load More Button */}
+              {hasMore && (
+                <div className="mt-8 text-center bg-gray-50 p-4 rounded-lg">
+                  <button
+                    onClick={loadMore}
+                    disabled={loadingMore}
+                    className="bg-red-600 text-white px-8 py-3 rounded-full font-bold hover:bg-red-700 disabled:opacity-50 transition-colors"
+                  >
+                    {loadingMore ? "Loading..." : "Read More News"}
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Right Sidebar */}
@@ -167,6 +231,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const params = new URLSearchParams();
   if (category) params.append("category", String(category));
   if (search) params.append("search", String(search));
+  
+  // Set initial pagination
+  params.append("page", "1");
+  params.append("limit", "15");
 
   const queryString = params.toString() ? `?${params.toString()}` : "";
 

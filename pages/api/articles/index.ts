@@ -66,7 +66,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   // ----------- GET ALL ARTICLES -----------
-  const { category, search } = req.query;
+  const { category, search, page, limit } = req.query;
   const where: any = {};
 
   if (category) {
@@ -75,15 +75,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (search) {
     where.OR = [
-      { title: { contains: String(search) } }, // Remove mode: 'insensitive' as seemingly not compatible with Sqlite in some versions or not enabled in schema
+      { title: { contains: String(search) } }, 
       { content: { contains: String(search) } },
     ];
   }
 
-  const articles = await prisma.article.findMany({
+  // Pagination logic
+  const pageInt = parseInt(page as string) || 1;
+  const limitInt = parseInt(limit as string); 
+  
+  const queryOptions: any = {
     where,
     orderBy: { createdAt: "desc" },
-  });
+  };
+
+  if (limitInt) {
+    queryOptions.take = limitInt;
+    queryOptions.skip = (pageInt - 1) * limitInt;
+  }
+
+  const articles = await prisma.article.findMany(queryOptions);
 
   return res.json(articles);
 }
