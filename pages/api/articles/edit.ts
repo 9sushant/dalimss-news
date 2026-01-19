@@ -27,6 +27,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // OR we can just update the other fields. 
     // Let's just update the other fields for now to keep it simple.
 
+    const article = await prisma.article.findUnique({
+      where: { slug },
+      select: { authorId: true },
+    });
+
+    if (!article) {
+      return res.status(404).json({ error: "Article not found" });
+    }
+
+    const user = session.user as any;
+    if (article.authorId !== user.id && user.role !== "admin") {
+      return res.status(403).json({ error: "Forbidden: You do not own this article" });
+    }
+
     const updatedArticle = await prisma.article.update({
       where: { slug },
       data: {
