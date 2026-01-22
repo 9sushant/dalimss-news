@@ -1,4 +1,5 @@
 import "@/styles/globals.css";
+import Script from "next/script";
 import { Analytics } from "@vercel/analytics/react";
 import type { AppProps } from "next/app";
 import { SessionProvider } from "next-auth/react";
@@ -69,6 +70,19 @@ export default function App({
 
   return (
     <SessionProvider session={session}>
+      <Script
+        src="https://www.googletagmanager.com/gtag/js?id=G-2N4BWSS6GL"
+        strategy="afterInteractive"
+      />
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-2N4BWSS6GL');
+        `}
+      </Script>
       {getLayout(<Component {...pageProps} />)}
       {!isStory && <Analytics />}
     </SessionProvider>
