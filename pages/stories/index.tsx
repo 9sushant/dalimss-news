@@ -76,55 +76,68 @@ export default function StoriesPage({ stories }: Props) {
         {stories && stories.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
             {stories.map((story) => (
-              <Link
-                key={story.id}
-                href={`/stories/${story.slug}`}
-                className="group"
-              >
-                <div className="relative aspect-[9/16] rounded-xl overflow-hidden shadow-lg border-2 border-transparent hover:border-red-500 transition-all duration-300">
-                  {/* Cover Image */}
-                  <img
-                    src={story.coverImage}
-                    alt={story.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-                  
-                  {/* Story Ring Indicator */}
-                  <div className="absolute top-3 right-3">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-red-500 to-orange-400 p-0.5 shadow-lg">
-                      <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="white" className="w-4 h-4">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
-                        </svg>
+              <div key={story.id} className="relative group">
+                <Link
+                  href={`/stories/${story.slug}`}
+                  className="block"
+                >
+                  <div className="relative aspect-[9/16] rounded-xl overflow-hidden shadow-lg border-2 border-transparent group-hover:border-red-500 transition-all duration-300">
+                    {/* Cover Image */}
+                    <img
+                      src={story.coverImage}
+                      alt={story.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                    
+                    {/* Story Ring Indicator */}
+                    <div className="absolute top-3 right-3">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-red-500 to-orange-400 p-0.5 shadow-lg">
+                        <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="white" className="w-4 h-4">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+                          </svg>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Page Count Badge */}
-                  <div className="absolute top-3 left-3">
-                    <span className="bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full font-medium">
-                      {story.pages?.length || 0} slides
-                    </span>
+                    {/* Page Count Badge */}
+                    <div className="absolute top-3 left-3">
+                      <span className="bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full font-medium">
+                        {story.pages?.length || 0} slides
+                      </span>
+                    </div>
+                    
+                    {/* Title and Date */}
+                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                      <h3 className="text-white text-sm md:text-base font-bold leading-tight line-clamp-2 mb-2">
+                        {story.title}
+                      </h3>
+                      <p className="text-white/60 text-xs" suppressHydrationWarning>
+                        {new Date(story.createdAt).toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </p>
+                    </div>
                   </div>
-                  
-                  {/* Title and Date */}
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <h3 className="text-white text-sm md:text-base font-bold leading-tight line-clamp-2 mb-2">
-                      {story.title}
-                    </h3>
-                    <p className="text-white/60 text-xs" suppressHydrationWarning>
-                      {new Date(story.createdAt).toLocaleDateString("en-IN", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </p>
-                  </div>
-                </div>
-              </Link>
+                </Link>
+
+                {isAdmin && (
+                  <Link
+                    href={`/stories/${story.slug}/edit`}
+                    className="absolute top-3 right-14 z-20 bg-white/90 p-1.5 rounded-full text-gray-700 hover:text-red-600 hover:bg-white shadow-lg transition-all transform hover:scale-110"
+                    title="Edit Story"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                    </svg>
+                  </Link>
+                )}
+              </div>
             ))}
           </div>
         ) : (
