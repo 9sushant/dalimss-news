@@ -101,3 +101,35 @@ model WebStoryPage {
   order       Int      @default(0)
 }
 
+model Course {
+  id          Int          @id @default(autoincrement())
+  title       String
+  description String
+  price       Float
+  duration    String
+  level       String       // Beginner, Intermediate, Advanced
+  students    Int          @default(0)
+  rating      Float        @default(0)
+  highlights  String       // JSON array of highlights
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  enrollments Enrollment[]
+}
+
+model Enrollment {
+  id                String   @id @default(cuid())
+  userId            String?
+  userName          String
+  userEmail         String
+  userPhone         String?
+  courseId          Int
+  course            Course   @relation(fields: [courseId], references: [id])
+  amount            Float
+  currency          String   @default("INR")
+  status            String   // created, paid, failed
+  razorpayOrderId   String?  @unique
+  razorpayPaymentId String?
+  razorpaySignature String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}

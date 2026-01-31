@@ -148,6 +148,16 @@ const Nav: React.FC = () => {
                 Education
               </Link>
             </li>
+            <li>
+              <Link href="/courses" className="block py-2 md:py-0 hover:text-[#E21B22] transition-colors">
+                Courses
+              </Link>
+            </li>
+            <li>
+              <Link href="/about" className="block py-2 md:py-0 hover:text-[#E21B22] transition-colors">
+                About
+              </Link>
+            </li>
             {session && session.user && (session.user.role === "admin" || session.user.role === "editor" || session.user.email === "admin@dalimss.com" || session.user.email === "sushantgaurav@dalimss.com" || session.user.email === "dalimsssushant@gmail.com") && (
                <li>
                 <Link 
