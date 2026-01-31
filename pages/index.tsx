@@ -70,7 +70,11 @@ export default function HomePage({ articles, stories }: Props) {
       
       const newArticles = await res.json();
       
-      setNewsList((prev) => [...prev, ...newArticles]);
+      setNewsList((prev) => {
+        const existingIds = new Set(prev.map((a) => a.id));
+        const uniqueNew = newArticles.filter((a: Article) => !existingIds.has(a.id));
+        return [...prev, ...uniqueNew];
+      });
       setPage(nextPage);
       
       if (newArticles.length < 15) {

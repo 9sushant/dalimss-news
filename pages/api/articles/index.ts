@@ -86,13 +86,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   
   const queryOptions: any = {
     where,
-    orderBy: { createdAt: "desc" },
+    orderBy: [
+      { createdAt: "desc" },
+      { id: "desc" } // Tie-breaker for stable pagination
+    ],
   };
 
   if (limitInt) {
     queryOptions.take = limitInt;
     queryOptions.skip = (pageInt - 1) * limitInt;
   }
+
+  console.log(`Fetching articles: page=${pageInt}, limit=${limitInt}, skip=${queryOptions.skip}, take=${queryOptions.take}`);
 
   const articles = await prisma.article.findMany(queryOptions);
 
