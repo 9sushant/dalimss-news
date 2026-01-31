@@ -19,10 +19,11 @@ declare global {
   }
 }
 
-// Course data
+// Course data - TODO: Fetch from database
 const courses = [
   {
     id: 1,
+    slug: "digital-journalism-fundamentals",
     title: "Digital Journalism Fundamentals",
     description: "Learn the basics of modern digital journalism, from writing compelling stories to understanding multimedia storytelling techniques.",
     duration: "6 weeks",
@@ -36,6 +37,7 @@ const courses = [
   },
   {
     id: 2,
+    slug: "video-production-editing",
     title: "Video Production & Editing",
     description: "Master video production from concept to final cut. Learn professional editing techniques using industry-standard tools.",
     duration: "8 weeks",
@@ -49,6 +51,7 @@ const courses = [
   },
   {
     id: 3,
+    slug: "social-media-management",
     title: "Social Media Management",
     description: "Build and grow your brand on social platforms. Learn content strategy, analytics, and engagement tactics.",
     duration: "4 weeks",
@@ -62,6 +65,7 @@ const courses = [
   },
   {
     id: 4,
+    slug: "investigative-reporting",
     title: "Investigative Reporting",
     description: "Deep dive into investigative journalism. Learn research methodologies, source protection, and impactful storytelling.",
     duration: "10 weeks",
@@ -75,6 +79,7 @@ const courses = [
   },
   {
     id: 5,
+    slug: "photography-for-journalists",
     title: "Photography for Journalists",
     description: "Capture compelling images that tell stories. Learn composition, lighting, and photojournalism ethics.",
     duration: "5 weeks",
@@ -88,6 +93,7 @@ const courses = [
   },
   {
     id: 6,
+    slug: "podcast-production",
     title: "Podcast Production",
     description: "Create professional podcasts from scratch. Learn recording, editing, and distribution strategies.",
     duration: "6 weeks",
@@ -361,12 +367,12 @@ const CoursesPage: React.FC = () => {
                     </div>
 
                     {/* CTA Button */}
-                    <button 
-                      onClick={() => handleEnrollClick(course)}
-                      className="w-full mt-4 bg-gray-900 hover:bg-red-600 text-white py-3 rounded-lg font-semibold transition-all"
+                    <Link
+                      href={`/courses/${course.slug}`}
+                      className="block w-full mt-4 bg-gray-900 hover:bg-red-600 text-center text-white py- 3 rounded-lg font-semibold transition-all"
                     >
-                      Enroll Now
-                    </button>
+                      View Course
+                    </Link>
                   </div>
                 </div>
               ))}

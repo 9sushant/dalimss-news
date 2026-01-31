@@ -102,34 +102,91 @@ model WebStoryPage {
 }
 
 model Course {
-  id          Int          @id @default(autoincrement())
+  id              Int             @id @default(autoincrement())
+  slug            String?         @unique
+  title           String
+  description     String
+  shortDesc       String?         // Short description for cards
+  instructor      String          @default("Dalimss Academy")
+  price           Float
+  duration        String
+  level           String          // Beginner, Intermediate, Advanced
+  students        Int             @default(0)
+  rating          Float           @default(0)
+  highlights      String          // JSON array of highlights
+  requirements    String?         // JSON array of requirements
+  whatYouLearn    String?         // JSON array of learning outcomes
+  thumbnail       String?         // Course thumbnail image
+  promoVideo      String?         // Promotional video URL
+  language        String          @default("English")
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  enrollments     Enrollment[]
+  modules         CourseModule[]
+}
+
+model CourseModule {
+  id          Int      @id @default(autoincrement())
+  courseId    Int
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   title       String
-  description String
-  price       Float
-  duration    String
-  level       String       // Beginner, Intermediate, Advanced
-  students    Int          @default(0)
-  rating      Float        @default(0)
-  highlights  String       // JSON array of highlights
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  enrollments Enrollment[]
+  description String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  lessons     Lesson[]
+}
+
+model Lesson {
+  id          Int            @id @default(autoincrement())
+  moduleId    Int
+  module      CourseModule   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  videoUrl    String?        // Video URL (YouTube, Vimeo, or hosted)
+  duration    Int?           // Duration in seconds
+  content     String?        // Text content/notes
+  order       Int            @default(0)
+  isFree      Boolean        @default(false) // Preview lessons
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  progress    UserProgress[]
 }
 
 model Enrollment {
-  id                String   @id @default(cuid())
+  id                String         @id @default(cuid())
   userId            String?
   userName          String
   userEmail         String
   userPhone         String?
   courseId          Int
-  course            Course   @relation(fields: [courseId], references: [id])
+  course            Course         @relation(fields: [courseId], references: [id])
   amount            Float
-  currency          String   @default("INR")
-  status            String   // created, paid, failed
-  razorpayOrderId   String?  @unique
+  currency          String         @default("INR")
+  status            String         // created, paid, failed
+  razorpayOrderId   String?        @unique
   razorpayPaymentId String?
   razorpaySignature String?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  completedAt       DateTime?      // When course was completed
+  progress          Float          @default(0) // Overall course progress (0-100)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  userProgress      UserProgress[]
+
+  @@unique([userId, courseId]) // One enrollment per user per course
+}
+
+model UserProgress {
+  id           String     @id @default(cuid())
+  enrollmentId String
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  lessonId     Int
+  lesson       Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  completed    Boolean    @default(false)
+  watchedTime  Int        @default(0) // Time watched in seconds
+  completedAt  DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([enrollmentId, lessonId]) // One progress record per lesson per enrollment
 }
