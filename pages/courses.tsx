@@ -369,7 +369,7 @@ const CoursesPage: React.FC = () => {
                     {/* CTA Button */}
                     <Link
                       href={`/courses/${course.slug}`}
-                      className="block w-full mt-4 bg-gray-900 hover:bg-red-600 text-center text-white py- 3 rounded-lg font-semibold transition-all"
+                      className="block w-full mt-4 bg-gray-900 hover:bg-red-600 text-center text-white py-3 rounded-lg font-semibold transition-all"
                     >
                       View Course
                     </Link>
