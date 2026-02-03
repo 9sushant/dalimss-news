@@ -481,7 +481,8 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
                                                                   alert("YouTube video linked successfully!");
                                                                   window.location.reload();
                                                                 } else {
-                                                                  throw new Error("Failed to link YouTube video");
+                                                                  const errorData = await updateRes.json();
+                                                                  throw new Error(errorData.error || errorData.details || "Failed to link YouTube video");
                                                                 }
                                                               } catch (error: any) {
                                                                 alert(error.message || "Failed to link YouTube video");
