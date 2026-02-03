@@ -14,33 +14,7 @@ import {
   PhoneIcon
 } from "@heroicons/react/24/outline";
 
-// Team members data
-const teamMembers = [
-  {
-    name: "Sushant Gaurav",
-    role: "Founder & Editor-in-Chief",
-    description: "Visionary leader with 10+ years in digital journalism",
-    image: "/team/sushant.jpg"
-  },
-  {
-    name: "Priya Sharma",
-    role: "Managing Editor",
-    description: "Award-winning journalist specializing in investigative reporting",
-    image: "/team/priya.jpg"
-  },
-  {
-    name: "Rajesh Kumar",
-    role: "Head of Technology",
-    description: "Tech innovator driving digital transformation",
-    image: "/team/rajesh.jpg"
-  },
-  {
-    name: "Anita Verma",
-    role: "Senior Correspondent",
-    description: "Expert in local news and community stories",
-    image: "/team/anita.jpg"
-  }
-];
+
 
 // Timeline milestones
 const milestones = [
@@ -196,34 +170,6 @@ const AboutPage: React.FC = () => {
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Team Section */}
-        <section className="py-16 bg-white">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Meet Our Team</h2>
-              <p className="text-gray-600 max-w-2xl mx-auto">
-                Dedicated professionals committed to delivering quality journalism
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {teamMembers.map((member, index) => (
-                <div key={index} className="group text-center">
-                  <div className="relative w-40 h-40 mx-auto mb-4 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 overflow-hidden">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <UserGroupIcon className="h-16 w-16 text-gray-400" />
-                    </div>
-                    <div className="absolute inset-0 bg-red-600/0 group-hover:bg-red-600/20 transition-colors"></div>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">{member.name}</h3>
-                  <p className="text-red-600 font-medium text-sm mb-2">{member.role}</p>
-                  <p className="text-gray-600 text-sm">{member.description}</p>
-                </div>
-              ))}
             </div>
           </div>
         </section>
