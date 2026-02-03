@@ -80,8 +80,7 @@ const AboutPage: React.FC = () => {
                 Empowering Varanasi with <span className="text-red-500">Truth & Integrity</span>
               </h1>
               <p className="text-lg md:text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
-                We are committed to delivering accurate, unbiased, and timely news to our readers. 
-                Our mission is to inform, educate, and inspire the community through quality journalism.
+                Dalimss News is a digital-first news platform committed to delivering accurate, timely, and relevant news with a strong focus on Varanasi, Purvanchal (Eastern Uttar Pradesh), and key national developments.
               </p>
             </div>
           </div>
@@ -94,14 +93,13 @@ const AboutPage: React.FC = () => {
               <div>
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Our Mission</h2>
                 <p className="text-gray-600 text-lg leading-relaxed mb-6">
-                  At Dalimss News, we believe in the power of journalism to transform communities. 
-                  Our mission is to provide accurate, comprehensive, and timely news coverage that 
-                  empowers citizens to make informed decisions.
+                  With an emphasis on responsible journalism, Dalimss News covers a wide range of topics including civic issues, education, culture, governance, social developments, and public interest stories. The platform aims to amplify local voices while maintaining journalistic integrity and factual reporting.
                 </p>
-                <p className="text-gray-600 text-lg leading-relaxed">
-                  We are dedicated to upholding the highest standards of journalistic integrity, 
-                  ensuring that every story we publish serves the public interest and contributes 
-                  to a more informed society.
+                <p className="text-gray-600 text-lg leading-relaxed mb-6">
+                  Through its website and active presence across social media platforms, Dalimss News strives to keep readers informed, aware, and engaged with issues that matter at the grassroots as well as the national level.
+                </p>
+                <p className="text-gray-600 text-lg leading-relaxed font-semibold italic">
+                  Dalimss News — Reporting with responsibility, rooted in the region.
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-6">
@@ -268,9 +266,9 @@ const AboutPage: React.FC = () => {
                   <div className="w-14 h-14 bg-red-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
                     <PhoneIcon className="h-7 w-7 text-red-500" />
                   </div>
-                  <h3 className="font-bold mb-2">Call Us</h3>
+                  <h3 className="font-bold mb-2">Grievance Officer</h3>
                   <p className="text-gray-400 text-sm">
-                    +91 XXX XXX XXXX<br />
+                    +91 63927 52976<br />
                     Mon-Sat, 9AM-6PM
                   </p>
                 </div>
