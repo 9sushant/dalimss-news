@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
+import { useSession, getSession } from "next-auth/react";
 import prisma from "@/lib/prisma";
 import {
   PlayCircleIcon,
@@ -354,27 +354,45 @@ const CourseDetailPage: React.FC<Props> = ({ course, isEnrolled, totalLessons, t
 
                         {isExpanded && (
                           <div className="border-t border-gray-200 bg-gray-50">
-                            {module.lessons.map((lesson) => (
-                              <div
-                                key={lesson.id}
-                                className="flex items-center justify-between p-4 hover:bg-white transition-colors border-b border-gray-100 last:border-0"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <PlayCircleIcon className="h-5 w-5 text-gray-400" />
-                                  <span className="text-gray-700">{lesson.title}</span>
-                                  {lesson.isFree && (
-                                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-semibold">
-                                      FREE
+                            {module.lessons.map((lesson) => {
+                              const canView = isEnrolled || lesson.isFree;
+                              
+                              return (
+                                <div
+                                  key={lesson.id}
+                                  className={`flex items-center justify-between p-4 transition-colors border-b border-gray-100 last:border-0 ${
+                                    canView ? 'hover:bg-white' : 'bg-gray-100'
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <PlayCircleIcon className={`h-5 w-5 ${canView ? 'text-gray-400' : 'text-gray-300'}`} />
+                                    <span className={canView ? 'text-gray-700' : 'text-gray-500'}>
+                                      {lesson.title}
+                                    </span>
+                                    {lesson.isFree && (
+                                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-semibold">
+                                        FREE
+                                      </span>
+                                    )}
+                                    {!canView && (
+                                      <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full font-semibold flex items-center gap-1">
+                                        🔒 Locked
+                                      </span>
+                                    )}
+                                  </div>
+                                  {canView && lesson.duration && (
+                                    <span className="text-sm text-gray-500">
+                                      {formatDuration(lesson.duration)}
+                                    </span>
+                                  )}
+                                  {!canView && (
+                                    <span className="text-xs text-gray-400">
+                                      Enroll to access
                                     </span>
                                   )}
                                 </div>
-                                {lesson.duration && (
-                                  <span className="text-sm text-gray-500">
-                                    {formatDuration(lesson.duration)}
-                                  </span>
-                                )}
-                              </div>
-                            ))}
+                              );
+                            })}
                           </div>
                         )}
                       </div>
@@ -552,7 +570,22 @@ export const getServerSideProps: GetServerSideProps = async ({ params, req }) =>
 
     // Check if user is enrolled
     let isEnrolled = false;
-    // TODO: Check actual enrollment from session/database
+    const  session = await getSession({ req });
+    
+    if (session?.user) {
+      const enrollment = await (prisma as any).enrollment.findFirst({
+        where: {
+          courseId: course.id,
+          OR: [
+            { userId: (session.user as any).id },
+            { userEmail: session.user.email },
+          ],
+          status: 'paid',
+        },
+      });
+      
+      isEnrolled = !!enrollment;
+    }
 
     // Calculate totals
     let totalLessons = 0;
