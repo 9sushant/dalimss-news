@@ -452,26 +452,67 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
                                                 <div className="text-sm text-gray-600">Uploading...</div>
                                               ) : (
                                                 <>
-                                                  <label
-                                                    htmlFor={`video-${lesson.id}`}
-                                                    className="cursor-pointer bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                                                  >
-                                                    {lesson.videoUrl ? "Replace Video" : "Upload Video"}
-                                                  </label>
-                                                  <input
-                                                    id={`video-${lesson.id}`}
-                                                    type="file"
-                                                    accept="video/*"
-                                                    className="hidden"
-                                                    onChange={(e) => {
-                                                      const file = e.target.files?.[0];
-                                                      if (file) {
-                                                        if (confirm(`Upload video for "${lesson.title}"?`)) {
-                                                          handleVideoUpload(lesson.id, file);
+                                                  {/* YouTube Link Option */}
+                                                  <div className="flex items-center gap-2">
+                                                    <input
+                                                      type="text"
+                                                      placeholder="Paste YouTube URL"
+                                                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent w-64"
+                                                      onKeyDown={async (e) => {
+                                                        if (e.key === 'Enter') {
+                                                          const youtubeUrl = (e.target as HTMLInputElement).value.trim();
+                                                          if (youtubeUrl) {
+                                                            if (confirm(`Set YouTube video for "${lesson.title}"?`)) {
+                                                              try {
+                                                                setUploadingLesson(lesson.id);
+                                                                const updateRes = await fetch("/api/admin/lessons/update-video", {
+                                                                  method: "POST",
+                                                                  headers: { "Content-Type": "application/json" },
+                                                                  body: JSON.stringify({
+                                                                    lessonId: lesson.id,
+                                                                    videoUrl: youtubeUrl,
+                                                                  }),
+                                                                });
+
+                                                                if (updateRes.ok) {
+                                                                  alert("YouTube video linked successfully!");
+                                                                  window.location.reload();
+                                                                } else {
+                                                                  throw new Error("Failed to link YouTube video");
+                                                                }
+                                                              } catch (error: any) {
+                                                                alert(error.message || "Failed to link YouTube video");
+                                                              } finally {
+                                                                setUploadingLesson(null);
+                                                              }
+                                                            }
+                                                            (e.target as HTMLInputElement).value = '';
+                                                          }
                                                         }
-                                                      }
-                                                    }}
-                                                  />
+                                                      }}
+                                                    />
+                                                    <span className="text-xs text-gray-500">or</span>
+                                                    <label
+                                                      htmlFor={`video-${lesson.id}`}
+                                                      className="cursor-pointer bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap"
+                                                    >
+                                                      {lesson.videoUrl ? "Replace File" : "Upload File"}
+                                                    </label>
+                                                    <input
+                                                      id={`video-${lesson.id}`}
+                                                      type="file"
+                                                      accept="video/*"
+                                                      className="hidden"
+                                                      onChange={(e) => {
+                                                        const file = e.target.files?.[0];
+                                                        if (file) {
+                                                          if (confirm(`Upload video file for "${lesson.title}"?`)) {
+                                                            handleVideoUpload(lesson.id, file);
+                                                          }
+                                                        }
+                                                      }}
+                                                    />
+                                                  </div>
                                                 </>
                                               )}
                                             </div>
