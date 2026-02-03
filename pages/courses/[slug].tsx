@@ -29,6 +29,7 @@ interface Lesson {
   duration: number | null;
   isFree: boolean;
   order: number;
+  videoUrl: string | null;
 }
 
 interface Module {
@@ -107,6 +108,21 @@ const CourseDetailPage: React.FC<Props> = ({ course, isEnrolled, totalLessons, t
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+  };
+
+  const getYouTubeEmbedUrl = (url: string | null) => {
+    if (!url) return null;
+    if (!url.includes('youtube.com') && !url.includes('youtu.be')) return null;
+
+    let videoId = '';
+    if (url.includes('youtu.be/')) {
+      videoId = url.split('youtu.be/')[1].split('?')[0];
+    } else if (url.includes('youtube.com/watch?v=')) {
+      videoId = url.split('v=')[1].split('&')[0];
+    } else if (url.includes('youtube.com/embed/')) {
+      videoId = url.split('embed/')[1].split('?')[0];
+    }
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
   };
 
   const handleEnrollClick = () => {
@@ -360,35 +376,54 @@ const CourseDetailPage: React.FC<Props> = ({ course, isEnrolled, totalLessons, t
                               return (
                                 <div
                                   key={lesson.id}
-                                  className={`flex items-center justify-between p-4 transition-colors border-b border-gray-100 last:border-0 ${
-                                    canView ? 'hover:bg-white' : 'bg-gray-100'
-                                  }`}
+                                  className={`transition-colors border-b border-gray-100 last:border-0`}
                                 >
-                                  <div className="flex items-center gap-3">
-                                    <PlayCircleIcon className={`h-5 w-5 ${canView ? 'text-gray-400' : 'text-gray-300'}`} />
-                                    <span className={canView ? 'text-gray-700' : 'text-gray-500'}>
-                                      {lesson.title}
-                                    </span>
-                                    {lesson.isFree && (
-                                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-semibold">
-                                        FREE
+                                  <div
+                                    className={`flex items-center justify-between p-4 ${
+                                      canView ? 'hover:bg-white' : 'bg-gray-100'
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <PlayCircleIcon className={`h-5 w-5 ${canView ? 'text-gray-400' : 'text-gray-300'}`} />
+                                      <span className={canView ? 'text-gray-700' : 'text-gray-500'}>
+                                        {lesson.title}
+                                      </span>
+                                      {lesson.isFree && (
+                                        <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-semibold">
+                                          FREE
+                                        </span>
+                                      )}
+                                      {!canView && (
+                                        <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full font-semibold flex items-center gap-1">
+                                          🔒 Locked
+                                        </span>
+                                      )}
+                                    </div>
+                                    {canView && lesson.duration && (
+                                      <span className="text-sm text-gray-500">
+                                        {formatDuration(lesson.duration)}
                                       </span>
                                     )}
                                     {!canView && (
-                                      <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full font-semibold flex items-center gap-1">
-                                        🔒 Locked
+                                      <span className="text-xs text-gray-400">
+                                        Enroll to access
                                       </span>
                                     )}
                                   </div>
-                                  {canView && lesson.duration && (
-                                    <span className="text-sm text-gray-500">
-                                      {formatDuration(lesson.duration)}
-                                    </span>
-                                  )}
-                                  {!canView && (
-                                    <span className="text-xs text-gray-400">
-                                      Enroll to access
-                                    </span>
+                                  
+                                  {/* Show YouTube video for accessible lessons */}
+                                  {canView && lesson.videoUrl && getYouTubeEmbedUrl(lesson.videoUrl) && (
+                                    <div className="p-4 pt-0">
+                                      <div className="aspect-video w-full rounded-lg overflow-hidden bg-black">
+                                        <iframe
+                                          src={getYouTubeEmbedUrl(lesson.videoUrl) || ""}
+                                          className="w-full h-full"
+                                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                          allowFullScreen
+                                          title={lesson.title}
+                                        />
+                                      </div>
+                                    </div>
                                   )}
                                 </div>
                               );
@@ -557,6 +592,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params, req }) =>
                 duration: true,
                 isFree: true,
                 order: true,
+                videoUrl: true,
               },
             },
           },
