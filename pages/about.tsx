@@ -18,11 +18,11 @@ import {
 
 // Timeline milestones
 const milestones = [
-  { year: "2018", title: "Founded", description: "Dalimss News was born with a vision to revolutionize local journalism" },
-  { year: "2019", title: "Digital Launch", description: "Launched our digital platform reaching 100,000 monthly readers" },
-  { year: "2021", title: "Academy Launch", description: "Started Dalimss Academy to train the next generation of journalists" },
-  { year: "2023", title: "1M+ Readers", description: "Crossed 1 million monthly readers milestone" },
-  { year: "2024", title: "National Recognition", description: "Received national award for excellence in digital journalism" }
+  { year: "Jan 2024", title: "Founded", description: "Dalimss News was born with a vision to revolutionize local journalism" },
+  { year: "Feb 2024", title: "Digital Launch", description: "Launched our digital platform reaching 100,000 monthly readers" },
+  { year: "May 2024", title: "Academy Launch", description: "Started Dalimss Academy to train the next generation of journalists" },
+  { year: "Dec 2024", title: "1M+ Readers", description: "Crossed 1 million monthly readers milestone" },
+  { year: "Feb 2026", title: "National Recognition", description: "Received national award for excellence in digital journalism" }
 ];
 
 const AboutPage: React.FC = () => {
