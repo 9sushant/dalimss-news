@@ -439,11 +439,11 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
                                               </div>
                                               {lesson.videoUrl && (
                                                 <p className="text-sm text-green-600 mt-1">
-                                                  ✓ Video uploaded {lesson.duration && `(${Math.floor(lesson.duration / 60)}m ${lesson.duration % 60}s)`}
+                                                  ✓ Video linked {lesson.videoUrl.includes('youtube.com') || lesson.videoUrl.includes('youtu.be') ? '(YouTube)' : ''} {lesson.duration && `(${Math.floor(lesson.duration / 60)}m ${lesson.duration % 60}s)`}
                                                 </p>
                                               )}
                                               {!lesson.videoUrl && (
-                                                <p className="text-sm text-gray-500 mt-1">No video uploaded yet</p>
+                                                <p className="text-sm text-gray-500 mt-1">No video linked yet</p>
                                               )}
                                             </div>
 
@@ -456,6 +456,8 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
                                                   <div className="flex items-center gap-2">
                                                     <input
                                                       type="text"
+                                                      key={lesson.id}
+                                                      defaultValue={lesson.videoUrl || ""}
                                                       placeholder="Paste YouTube URL"
                                                       className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent w-64"
                                                       onKeyDown={async (e) => {
@@ -486,7 +488,7 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
                                                                 setUploadingLesson(null);
                                                               }
                                                             }
-                                                            (e.target as HTMLInputElement).value = '';
+                                                            // Value will be set by defaultValue on reload
                                                           }
                                                         }
                                                       }}
