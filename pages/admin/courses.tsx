@@ -11,6 +11,8 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   XMarkIcon,
+  FolderPlusIcon,
+  DocumentPlusIcon,
 } from "@heroicons/react/24/outline";
 
 interface Lesson {
@@ -18,6 +20,7 @@ interface Lesson {
   title: string;
   videoUrl: string | null;
   duration: number | null;
+  isFree: boolean;
   order: number;
 }
 
@@ -48,8 +51,20 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
   const [expandedCourses, setExpandedCourses] = useState<number[]>([]);
   const [expandedModules, setExpandedModules] = useState<number[]>([]);
   const [uploadingLesson, setUploadingLesson] = useState<number | null>(null);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [creating, setCreating] = useState(false);
+  
+  // Course modal
+  const [showCreateCourseModal, setShowCreateCourseModal] = useState(false);
+  const [creatingCourse, setCreatingCourse] = useState(false);
+  
+  // Module modal
+  const [showCreateModuleModal, setShowCreateModuleModal] = useState(false);
+  const [selectedCourseForModule, setSelectedCourseForModule] = useState<number | null>(null);
+  const [creatingModule, setCreatingModule] = useState(false);
+  
+  // Lesson modal
+  const [showCreateLessonModal, setShowCreateLessonModal] = useState(false);
+  const [selectedModuleForLesson, setSelectedModuleForLesson] = useState<number | null>(null);
+  const [creatingLesson, setCreatingLesson] = useState(false);
 
   const [newCourse, setNewCourse] = useState({
     title: "",
@@ -58,6 +73,18 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
     duration: "",
     level: "Beginner",
     instructor: "Dalimss Academy",
+  });
+
+  const [newModule, setNewModule] = useState({
+    title: "",
+    description: "",
+  });
+
+  const [newLesson, setNewLesson] = useState({
+    title: "",
+    description: "",
+    duration: "",
+    isFree: false,
   });
 
   const toggleCourse = (courseId: number) => {
@@ -80,7 +107,6 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
     setUploadingLesson(lessonId);
 
     try {
-      // Upload to Cloudinary
       const formData = new FormData();
       formData.append("file", file);
       formData.append("upload_preset", "course_videos");
@@ -99,7 +125,6 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
         throw new Error("Failed to upload video");
       }
 
-      // Update lesson with video URL
       const updateRes = await fetch("/api/admin/lessons/update-video", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -126,7 +151,7 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
 
   const handleCreateCourse = async (e: React.FormEvent) => {
     e.preventDefault();
-    setCreating(true);
+    setCreatingCourse(true);
 
     try {
       const res = await fetch("/api/admin/courses/create", {
@@ -145,7 +170,63 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
     } catch (error: any) {
       alert(error.message || "Failed to create course");
     } finally {
-      setCreating(false);
+      setCreatingCourse(false);
+    }
+  };
+
+  const handleCreateModule = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreatingModule(true);
+
+    try {
+      const res = await fetch("/api/admin/modules/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          courseId: selectedCourseForModule,
+          ...newModule,
+        }),
+      });
+
+      if (res.ok) {
+        alert("Module created successfully!");
+        window.location.reload();
+      } else {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to create module");
+      }
+    } catch (error: any) {
+      alert(error.message || "Failed to create module");
+    } finally {
+      setCreatingModule(false);
+    }
+  };
+
+  const handleCreateLesson = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreatingLesson(true);
+
+    try {
+      const res = await fetch("/api/admin/lessons/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          moduleId: selectedModuleForLesson,
+          ...newLesson,
+        }),
+      });
+
+      if (res.ok) {
+        alert("Lesson created successfully!");
+        window.location.reload();
+      } else {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to create lesson");
+      }
+    } catch (error: any) {
+      alert(error.message || "Failed to create lesson");
+    } finally {
+      setCreatingLesson(false);
     }
   };
 
@@ -189,7 +270,7 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
               </div>
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => setShowCreateModal(true)}
+                  onClick={() => setShowCreateCourseModal(true)}
                   className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2"
                 >
                   <PlusIcon className="h-5 w-5" />
@@ -247,19 +328,25 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
 
                   {isExpanded && (
                     <div className="border-t border-gray-200 p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-gray-900">Modules</h3>
+                        <button
+                          onClick={() => {
+                            setSelectedCourseForModule(course.id);
+                            setShowCreateModuleModal(true);
+                          }}
+                          className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+                        >
+                          <FolderPlusIcon className="h-4 w-4" />
+                          Add Module
+                        </button>
+                      </div>
+
                       {course.modules.length === 0 ? (
-                        <div className="text-center py-8">
+                        <div className="text-center py-8 bg-gray-50 rounded-lg">
                           <p className="text-gray-500 mb-4">
-                            No modules yet. Use Prisma Studio to add modules and lessons to this course.
+                            No modules yet. Click "Add Module" to get started!
                           </p>
-                          <a
-                            href="http://localhost:5555"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-red-600 hover:text-red-700 font-semibold"
-                          >
-                            Open Prisma Studio →
-                          </a>
                         </div>
                       ) : (
                         <div className="space-y-4">
@@ -271,11 +358,11 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
                                 key={module.id}
                                 className="border border-gray-200 rounded-lg overflow-hidden"
                               >
-                                <button
-                                  onClick={() => toggleModule(module.id)}
-                                  className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 transition-colors"
-                                >
-                                  <div className="flex items-center gap-3">
+                                <div className="flex items-center justify-between p-4 bg-gray-50">
+                                  <button
+                                    onClick={() => toggleModule(module.id)}
+                                    className="flex-1 flex items-center gap-3"
+                                  >
                                     {isModuleExpanded ? (
                                       <ChevronUpIcon className="h-5 w-5 text-gray-400" />
                                     ) : (
@@ -285,63 +372,84 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
                                       <h3 className="font-semibold text-gray-900">{module.title}</h3>
                                       <p className="text-sm text-gray-500">{module.lessons.length} lessons</p>
                                     </div>
-                                  </div>
-                                </button>
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setSelectedModuleForLesson(module.id);
+                                      setShowCreateLessonModal(true);
+                                    }}
+                                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-colors"
+                                  >
+                                    <DocumentPlusIcon className="h-4 w-4" />
+                                    Add Lesson
+                                  </button>
+                                </div>
 
                                 {isModuleExpanded && (
                                   <div className="p-4 bg-white">
-                                    <div className="space-y-3">
-                                      {module.lessons.map((lesson) => (
-                                        <div
-                                          key={lesson.id}
-                                          className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-red-300 transition-colors"
-                                        >
-                                          <div className="flex-1">
-                                            <div className="flex items-center gap-2">
-                                              <VideoCameraIcon className="h-5 w-5 text-gray-400" />
-                                              <h4 className="font-medium text-gray-900">{lesson.title}</h4>
+                                    {module.lessons.length === 0 ? (
+                                      <p className="text-gray-500 text-center py-4">
+                                        No lessons yet. Click "Add Lesson" above!
+                                      </p>
+                                    ) : (
+                                      <div className="space-y-3">
+                                        {module.lessons.map((lesson) => (
+                                          <div
+                                            key={lesson.id}
+                                            className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-red-300 transition-colors"
+                                          >
+                                            <div className="flex-1">
+                                              <div className="flex items-center gap-2">
+                                                <VideoCameraIcon className="h-5 w-5 text-gray-400" />
+                                                <h4 className="font-medium text-gray-900">{lesson.title}</h4>
+                                                {lesson.isFree && (
+                                                  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-semibold">
+                                                    FREE
+                                                  </span>
+                                                )}
+                                              </div>
+                                              {lesson.videoUrl && (
+                                                <p className="text-sm text-green-600 mt-1">
+                                                  ✓ Video uploaded {lesson.duration && `(${Math.floor(lesson.duration / 60)}m ${lesson.duration % 60}s)`}
+                                                </p>
+                                              )}
+                                              {!lesson.videoUrl && (
+                                                <p className="text-sm text-gray-500 mt-1">No video uploaded yet</p>
+                                              )}
                                             </div>
-                                            {lesson.videoUrl && (
-                                              <p className="text-sm text-green-600 mt-1">
-                                                ✓ Video uploaded {lesson.duration && `(${Math.floor(lesson.duration / 60)}m ${lesson.duration % 60}s)`}
-                                              </p>
-                                            )}
-                                            {!lesson.videoUrl && (
-                                              <p className="text-sm text-gray-500 mt-1">No video uploaded yet</p>
-                                            )}
-                                          </div>
 
-                                          <div className="flex items-center gap-2">
-                                            {uploadingLesson === lesson.id ? (
-                                              <div className="text-sm text-gray-600">Uploading...</div>
-                                            ) : (
-                                              <>
-                                                <label
-                                                  htmlFor={`video-${lesson.id}`}
-                                                  className="cursor-pointer bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                                                >
-                                                  {lesson.videoUrl ? "Replace Video" : "Upload Video"}
-                                                </label>
-                                                <input
-                                                  id={`video-${lesson.id}`}
-                                                  type="file"
-                                                  accept="video/*"
-                                                  className="hidden"
-                                                  onChange={(e) => {
-                                                    const file = e.target.files?.[0];
-                                                    if (file) {
-                                                      if (confirm(`Upload video for "${lesson.title}"?`)) {
-                                                        handleVideoUpload(lesson.id, file);
+                                            <div className="flex items-center gap-2">
+                                              {uploadingLesson === lesson.id ? (
+                                                <div className="text-sm text-gray-600">Uploading...</div>
+                                              ) : (
+                                                <>
+                                                  <label
+                                                    htmlFor={`video-${lesson.id}`}
+                                                    className="cursor-pointer bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                                                  >
+                                                    {lesson.videoUrl ? "Replace Video" : "Upload Video"}
+                                                  </label>
+                                                  <input
+                                                    id={`video-${lesson.id}`}
+                                                    type="file"
+                                                    accept="video/*"
+                                                    className="hidden"
+                                                    onChange={(e) => {
+                                                      const file = e.target.files?.[0];
+                                                      if (file) {
+                                                        if (confirm(`Upload video for "${lesson.title}"?`)) {
+                                                          handleVideoUpload(lesson.id, file);
+                                                        }
                                                       }
-                                                    }
-                                                  }}
-                                                />
-                                              </>
-                                            )}
+                                                    }}
+                                                  />
+                                                </>
+                                              )}
+                                            </div>
                                           </div>
-                                        </div>
-                                      ))}
-                                    </div>
+                                        ))}
+                                      </div>
+                                    )}
                                   </div>
                                 )}
                               </div>
@@ -360,7 +468,7 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
             <div className="text-center py-12 bg-white rounded-lg shadow-sm">
               <p className="text-gray-500 mb-4">No courses yet. Create your first course!</p>
               <button
-                onClick={() => setShowCreateModal(true)}
+                onClick={() => setShowCreateCourseModal(true)}
                 className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors inline-flex items-center gap-2"
               >
                 <PlusIcon className="h-5 w-5" />
@@ -371,13 +479,13 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
         </div>
 
         {/* Create Course Modal */}
-        {showCreateModal && (
+        {showCreateCourseModal && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
               <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
                 <h3 className="text-2xl font-bold text-gray-900">Create New Course</h3>
                 <button
-                  onClick={() => setShowCreateModal(false)}
+                  onClick={() => setShowCreateCourseModal(false)}
                   className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   <XMarkIcon className="h-6 w-6" />
@@ -474,24 +582,171 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
                   </div>
                 </div>
 
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-sm text-blue-800">
-                    <strong>Note:</strong> After creating the course, use Prisma Studio to add modules and lessons.
-                  </p>
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="submit"
+                    disabled={creatingCourse}
+                    className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white py-4 rounded-lg font-bold text-lg transition-all disabled:cursor-not-allowed"
+                  >
+                    {creatingCourse ? "Creating..." : "Create Course"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateCourseModal(false)}
+                    className="px-6 bg-gray-200 hover:bg-gray-300 text-gray-800 py-4 rounded-lg font-bold transition-all"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Create Module Modal */}
+        {showCreateModuleModal && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
+              <div className="bg-white border-b border-gray-200 p-6 flex items-center justify-between rounded-t-2xl">
+                <h3 className="text-2xl font-bold text-gray-900">Add New Module</h3>
+                <button
+                  onClick={() => setShowCreateModuleModal(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <XMarkIcon className="h-6 w-6" />
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateModule} className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Module Title <span className="text-red-600">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={newModule.title}
+                    onChange={(e) => setNewModule({ ...newModule, title: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
+                    placeholder="e.g. Introduction to Digital Marketing"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Description (Optional)
+                  </label>
+                  <textarea
+                    value={newModule.description}
+                    onChange={(e) => setNewModule({ ...newModule, description: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
+                    rows={3}
+                    placeholder="Brief description of this module..."
+                  />
                 </div>
 
                 <div className="flex gap-3 pt-4">
                   <button
                     type="submit"
-                    disabled={creating}
-                    className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white py-4 rounded-lg font-bold text-lg transition-all disabled:cursor-not-allowed"
+                    disabled={creatingModule}
+                    className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white py-3 rounded-lg font-bold transition-all disabled:cursor-not-allowed"
                   >
-                    {creating ? "Creating..." : "Create Course"}
+                    {creatingModule ? "Creating..." : "Add Module"}
                   </button>
                   <button
                     type="button"
-                    onClick={() => setShowCreateModal(false)}
-                    className="px-6 bg-gray-200 hover:bg-gray-300 text-gray-800 py-4 rounded-lg font-bold transition-all"
+                    onClick={() => setShowCreateModuleModal(false)}
+                    className="px-6 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded-lg font-bold transition-all"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Create Lesson Modal */}
+        {showCreateLessonModal && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
+              <div className="bg-white border-b border-gray-200 p-6 flex items-center justify-between rounded-t-2xl">
+                <h3 className="text-2xl font-bold text-gray-900">Add New Lesson</h3>
+                <button
+                  onClick={() => setShowCreateLessonModal(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <XMarkIcon className="h-6 w-6" />
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateLesson} className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Lesson Title <span className="text-red-600">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={newLesson.title}
+                    onChange={(e) => setNewLesson({ ...newLesson, title: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                    placeholder="e.g. What is Digital Marketing?"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Description (Optional)
+                  </label>
+                  <textarea
+                    value={newLesson.description}
+                    onChange={(e) => setNewLesson({ ...newLesson, description: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                    rows={3}
+                    placeholder="Brief description..."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Duration (minutes)
+                  </label>
+                  <input
+                    type="number"
+                    value={newLesson.duration}
+                    onChange={(e) => setNewLesson({ ...newLesson, duration: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                    placeholder="e.g. 15"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Leave empty if not yet determined</p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="isFree"
+                    checked={newLesson.isFree}
+                    onChange={(e) => setNewLesson({ ...newLesson, isFree: e.target.checked })}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-600"
+                  />
+                  <label htmlFor="isFree" className="text-sm font-medium text-gray-700">
+                    Mark as FREE (preview lesson)
+                  </label>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="submit"
+                    disabled={creatingLesson}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white py-3 rounded-lg font-bold transition-all disabled:cursor-not-allowed"
+                  >
+                    {creatingLesson ? "Creating..." : "Add Lesson"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateLessonModal(false)}
+                    className="px-6 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded-lg font-bold transition-all"
                   >
                     Cancel
                   </button>
@@ -508,7 +763,6 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const session = await getSession({ req });
 
-  // Check if user is admin
   if (!session || (session.user as any)?.role !== "admin") {
     return {
       redirect: {
@@ -531,6 +785,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
                 title: true,
                 videoUrl: true,
                 duration: true,
+                isFree: true,
                 order: true,
               },
             },
