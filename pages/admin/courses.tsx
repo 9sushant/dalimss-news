@@ -73,7 +73,10 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
     duration: "",
     level: "Beginner",
     instructor: "Dalimss Academy",
+    thumbnail: "",
   });
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
 
   const [newModule, setNewModule] = useState({
     title: "",
@@ -154,10 +157,35 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
     setCreatingCourse(true);
 
     try {
+      let thumbnailUrl = newCourse.thumbnail;
+
+      // Upload thumbnail if provided
+      if (thumbnailFile) {
+        setUploadingThumbnail(true);
+        const formData = new FormData();
+        formData.append("file", thumbnailFile);
+        formData.append("upload_preset", "course_videos");
+
+        const cloudinaryRes = await fetch(
+          `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        const cloudinaryData = await cloudinaryRes.json();
+
+        if (cloudinaryData.secure_url) {
+          thumbnailUrl = cloudinaryData.secure_url;
+        }
+        setUploadingThumbnail(false);
+      }
+
       const res = await fetch("/api/admin/courses/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newCourse),
+        body: JSON.stringify({ ...newCourse, thumbnail: thumbnailUrl }),
       });
 
       if (res.ok) {
@@ -171,6 +199,7 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
       alert(error.message || "Failed to create course");
     } finally {
       setCreatingCourse(false);
+      setUploadingThumbnail(false);
     }
   };
 
@@ -582,13 +611,91 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
                   </div>
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Course Thumbnail (Optional)
+                  </label>
+                  <div className="mt-1">
+                    {thumbnailFile || newCourse.thumbnail ? (
+                      <div className="relative">
+                        {thumbnailFile && (
+                          <div className="mb-2">
+                            <img
+                              src={URL.createObjectURL(thumbnailFile)}
+                              alt="Thumbnail preview"
+                              className="w-full h-48 object-cover rounded-lg"
+                            />
+                          </div>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setThumbnailFile(null);
+                            setNewCourse({ ...newCourse, thumbnail: "" });
+                          }}
+                          className="text-sm text-red-600 hover:text-red-700"
+                        >
+                          Remove image
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-red-400 transition-colors">
+                        <div className="space-y-1 text-center">
+                          <svg
+                            className="mx-auto h-12 w-12 text-gray-400"
+                            stroke="currentColor"
+                            fill="none"
+                            viewBox="0 0 48 48"
+                          >
+                            <path
+                              d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                              strokeWidth={2}
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                          <div className="flex text-sm text-gray-600">
+                            <label
+                              htmlFor="thumbnail-upload"
+                              className="relative cursor-pointer bg-white rounded-md font-medium text-red-600 hover:text-red-500 focus-within:outline-none"
+                            >
+                              <span>Upload a file</span>
+                              <input
+                                id="thumbnail-upload"
+                                type="file"
+                                accept="image/*"
+                                className="sr-only"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    setThumbnailFile(file);
+                                  }
+                                }}
+                              />
+                            </label>
+                            <p className="pl-1">or drag and drop</p>
+                          </div>
+                          <p className="text-xs text-gray-500">
+                            PNG, JPG, GIF up to 10MB
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">This will be displayed as the course thumbnail</p>
+                </div>
+
                 <div className="flex gap-3 pt-4">
                   <button
                     type="submit"
-                    disabled={creatingCourse}
+                    disabled={creatingCourse || uploadingThumbnail}
                     className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white py-4 rounded-lg font-bold text-lg transition-all disabled:cursor-not-allowed"
                   >
-                    {creatingCourse ? "Creating..." : "Create Course"}
+                    {uploadingThumbnail
+                      ? "Uploading thumbnail..."
+                      : creatingCourse
+                      ? "Creating..."
+                      : "Create Course"}
                   </button>
                   <button
                     type="button"
