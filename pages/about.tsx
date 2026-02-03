@@ -203,8 +203,7 @@ const AboutPage: React.FC = () => {
                   </div>
                   <h3 className="font-bold mb-2">Email Us</h3>
                   <p className="text-gray-400 text-sm">
-                    contact@dalimss.com<br />
-                    news@dalimss.com
+                    dalimssnews@gmail.com
                   </p>
                 </div>
 
