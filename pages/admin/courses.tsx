@@ -470,6 +470,7 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
                                                                 const updateRes = await fetch("/api/admin/lessons/update-video", {
                                                                   method: "POST",
                                                                   headers: { "Content-Type": "application/json" },
+                                                                  credentials: "include",
                                                                   body: JSON.stringify({
                                                                     lessonId: lesson.id,
                                                                     videoUrl: youtubeUrl,
