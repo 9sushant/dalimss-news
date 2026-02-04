@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ImageWithFallback from "./ImageWithFallback";
 
 interface StoryPage {
   id: number;
@@ -47,7 +48,7 @@ const WebStoriesCarousel = ({ stories }: Props) => {
           >
             <div className="relative w-[140px] h-[200px] md:w-[160px] md:h-[240px] rounded-xl overflow-hidden shadow-lg border-2 border-white hover:border-red-500 transition-all">
               {/* Cover Image */}
-              <img
+              <ImageWithFallback
                 src={story.coverImage}
                 alt={story.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"

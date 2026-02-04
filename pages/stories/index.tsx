@@ -3,6 +3,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import prisma from "@/lib/prisma";
+import ImageWithFallback from "@/components/ImageWithFallback";
 
 interface StoryPage {
   id: number;
@@ -83,7 +84,7 @@ export default function StoriesPage({ stories }: Props) {
                 >
                   <div className="relative aspect-[9/16] rounded-xl overflow-hidden shadow-lg border-2 border-transparent group-hover:border-red-500 transition-all duration-300">
                     {/* Cover Image */}
-                    <img
+                    <ImageWithFallback
                       src={story.coverImage}
                       alt={story.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"

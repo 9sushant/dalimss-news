@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Article } from "@/types";
+import ImageWithFallback from "@/components/ImageWithFallback";
 
 interface Props {
   article: Article;
@@ -41,7 +42,7 @@ const NewsShortCard = ({ article }: Props) => {
       {/* 2. Image Section */}
       <div className="relative w-full h-[260px] bg-gray-100">
         {article.mediaUrl ? (
-          <img
+          <ImageWithFallback
             src={article.mediaUrl}
             alt={article.title}
             className="w-full h-full object-cover"
