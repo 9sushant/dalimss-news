@@ -63,20 +63,14 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
     .split("\n")[0] // Take first paragraph
     .slice(0, 160) + "..."; // Limit length
 
-  // Create absolute image URL for OG with Cloudinary compression
+  // Create absolute image URL for OG
   const siteUrl = "https://dalimss.news";
   const defaultOgImage = `${siteUrl}/logo.jpg`;
   
-  // Apply Cloudinary transformations for OG image (1200x630 is optimal for social sharing)
+  // Use article media URL for OG image if available
   let ogImageUrl = defaultOgImage;
   if (article.mediaUrl) {
-    if (article.mediaUrl.includes('res.cloudinary.com')) {
-      // Fixed dimensions 1200x630, quality 80, force jpg format, crop to fill
-      ogImageUrl = article.mediaUrl.replace(
-        '/upload/',
-        '/upload/c_fill,w_1200,h_630,q_80,f_jpg/'
-      );
-    } else if (article.mediaUrl.startsWith('http')) {
+    if (article.mediaUrl.startsWith('http')) {
       ogImageUrl = article.mediaUrl;
     } else {
       ogImageUrl = `${siteUrl}${article.mediaUrl}`;

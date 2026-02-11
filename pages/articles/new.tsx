@@ -63,43 +63,23 @@ const NewArticle: React.FC = () => {
       let uploadedMediaUrl: string | null = null;
       let finalMediaType: "image" | "video" | null = null;
 
-      // ✅ Upload media directly to Cloudinary (bypasses Vercel's 4.5MB limit)
+      // ✅ Upload media via server API (uses Vercel Blob)
       if (mediaFile) {
-        // Step 1: Get upload signature from our API
-        const signatureResp = await fetch("/api/articles/upload-signature", {
+        const uploadFormData = new FormData();
+        uploadFormData.append("file", mediaFile);
+
+        const uploadResp = await fetch("/api/articles/upload", {
           method: "POST",
+          body: uploadFormData,
         });
-        
-        if (!signatureResp.ok) {
-          const signatureError = await signatureResp.json();
-          throw new Error(signatureError.error || "Failed to get upload signature");
-        }
-        
-        const { signature, timestamp, cloudName, apiKey, folder } = await signatureResp.json();
 
-        // Step 2: Upload directly to Cloudinary
-        const cloudinaryFormData = new FormData();
-        cloudinaryFormData.append("file", mediaFile);
-        cloudinaryFormData.append("signature", signature);
-        cloudinaryFormData.append("timestamp", String(timestamp));
-        cloudinaryFormData.append("api_key", apiKey);
-        cloudinaryFormData.append("folder", folder);
-
-        const cloudinaryResp = await fetch(
-          `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
-          {
-            method: "POST",
-            body: cloudinaryFormData,
-          }
-        );
-
-        if (!cloudinaryResp.ok) {
-          const cloudinaryError = await cloudinaryResp.json();
-          throw new Error(cloudinaryError.error?.message || "Cloudinary upload failed");
+        if (!uploadResp.ok) {
+          const uploadError = await uploadResp.json();
+          throw new Error(uploadError.error || "Upload failed");
         }
 
-        const cloudinaryResult = await cloudinaryResp.json();
-        uploadedMediaUrl = cloudinaryResult.secure_url;
+        const uploadResult = await uploadResp.json();
+        uploadedMediaUrl = uploadResult.url;
         finalMediaType = mediaType;
         
         console.log("✅ Media uploaded:", uploadedMediaUrl);

@@ -14,7 +14,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "your-upload-domain.com", // future placeholder
+        hostname: "*.public.blob.vercel-storage.com", // Vercel Blob storage
       },
     ],
   },

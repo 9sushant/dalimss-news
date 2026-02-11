@@ -112,20 +112,17 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("upload_preset", "course_videos");
+      formData.append("folder", "course-videos");
 
-      const cloudinaryRes = await fetch(
-        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/video/upload`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const uploadRes = await fetch("/api/admin/upload-blob", {
+        method: "POST",
+        body: formData,
+      });
 
-      const cloudinaryData = await cloudinaryRes.json();
+      const uploadData = await uploadRes.json();
 
-      if (!cloudinaryData.secure_url) {
-        throw new Error("Failed to upload video");
+      if (!uploadRes.ok || !uploadData.url) {
+        throw new Error(uploadData.error || "Failed to upload video");
       }
 
       const updateRes = await fetch("/api/admin/lessons/update-video", {
@@ -133,8 +130,7 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           lessonId,
-          videoUrl: cloudinaryData.secure_url,
-          duration: Math.round(cloudinaryData.duration),
+          videoUrl: uploadData.url,
         }),
       });
 
@@ -164,20 +160,17 @@ const AdminCoursesPage: React.FC<Props> = ({ courses: initialCourses }) => {
         setUploadingThumbnail(true);
         const formData = new FormData();
         formData.append("file", thumbnailFile);
-        formData.append("upload_preset", "course_videos");
+        formData.append("folder", "course-thumbnails");
 
-        const cloudinaryRes = await fetch(
-          `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
+        const uploadRes = await fetch("/api/admin/upload-blob", {
+          method: "POST",
+          body: formData,
+        });
 
-        const cloudinaryData = await cloudinaryRes.json();
+        const uploadData = await uploadRes.json();
 
-        if (cloudinaryData.secure_url) {
-          thumbnailUrl = cloudinaryData.secure_url;
+        if (uploadRes.ok && uploadData.url) {
+          thumbnailUrl = uploadData.url;
         }
         setUploadingThumbnail(false);
       }
