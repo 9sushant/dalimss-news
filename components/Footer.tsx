@@ -4,6 +4,21 @@ const Footer = () => {
   return (
     <footer className="bg-white border-t border-gray-200 mt-12 py-8">
       <div className="container mx-auto px-4 text-center">
+        {/* Quick Links */}
+        <div className="flex flex-wrap items-center justify-center gap-4 mb-6 text-sm">
+          <Link href="/about" className="text-gray-600 hover:text-red-600 transition-colors">
+            About Us
+          </Link>
+          <span className="text-gray-300">|</span>
+          <Link href="/contact" className="text-gray-600 hover:text-red-600 transition-colors">
+            Contact Us
+          </Link>
+          <span className="text-gray-300">|</span>
+          <Link href="/privacy-policy" className="text-gray-600 hover:text-red-600 transition-colors">
+            Privacy Policy
+          </Link>
+        </div>
+
         <p className="text-gray-600 text-sm mb-6">
           Copyright © 2026 Dalimss News . All rights reserved.
         </p>
@@ -15,7 +30,7 @@ const Footer = () => {
               href="https://www.instagram.com/dalimss.news.banaras/" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-gray-600 hover:text-[#E1306C] transition-colors" // Instagram color on hover
+              className="text-gray-600 hover:text-[#E1306C] transition-colors"
               aria-label="Instagram"
             >
               <svg 
@@ -40,7 +55,7 @@ const Footer = () => {
               href="https://www.youtube.com/@dalimss_news" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-gray-600 hover:text-[#FF0000] transition-colors" // YouTube color on hover
+              className="text-gray-600 hover:text-[#FF0000] transition-colors"
               aria-label="YouTube"
             >
               <svg 
