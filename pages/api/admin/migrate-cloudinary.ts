@@ -6,12 +6,23 @@ import { put } from "@vercel/blob";
 
 /**
  * Admin-only migration endpoint.
- * Finds all articles & web stories still using Cloudinary URLs,
+ * Finds articles & web stories still using Cloudinary URLs,
  * downloads each image, re-uploads to Vercel Blob, and updates the DB.
  *
+ * Processes in batches to avoid serverless function timeouts.
+ *
  * Usage: POST /api/admin/migrate-cloudinary
- * Optional body: { "dryRun": true } to preview without making changes
+ * Body options:
+ *   { "dryRun": true }       — preview without changes
+ *   { "batchSize": 10 }      — migrate N items per call (default: 10)
+ *
+ * Call repeatedly until "remaining" reaches 0.
  */
+
+export const config = {
+  maxDuration: 60, // Allow up to 60s on Vercel (Pro plan) or 10s on Hobby
+};
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -34,24 +45,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const dryRun = req.body?.dryRun === true;
+  const batchSize = Math.min(Math.max(req.body?.batchSize || 10, 1), 50); // clamp 1-50
 
   const results = {
-    articles: { found: 0, migrated: 0, failed: [] as any[] },
-    webStoryPages: { found: 0, migrated: 0, failed: [] as any[] },
-    webStoryCovers: { found: 0, migrated: 0, failed: [] as any[] },
+    batchSize,
     dryRun,
+    articles: { total: 0, migrated: 0, failed: [] as any[], remaining: 0 },
+    webStoryCovers: { total: 0, migrated: 0, failed: [] as any[], remaining: 0 },
+    webStoryPages: { total: 0, migrated: 0, failed: [] as any[], remaining: 0 },
   };
 
   try {
-    // ─── 1. Migrate Article mediaUrls ───────────────────────────
-    const articles = await prisma.article.findMany({
-      where: {
-        mediaUrl: { contains: "cloudinary" },
-      },
-      select: { id: true, title: true, mediaUrl: true },
+    // ─── 1. Migrate Article mediaUrls (batched) ─────────────────
+    const totalArticles = await prisma.article.count({
+      where: { mediaUrl: { contains: "cloudinary" } },
     });
+    results.articles.total = totalArticles;
 
-    results.articles.found = articles.length;
+    const articles = await prisma.article.findMany({
+      where: { mediaUrl: { contains: "cloudinary" } },
+      select: { id: true, title: true, mediaUrl: true },
+      take: batchSize,
+      orderBy: { id: "asc" },
+    });
 
     for (const article of articles) {
       if (!article.mediaUrl) continue;
@@ -70,27 +86,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
 
         results.articles.migrated++;
-        console.log(`✅ Article #${article.id} migrated: ${article.mediaUrl} → ${newUrl}`);
+        console.log(`✅ Article #${article.id} migrated`);
       } catch (err: any) {
         results.articles.failed.push({
           id: article.id,
           title: article.title,
-          url: article.mediaUrl,
           error: err.message,
         });
         console.error(`❌ Article #${article.id} failed:`, err.message);
       }
     }
 
-    // ─── 2. Migrate WebStory cover images ───────────────────────
-    const webStories = await prisma.webStory.findMany({
-      where: {
-        coverImage: { contains: "cloudinary" },
-      },
-      select: { id: true, title: true, coverImage: true },
-    });
+    results.articles.remaining = dryRun
+      ? totalArticles
+      : totalArticles - results.articles.migrated;
 
-    results.webStoryCovers.found = webStories.length;
+    // ─── 2. Migrate WebStory cover images (batched) ─────────────
+    const totalCovers = await prisma.webStory.count({
+      where: { coverImage: { contains: "cloudinary" } },
+    });
+    results.webStoryCovers.total = totalCovers;
+
+    const webStories = await prisma.webStory.findMany({
+      where: { coverImage: { contains: "cloudinary" } },
+      select: { id: true, title: true, coverImage: true },
+      take: batchSize,
+      orderBy: { id: "asc" },
+    });
 
     for (const story of webStories) {
       try {
@@ -112,21 +134,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         results.webStoryCovers.failed.push({
           id: story.id,
           title: story.title,
-          url: story.coverImage,
           error: err.message,
         });
       }
     }
 
-    // ─── 3. Migrate WebStoryPage images ─────────────────────────
-    const storyPages = await prisma.webStoryPage.findMany({
-      where: {
-        imageUrl: { contains: "cloudinary" },
-      },
-      select: { id: true, storyId: true, imageUrl: true },
-    });
+    results.webStoryCovers.remaining = dryRun
+      ? totalCovers
+      : totalCovers - results.webStoryCovers.migrated;
 
-    results.webStoryPages.found = storyPages.length;
+    // ─── 3. Migrate WebStoryPage images (batched) ───────────────
+    const totalPages = await prisma.webStoryPage.count({
+      where: { imageUrl: { contains: "cloudinary" } },
+    });
+    results.webStoryPages.total = totalPages;
+
+    const storyPages = await prisma.webStoryPage.findMany({
+      where: { imageUrl: { contains: "cloudinary" } },
+      select: { id: true, storyId: true, imageUrl: true },
+      take: batchSize,
+      orderBy: { id: "asc" },
+    });
 
     for (const page of storyPages) {
       try {
@@ -148,14 +176,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         results.webStoryPages.failed.push({
           id: page.id,
           storyId: page.storyId,
-          url: page.imageUrl,
           error: err.message,
         });
       }
     }
 
+    results.webStoryPages.remaining = dryRun
+      ? totalPages
+      : totalPages - results.webStoryPages.migrated;
+
+    const totalRemaining =
+      results.articles.remaining +
+      results.webStoryCovers.remaining +
+      results.webStoryPages.remaining;
+
     return res.status(200).json({
-      message: dryRun ? "Dry run complete – no changes made" : "Migration complete",
+      message: dryRun
+        ? "Dry run complete – no changes made"
+        : totalRemaining === 0
+        ? "✅ Migration fully complete!"
+        : `Batch complete. ${totalRemaining} items remaining – call again to continue.`,
       ...results,
     });
   } catch (err: any) {
@@ -168,17 +208,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
  * Downloads an image from a URL and re-uploads it to Vercel Blob.
  */
 async function downloadAndReupload(sourceUrl: string, folder: string): Promise<string> {
-  // Download the image
   const response = await fetch(sourceUrl);
 
   if (!response.ok) {
-    throw new Error(`Download failed: HTTP ${response.status} for ${sourceUrl}`);
+    throw new Error(`Download failed: HTTP ${response.status}`);
   }
 
   const contentType = response.headers.get("content-type") || "image/png";
   const buffer = Buffer.from(await response.arrayBuffer());
 
-  // Determine extension from content type
   const extMap: Record<string, string> = {
     "image/png": "png",
     "image/jpeg": "jpg",
