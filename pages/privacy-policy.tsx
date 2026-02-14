@@ -4,7 +4,6 @@ import Link from "next/link";
 import {
   ShieldCheckIcon,
   EyeIcon,
-  CookieIcon,
   UserGroupIcon,
   LockClosedIcon,
   EnvelopeIcon,
