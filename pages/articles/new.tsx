@@ -74,8 +74,11 @@ const NewArticle: React.FC = () => {
         });
 
         if (!uploadResp.ok) {
-          const uploadError = await uploadResp.json();
-          throw new Error(uploadError.error || "Upload failed");
+          const text = await uploadResp.text();
+          let errorMsg = "Upload failed";
+          try { errorMsg = JSON.parse(text).error || errorMsg; } catch {}
+          if (uploadResp.status === 413) errorMsg = "File is too large. Please compress or use a smaller image/video.";
+          throw new Error(errorMsg);
         }
 
         const uploadResult = await uploadResp.json();
@@ -100,7 +103,12 @@ const NewArticle: React.FC = () => {
         }),
       });
 
-      const articleData = await resp.json();
+      const respText = await resp.text();
+      let articleData;
+      try { articleData = JSON.parse(respText); } catch {
+        if (resp.status === 413) throw new Error("Article content is too large. Please shorten the content or remove embedded media.");
+        throw new Error(`Server error (${resp.status}): ${respText.slice(0, 100)}`);
+      }
       
       if (!resp.ok) {
         throw new Error(articleData.error || "Failed to publish article");
