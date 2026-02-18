@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import SeoEditor from "@/components/SeoEditor";
 import { useRouter } from "next/router";
 import { signIn, useSession } from "next-auth/react";
+import { compressImage } from "@/utils/compressImage";
 
 const NewArticle: React.FC = () => {
   const router = useRouter();
@@ -18,6 +19,7 @@ const NewArticle: React.FC = () => {
 
   const [seoData, setSeoData] = useState({ metaTitle: "", metaDescription: "", focusKeyword: "" });
   const [loading, setLoading] = useState(false);
+  const [compressing, setCompressing] = useState(false);
 
   // 🟡 1. Handle loading and auth states INSIDE the component
   if (status === "loading") {
@@ -39,7 +41,7 @@ const NewArticle: React.FC = () => {
   }
 
   // 🟢 2. If logged in, show the form
-  const handleMediaSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMediaSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!title || title.trim().length < 3) {
       alert("Please enter a title BEFORE uploading media.");
       e.target.value = "";
@@ -48,10 +50,30 @@ const NewArticle: React.FC = () => {
   
     const file = e.target.files?.[0];
     if (!file) return;
-  
-    setMediaFile(file);
-    setMediaPreview(URL.createObjectURL(file));
-    setMediaType(file.type.startsWith("video") ? "video" : "image");
+
+    const isImage = file.type.startsWith("image");
+
+    if (isImage && file.size > 500 * 1024) {
+      // Auto-compress images over 500KB
+      setCompressing(true);
+      try {
+        const compressed = await compressImage(file);
+        setMediaFile(compressed);
+        setMediaPreview(URL.createObjectURL(compressed));
+        setMediaType("image");
+      } catch (err) {
+        console.error("Compression failed, using original:", err);
+        setMediaFile(file);
+        setMediaPreview(URL.createObjectURL(file));
+        setMediaType("image");
+      } finally {
+        setCompressing(false);
+      }
+    } else {
+      setMediaFile(file);
+      setMediaPreview(URL.createObjectURL(file));
+      setMediaType(file.type.startsWith("video") ? "video" : "image");
+    }
   };
 
 
@@ -182,6 +204,11 @@ const NewArticle: React.FC = () => {
             onChange={handleMediaSelect}
           />
         </label>
+        {compressing && (
+          <p className="text-sm text-yellow-400 mt-2 animate-pulse">
+            🗜️ Compressing image (over 500KB)...
+          </p>
+        )}
 
         {mediaPreview && (
           <div className="mt-4">
