@@ -77,7 +77,7 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
     }
   }
 
-  return (
+    return (
     <article className="max-w-3xl mx-auto py-8 px-6 text-gray-900">
       <Head>
         <title>{article.metaTitle || article.title} | Dalimss News</title>
@@ -98,12 +98,50 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
         <meta property="og:image:alt" content={article.metaTitle || article.title} />
         <meta property="og:locale" content="en_IN" />
         
+        {/* Article specific Meta tags */}
+        <meta property="article:published_time" content={new Date(article.createdAt).toISOString()} />
+        <meta property="article:modified_time" content={new Date(article.createdAt).toISOString()} />
+        {article.customAuthor && <meta property="article:author" content={article.customAuthor} />}
+        {article.category && <meta property="article:section" content={article.category} />}
+        
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@dalimss_news" />
         <meta name="twitter:title" content={article.metaTitle || article.title} />
         <meta name="twitter:description" content={article.metaDescription || seoDescription} />
         <meta name="twitter:image" content={ogImageUrl} />
+
+        {/* JSON-LD Schema for Rich Snippets */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "NewsArticle",
+              mainEntityOfPage: {
+                "@type": "WebPage",
+                "@id": `${siteUrl}/articles/${article.slug}`,
+              },
+              headline: article.metaTitle || article.title,
+              image: [ogImageUrl],
+              datePublished: new Date(article.createdAt).toISOString(),
+              dateModified: new Date(article.createdAt).toISOString(),
+              author: {
+                "@type": "Person",
+                name: article.customAuthor || "Dalimss News",
+              },
+              publisher: {
+                "@type": "Organization",
+                name: "Dalimss News",
+                logo: {
+                  "@type": "ImageObject",
+                  url: `${siteUrl}/logo.png`,
+                },
+              },
+              description: article.metaDescription || seoDescription,
+            }),
+          }}
+        />
       </Head>
 
       {/* EDIT & DELETE BUTTONS */}
@@ -151,7 +189,9 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
         <div className="text-sm text-gray-600 flex flex-wrap items-center gap-2">
           <span>By {article.customAuthor || "Unknown Author"}</span>
           <span>•</span>
-          <span>{formattedDate}</span>
+          <time dateTime={article.createdAt} suppressHydrationWarning>
+            {formattedDate || new Date(article.createdAt).toLocaleDateString("en-IN")}
+          </time>
           {article.readTimeInMinutes
             ? <><span>•</span><span>{article.readTimeInMinutes} min read</span></>
             : null}

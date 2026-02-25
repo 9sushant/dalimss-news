@@ -51,7 +51,9 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
             {snippet}
           </p>
           <div className="mt-2 flex items-center justify-between">
-            <span className="text-xs text-gray-400 uppercase font-semibold">{formattedDate}</span>
+            <time dateTime={article.createdAt} className="text-xs text-gray-400 uppercase font-semibold" suppressHydrationWarning>
+              {formattedDate || new Date(article.createdAt).toLocaleDateString("en-IN", { month: 'short', day: 'numeric' })}
+            </time>
             <ShareButton 
               url={`/articles/${article.slug}`} 
               title={article.title} 
@@ -73,7 +75,9 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
           </h4>
         </Link>
         <div className="flex items-center justify-between mt-1">
-          <span className="text-xs text-gray-400">{formattedDate}</span>
+          <time dateTime={article.createdAt} className="text-xs text-gray-400" suppressHydrationWarning>
+            {formattedDate || new Date(article.createdAt).toLocaleDateString("en-IN", { month: 'short', day: 'numeric' })}
+          </time>
           <ShareButton 
             url={`/articles/${article.slug}`} 
             title={article.title} 
@@ -108,7 +112,9 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
         </p>
         <div className="flex items-center justify-between text-xs text-gray-500 border-t border-gray-100 pt-3">
           <div className="flex items-center gap-2">
-            <span>{formattedDate}</span>
+            <time dateTime={article.createdAt} suppressHydrationWarning>
+              {formattedDate || new Date(article.createdAt).toLocaleDateString("en-IN", { month: 'short', day: 'numeric' })}
+            </time>
             {article.authorName && <span className="font-medium text-gray-700">• {article.authorName}</span>}
           </div>
           <ShareButton 

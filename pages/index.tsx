@@ -161,7 +161,9 @@ export default function HomePage({ articles, stories }: Props) {
                   
                   <div className="mt-4 flex items-center text-xs text-gray-500 font-semibold uppercase tracking-wider">
                      <span className="text-red-600 mr-2">Latest Story</span>
-                     <span suppressHydrationWarning>• {heroDate}</span>
+                     <time dateTime={heroArticle.createdAt} suppressHydrationWarning>
+                       • {heroDate || new Date(heroArticle.createdAt).toLocaleDateString("en-IN")}
+                     </time>
                   </div>
                 </div>
               </div>
