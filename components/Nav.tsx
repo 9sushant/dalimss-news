@@ -49,14 +49,6 @@ const Nav: React.FC = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           
-          {/* Mobile Menu Button */}
-          <button 
-            className="md:hidden p-2 text-gray-700"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            <Bars3Icon className="h-6 w-6" />
-          </button>
-
           {/* Logo */}
           <Link href="/" className="flex-shrink-0">
              <Image 
@@ -68,6 +60,14 @@ const Nav: React.FC = () => {
                priority
              />
           </Link>
+
+          {/* Mobile Menu Button */}
+          <button 
+            className="md:hidden p-2 text-gray-700"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <Bars3Icon className="h-6 w-6" />
+          </button>
 
           {/* Desktop Search & Actions */}
           <div className="hidden md:flex items-center gap-6">
