@@ -21,6 +21,15 @@ const Nav: React.FC = () => {
     setCurrentDate(new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
   }, []);
 
+  // Sync search input with URL
+  React.useEffect(() => {
+    if (router.query.search) {
+      setSearchQuery(String(router.query.search));
+    } else {
+      setSearchQuery("");
+    }
+  }, [router.query.search]);
+
   const handleSearch = () => {
     if (searchQuery.trim()) {
       router.push(`/?search=${encodeURIComponent(searchQuery)}`);

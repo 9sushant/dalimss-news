@@ -191,7 +191,7 @@ export default function HomePage({ articles, stories }: Props) {
             
             {/* Left Column: Latest News */}
             <div className="lg:col-span-8">
-              <SectionHeader title="Latest News" />
+              <SectionHeader title={router.query.search ? `Search Results: ${router.query.search}` : "Latest News"} />
               <div className="flex flex-col gap-6">
                 {latestNews.map((article) => (
                   <ArticleCard key={article.id} article={article} variant="horizontal" />
