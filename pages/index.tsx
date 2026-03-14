@@ -37,16 +37,16 @@ export default function HomePage({ articles, stories }: Props) {
   const [heroDate, setHeroDate] = useState<string>('');
   
   // Pagination State
-  const [newsList, setNewsList] = useState<Article[]>(articles);
+  const [newsList, setNewsList] = useState<Article[]>(Array.isArray(articles) ? articles : []);
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(articles.length >= 15);
+  const [hasMore, setHasMore] = useState(Array.isArray(articles) && articles.length >= 15);
   const [loadingMore, setLoadingMore] = useState(false);
 
   // Sync newsList when initial articles change (e.g. navigation)
   useEffect(() => {
-    setNewsList(articles);
+    setNewsList(Array.isArray(articles) ? articles : []);
     setPage(1);
-    setHasMore(articles.length >= 15);
+    setHasMore(Array.isArray(articles) && articles.length >= 15);
   }, [articles]);
 
   const loadMore = async () => {
@@ -70,7 +70,12 @@ export default function HomePage({ articles, stories }: Props) {
       
       const newArticles = await res.json();
       
+      if (!Array.isArray(newArticles)) {
+        throw new Error("Invalid response format");
+      }
+
       setNewsList((prev) => {
+        if (!Array.isArray(prev)) return newArticles;
         const existingIds = new Set(prev.map((a) => a.id));
         const uniqueNew = newArticles.filter((a: Article) => !existingIds.has(a.id));
         return [...prev, ...uniqueNew];
@@ -89,13 +94,13 @@ export default function HomePage({ articles, stories }: Props) {
 
   // Format hero article date on client-side only to avoid hydration mismatch
   useEffect(() => {
-    if (articles && articles.length > 0) {
+    if (Array.isArray(articles) && articles.length > 0) {
       setHeroDate(new Date(articles[0].createdAt).toLocaleDateString());
     }
   }, [articles]);
 
   // Fallback if no articles
-  if (!articles || articles.length === 0) {
+  if (!articles || !Array.isArray(articles) || articles.length === 0) {
     return (
       <div className="container mx-auto px-4 py-20 text-center">
         <h1 className="text-2xl font-bold text-gray-400">No articles found.</h1>

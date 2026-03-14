@@ -80,6 +80,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       { focusKeyword: { contains: String(search), mode: 'insensitive' } },
       { metaTitle: { contains: String(search), mode: 'insensitive' } },
       { metaDescription: { contains: String(search), mode: 'insensitive' } },
+      { category: { contains: String(search), mode: 'insensitive' } },
+      { customAuthor: { contains: String(search), mode: 'insensitive' } },
+      { author: { name: { contains: String(search), mode: 'insensitive' } } },
     ];
   }
 
