@@ -75,8 +75,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (search) {
     where.OR = [
-      { title: { contains: String(search) } }, 
-      { content: { contains: String(search) } },
+      { title: { contains: String(search), mode: 'insensitive' } }, 
+      { content: { contains: String(search), mode: 'insensitive' } },
+      { focusKeyword: { contains: String(search), mode: 'insensitive' } },
+      { metaTitle: { contains: String(search), mode: 'insensitive' } },
+      { metaDescription: { contains: String(search), mode: 'insensitive' } },
     ];
   }
 

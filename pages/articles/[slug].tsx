@@ -80,7 +80,7 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
     return (
     <article className="max-w-3xl mx-auto py-8 px-6 text-gray-900">
       <Head>
-        <title>{article.metaTitle || article.title} | Dalimss News</title>
+        <title>{article.metaTitle ? article.metaTitle : `${article.title} | Dalimss News`}</title>
         <meta name="description" content={article.metaDescription || seoDescription} />
         <link rel="canonical" href={`${siteUrl}/articles/${article.slug}`} />
         
