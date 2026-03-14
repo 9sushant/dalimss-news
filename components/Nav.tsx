@@ -33,6 +33,8 @@ const Nav: React.FC = () => {
   const handleSearch = () => {
     if (searchQuery.trim()) {
       router.push(`/?search=${encodeURIComponent(searchQuery)}`);
+    } else if (router.query.search) {
+      router.push("/");
     }
   };
 
