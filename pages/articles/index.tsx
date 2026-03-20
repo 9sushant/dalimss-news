@@ -1,4 +1,5 @@
 import { GetServerSideProps } from "next";
+import Head from "next/head";
 import Layout from "@/components/Layout";
 import ArticleCard from "@/components/ArticleCard";
 import { Article } from "@/types";
@@ -38,7 +39,24 @@ export default function AllArticlesPage({ articles }: Props) {
   const latestNews = articles.slice(5, 12);
   const sidebarNews = articles.slice(2, 8); // Just reusing for demo
 
+  const siteUrl = "https://dalimss.news";
+
   return (
+    <>
+      <Head>
+        <title>All Varanasi News Articles | सभी खबरें - Dalimss News</title>
+        <meta name="description" content="Read all Varanasi news articles on Dalimss News. वाराणसी की ताजा खबरें और समाचार सिर्फ Dalimss News पर पढ़ें।" />
+        <meta name="keywords" content="Varanasi news articles, वाराणसी समाचार, latest news Varanasi, uttar pradesh news" />
+        <link rel="canonical" href={`${siteUrl}/articles`} />
+        <meta name="geo.region" content="IN-UP" />
+        <meta name="geo.placename" content="Varanasi, Uttar Pradesh" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Dalimss News" />
+        <meta property="og:title" content="All Varanasi News Articles | Dalimss News" />
+        <meta property="og:description" content="वाराणसी की ताजा खबरें और समाचार सिर्य Dalimss News पर पड़ें।" />
+        <meta property="og:url" content={`${siteUrl}/articles`} />
+        <meta property="og:locale" content="hi_IN" />
+      </Head>
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-6 pt-0">
         
         {/* HERO SECTION */}
@@ -115,6 +133,7 @@ export default function AllArticlesPage({ articles }: Props) {
         </section>
 
       </div>
+    </>
   );
 }
 

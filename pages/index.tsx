@@ -1,5 +1,6 @@
 import { GetServerSideProps } from "next";
 import { useState, useEffect } from "react";
+import Head from "next/head";
 import Layout from "@/components/Layout";
 import ArticleCard from "@/components/ArticleCard";
 import NewsShortsSidebar from "@/components/NewsShortsSidebar";
@@ -123,7 +124,93 @@ export default function HomePage({ articles, stories }: Props) {
   const latestNews = newsList; 
   const sidebarNews = articles.slice(2, 8); // Just reusing for demo
 
+  const siteUrl = "https://dalimss.news";
+  const heroOgImage = heroArticle?.mediaUrl?.startsWith('http')
+    ? heroArticle.mediaUrl
+    : heroArticle?.mediaUrl
+    ? `${siteUrl}${heroArticle.mediaUrl}`
+    : `${siteUrl}/logo.png`;
+
+  const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Dalimss News - वाराणसी समाचार",
+    url: siteUrl,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${siteUrl}/?search={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  };
+
+  const orgSchema = {
+    "@context": "https://schema.org",
+    "@type": "NewsMediaOrganization",
+    name: "Dalimss News",
+    alternateName: "वाराणसी समाचार | Dalimss News",
+    url: siteUrl,
+    logo: {
+      "@type": "ImageObject",
+      url: `${siteUrl}/logo.png`,
+    },
+    sameAs: [],
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Varanasi",
+      addressRegion: "Uttar Pradesh",
+      addressCountry: "IN",
+    },
+    areaServed: {
+      "@type": "City",
+      name: "Varanasi",
+    },
+  };
+
   return (
+    <>
+    <Head>
+      <title>Varanasi News in Hindi | वाराणसी समाचार - Dalimss News</title>
+      <meta name="description" content="Get latest Varanasi news in Hindi. वाराणसी की ताजा खबरें, उत्तर प्रदेश समाचार, राजनीति, शिक्षा और स्थानीय खबरें सिर्फ Dalimss News पर।" />
+      <meta name="keywords" content="Varanasi news, वाराणसी समाचार, Varanasi news today, varanasi ki khabar, varanasi latest news, uttar pradesh news, UP news hindi, बनारस न्यूज़, Banaras news, dalimss news" />
+      <link rel="canonical" href={siteUrl} />
+
+      {/* Geo Targeting */}
+      <meta name="geo.region" content="IN-UP" />
+      <meta name="geo.placename" content="Varanasi, Uttar Pradesh" />
+      <meta name="geo.position" content="25.3176;82.9739" />
+      <meta name="ICBM" content="25.3176, 82.9739" />
+      <meta name="language" content="Hindi" />
+      <meta name="content-language" content="hi-IN" />
+
+      {/* Open Graph */}
+      <meta property="og:type" content="website" />
+      <meta property="og:site_name" content="Dalimss News" />
+      <meta property="og:title" content="Varanasi News in Hindi | वाराणसी समाचार - Dalimss News" />
+      <meta property="og:description" content="Get latest Varanasi news in Hindi. वाराणसी की ताजा खबरें, उत्तर प्रदेश समाचार, राजनीति, शिक्षा और स्थानीय खबरें।" />
+      <meta property="og:url" content={siteUrl} />
+      <meta property="og:image" content={heroOgImage} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:locale" content="hi_IN" />
+      <meta property="og:locale:alternate" content="en_IN" />
+
+      {/* Twitter Card */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:site" content="@dalimss_news" />
+      <meta name="twitter:title" content="Varanasi News in Hindi | वाराणसी समाचार - Dalimss News" />
+      <meta name="twitter:description" content="वाराणसी की ताजा खबरें - Dalimss News" />
+      <meta name="twitter:image" content={heroOgImage} />
+
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
+      />
+    </Head>
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-6 pt-0">
         
         {/* WEB STORIES CAROUSEL */}
@@ -229,6 +316,7 @@ export default function HomePage({ articles, stories }: Props) {
         </section>
 
       </div>
+    </>
   );
 }
 

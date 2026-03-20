@@ -29,30 +29,25 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   });
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+            xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
       <url>
         <loc>${baseUrl}</loc>
         <lastmod>${new Date().toISOString()}</lastmod>
-        <changefreq>daily</changefreq>
+        <changefreq>hourly</changefreq>
         <priority>1.0</priority>
       </url>
       <url>
-        <loc>${baseUrl}/?category=Varanasi</loc>
+        <loc>${baseUrl}/varanasi-news</loc>
         <lastmod>${new Date().toISOString()}</lastmod>
-        <changefreq>daily</changefreq>
-        <priority>0.8</priority>
+        <changefreq>hourly</changefreq>
+        <priority>1.0</priority>
       </url>
       <url>
-         <loc>${baseUrl}/?category=Uttar%20Pradesh</loc>
-         <lastmod>${new Date().toISOString()}</lastmod>
-         <changefreq>daily</changefreq>
-         <priority>0.8</priority>
-      </url>
-       <url>
-         <loc>${baseUrl}/?category=Education</loc>
-         <lastmod>${new Date().toISOString()}</lastmod>
-         <changefreq>daily</changefreq>
-         <priority>0.8</priority>
+        <loc>${baseUrl}/articles</loc>
+        <lastmod>${new Date().toISOString()}</lastmod>
+        <changefreq>hourly</changefreq>
+        <priority>0.9</priority>
       </url>
       ${stories
         .map((story) => {
@@ -72,8 +67,8 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
             <url>
               <loc>${baseUrl}/articles/${article.slug}</loc>
               <lastmod>${new Date(article.createdAt).toISOString()}</lastmod>
-              <changefreq>weekly</changefreq>
-              <priority>0.7</priority>
+              <changefreq>daily</changefreq>
+              <priority>0.9</priority>
             </url>
           `;
         })

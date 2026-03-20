@@ -11,8 +11,11 @@ import Head from "next/head";
 const Layout = ({ children }: LayoutProps) => (
   <div className="bg-white min-h-screen text-gray-900 font-sans">
     <Head>
-      <title>Dalimss News</title>
-      <meta name="description" content="Dalimss News is a rapidly growing social media-based news channel that has emerged as one of the most viewed and influential platforms in Purvanchal. Established in February 2024, Dalimss News has set a new benchmark in digital journalism by amassing an impressive following of 120,000 subscribers on Instagram and 177,000 followers on YouTube within just one year. This meteoric rise is a testament to the channel's ability to connect with the people, report impactful stories, and bring attention to the issues that truly matter, particularly in the city of Varanasi. It has successfully created a space where the voices of the common people are amplified, making it an indispensable source of local news and social awareness." />
+      <title>Dalimss News | Varanasi News in Hindi | वाराणसी समाचार</title>
+      <meta name="description" content="Dalimss News - Varanasi's fastest growing digital news platform. वाराणसी, पूर्वांचल और उत्तर प्रदेश की ताज़ा खबरें। Local news, politics, education & more." />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <meta name="theme-color" content="#E21B22" />
+      <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
       <link rel="icon" href="/favicon.png" type="image/png" />
       <link rel="icon" href="/favicon.ico" sizes="any" />
       <link rel="apple-touch-icon" href="/favicon.png" />
