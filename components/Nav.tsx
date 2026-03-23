@@ -21,6 +21,17 @@ const Nav: React.FC = () => {
     setCurrentDate(new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
   }, []);
 
+  // Close mobile menu on scroll
+  React.useEffect(() => {
+    const handleScroll = () => {
+      if (isMenuOpen) {
+        setIsMenuOpen(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isMenuOpen]);
+
   // Sync search input with URL
   React.useEffect(() => {
     if (router.query.search) {
