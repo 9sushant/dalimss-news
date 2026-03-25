@@ -5,23 +5,27 @@ import { useRouter } from "next/router";
 import { signIn, useSession } from "next-auth/react";
 import { compressImage } from "@/utils/compressImage";
 
+interface MediaEntry {
+  file: File;
+  preview: string;
+  type: "image" | "video";
+}
+
 const NewArticle: React.FC = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [mediaFile, setMediaFile] = useState<File | null>(null);
-  const [mediaPreview, setMediaPreview] = useState<string | null>(null);
-  const [mediaType, setMediaType] = useState<"image" | "video" | null>(null);
-  const [category, setCategory] = useState("General"); // Default category
+  const [mediaFiles, setMediaFiles] = useState<MediaEntry[]>([]);
+  const [category, setCategory] = useState("General");
   const [customAuthor, setCustomAuthor] = useState("");
 
   const [seoData, setSeoData] = useState({ metaTitle: "", metaDescription: "", focusKeyword: "" });
   const [loading, setLoading] = useState(false);
+  const [uploadingMedia, setUploadingMedia] = useState(false);
   const [compressing, setCompressing] = useState(false);
 
-  // 🟡 1. Handle loading and auth states INSIDE the component
   if (status === "loading") {
     return <p className="text-center mt-10 text-white">Loading...</p>;
   }
@@ -40,88 +44,105 @@ const NewArticle: React.FC = () => {
     );
   }
 
-  // 🟢 2. If logged in, show the form
   const handleMediaSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!title || title.trim().length < 3) {
       alert("Please enter a title BEFORE uploading media.");
       e.target.value = "";
       return;
     }
-  
-    const file = e.target.files?.[0];
-    if (!file) return;
 
-    const isImage = file.type.startsWith("image");
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-    if (isImage && file.size > 500 * 1024) {
-      // Auto-compress images over 500KB
-      setCompressing(true);
-      try {
-        const compressed = await compressImage(file);
-        setMediaFile(compressed);
-        setMediaPreview(URL.createObjectURL(compressed));
-        setMediaType("image");
-      } catch (err) {
-        console.error("Compression failed, using original:", err);
-        setMediaFile(file);
-        setMediaPreview(URL.createObjectURL(file));
-        setMediaType("image");
-      } finally {
-        setCompressing(false);
+    setCompressing(true);
+    const newEntries: MediaEntry[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      let file = files[i];
+      const isImage = file.type.startsWith("image");
+      const isVideo = file.type.startsWith("video");
+
+      if (!isImage && !isVideo) continue;
+
+      // Auto-compress large images
+      if (isImage && file.size > 500 * 1024) {
+        try {
+          file = await compressImage(file);
+        } catch (err) {
+          console.error("Compression failed, using original:", err);
+        }
       }
-    } else {
-      setMediaFile(file);
-      setMediaPreview(URL.createObjectURL(file));
-      setMediaType(file.type.startsWith("video") ? "video" : "image");
+
+      newEntries.push({
+        file,
+        preview: URL.createObjectURL(file),
+        type: isVideo ? "video" : "image",
+      });
     }
+
+    setMediaFiles((prev) => [...prev, ...newEntries]);
+    setCompressing(false);
+    e.target.value = "";
   };
 
+  const removeFile = (index: number) => {
+    setMediaFiles((prev) => {
+      const removed = prev[index];
+      if (removed) URL.revokeObjectURL(removed.preview);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      let uploadedMediaUrl: string | null = null;
-      let finalMediaType: "image" | "video" | null = null;
+      // Upload all media files
+      const uploadedItems: { url: string; type: "image" | "video" }[] = [];
 
-      // ✅ Upload media via server API (uses Vercel Blob)
-      if (mediaFile) {
-        const uploadFormData = new FormData();
-        uploadFormData.append("file", mediaFile);
+      if (mediaFiles.length > 0) {
+        setUploadingMedia(true);
+        for (const entry of mediaFiles) {
+          const uploadFormData = new FormData();
+          uploadFormData.append("file", entry.file);
 
-        const uploadResp = await fetch("/api/articles/upload", {
-          method: "POST",
-          body: uploadFormData,
-        });
+          const uploadResp = await fetch("/api/articles/upload", {
+            method: "POST",
+            body: uploadFormData,
+          });
 
-        if (!uploadResp.ok) {
-          const text = await uploadResp.text();
-          let errorMsg = "Upload failed";
-          try { errorMsg = JSON.parse(text).error || errorMsg; } catch {}
-          if (uploadResp.status === 413) errorMsg = "File is too large. Please compress or use a smaller image/video.";
-          throw new Error(errorMsg);
+          if (!uploadResp.ok) {
+            const text = await uploadResp.text();
+            let errorMsg = "Upload failed";
+            try { errorMsg = JSON.parse(text).error || errorMsg; } catch {}
+            if (uploadResp.status === 413) errorMsg = "File is too large. Please compress or use a smaller image/video.";
+            throw new Error(errorMsg);
+          }
+
+          const uploadResult = await uploadResp.json();
+          uploadedItems.push({ url: uploadResult.url, type: entry.type });
+          console.log("✅ Media uploaded:", uploadResult.url);
         }
-
-        const uploadResult = await uploadResp.json();
-        uploadedMediaUrl = uploadResult.url;
-        finalMediaType = mediaType;
-        
-        console.log("✅ Media uploaded:", uploadedMediaUrl);
+        setUploadingMedia(false);
       }
 
-      // ✅ Create article
+      // Primary media for backward compatibility
+      const primaryMedia = uploadedItems[0] || null;
+
+      // Create article
       const resp = await fetch("/api/articles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title,
           content,
-          mediaUrl: uploadedMediaUrl,
-          mediaType: finalMediaType,
+          mediaUrl: primaryMedia?.url || null,
+          mediaType: primaryMedia?.type || null,
+          mediaItems: uploadedItems.length > 0 ? uploadedItems : undefined,
           category,
           customAuthor,
-          ...seoData, // ✅ Send SEO Data
+          ...seoData,
         }),
       });
 
@@ -131,7 +152,7 @@ const NewArticle: React.FC = () => {
         if (resp.status === 413) throw new Error("Article content is too large. Please shorten the content or remove embedded media.");
         throw new Error(`Server error (${resp.status}): ${respText.slice(0, 100)}`);
       }
-      
+
       if (!resp.ok) {
         throw new Error(articleData.error || "Failed to publish article");
       }
@@ -142,6 +163,7 @@ const NewArticle: React.FC = () => {
       alert(err.message || "Error while publishing article.");
     } finally {
       setLoading(false);
+      setUploadingMedia(false);
     }
   };
 
@@ -175,7 +197,6 @@ const NewArticle: React.FC = () => {
         >
           <option value="General">General</option>
           <option value="Varanasi">Varanasi</option>
-
           <option value="India">India</option>
           <option value="Education">Education</option>
         </select>
@@ -192,33 +213,65 @@ const NewArticle: React.FC = () => {
           💡 <strong>Tip:</strong> To embed a <strong>YouTube video</strong> or <strong>Instagram Reel</strong>, simply paste the link on a new line!
         </p>
 
-        {/* Upload */}
-        <label className="flex items-center justify-center w-60 px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-xl cursor-pointer transition-all">
-          <span className="text-sm font-semibold text-blue-300">
-            📤 Upload Image / Video
-          </span>
-          <input
-            type="file"
-            accept="image/*,video/*"
-            className="hidden"
-            onChange={handleMediaSelect}
-          />
-        </label>
-        {compressing && (
-          <p className="text-sm text-yellow-400 mt-2 animate-pulse">
-            🗜️ Compressing image (over 500KB)...
-          </p>
-        )}
-
-        {mediaPreview && (
-          <div className="mt-4">
-            {mediaType === "image" ? (
-              <img src={mediaPreview} className="rounded max-h-64" alt="preview" />
-            ) : (
-              <video src={mediaPreview} controls className="rounded max-h-64" />
-            )}
+        {/* Media Section */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold">
+              Media ({mediaFiles.length} {mediaFiles.length === 1 ? "file" : "files"})
+            </h3>
+            <label className="flex items-center justify-center px-5 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-xl cursor-pointer transition-all">
+              <span className="text-sm font-semibold text-blue-300">
+                + Add Photos / Videos
+              </span>
+              <input
+                type="file"
+                accept="image/*,video/*"
+                multiple
+                className="hidden"
+                onChange={handleMediaSelect}
+              />
+            </label>
           </div>
-        )}
+
+          {compressing && (
+            <p className="text-sm text-yellow-400 animate-pulse">
+              🗜️ Compressing images...
+            </p>
+          )}
+
+          {mediaFiles.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {mediaFiles.map((entry, index) => (
+                <div key={index} className="relative group rounded-lg overflow-hidden border border-slate-600 bg-slate-800">
+                  {entry.type === "image" ? (
+                    <img src={entry.preview} className="w-full h-40 object-cover" alt={`media-${index}`} />
+                  ) : (
+                    <video src={entry.preview} className="w-full h-40 object-cover" />
+                  )}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all" />
+                  <button
+                    type="button"
+                    onClick={() => removeFile(index)}
+                    className="absolute top-2 right-2 w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                    title="Remove"
+                  >
+                    ×
+                  </button>
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs px-2 py-1">
+                    {entry.type === "video" ? "🎬 Video" : "📷 Image"}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {mediaFiles.length === 0 && (
+            <div className="border-2 border-dashed border-slate-600 rounded-xl p-8 text-center text-slate-400">
+              <p className="text-lg mb-1">No media attached</p>
+              <p className="text-sm">Click &quot;+ Add Photos / Videos&quot; to upload</p>
+            </div>
+          )}
+        </div>
 
         <SeoEditor 
             title={title} 
@@ -229,9 +282,13 @@ const NewArticle: React.FC = () => {
         <button
           type="submit"
           disabled={loading}
-          className="bg-blue-600 px-6 py-2 rounded text-white mt-4"
+          className="bg-blue-600 px-6 py-2 rounded text-white mt-4 disabled:opacity-50"
         >
-          {loading ? "Publishing..." : "Publish"}
+          {loading
+            ? uploadingMedia
+              ? "Uploading media..."
+              : "Publishing..."
+            : "Publish"}
         </button>
       </form>
     </div>

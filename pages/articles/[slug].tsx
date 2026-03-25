@@ -11,6 +11,11 @@ const getDefault = (m: any) =>
 const ReactMarkdown = getDefault(RMarkdownModule);
 const rehypeRaw = getDefault(rRawModule);
 
+interface MediaItem {
+  url: string;
+  type: "image" | "video";
+}
+
 interface Article {
   id: number;
   slug: string;
@@ -19,6 +24,7 @@ interface Article {
   createdAt: string;
   mediaUrl?: string | null;
   mediaType?: string | null;
+  mediaItems?: MediaItem[] | null;
   readTimeInMinutes?: number | null;
   customAuthor?: string | null;
   category?: string | null;
@@ -206,39 +212,67 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
       </header>
 
       {/* MEDIA RENDERER */}
-      {article.mediaUrl ? (
-        <div className="my-6">
-          {(() => {
-            try {
-              if (article.mediaType === "video") {
-                return (
-                  <video
-                    src={article.mediaUrl}
-                    controls
-                    className="rounded-md w-full max-h-[500px]"
-                    onError={(e) => (e.currentTarget.style.display = "none")}
-                  />
-                );
-              }
+      {(() => {
+        // Build media list: prefer mediaItems, fallback to single mediaUrl
+        const items: MediaItem[] = [];
+        if (article.mediaItems && Array.isArray(article.mediaItems) && article.mediaItems.length > 0) {
+          items.push(...article.mediaItems);
+        } else if (article.mediaUrl) {
+          items.push({ url: article.mediaUrl, type: (article.mediaType as "image" | "video") || "image" });
+        }
 
-              return (
+        if (items.length === 0) {
+          return <p className="text-gray-500 italic my-6">No media included.</p>;
+        }
+
+        if (items.length === 1) {
+          const item = items[0];
+          return (
+            <div className="my-6">
+              {item.type === "video" ? (
+                <video
+                  src={item.url}
+                  controls
+                  className="rounded-md w-full max-h-[500px]"
+                  onError={(e) => (e.currentTarget.style.display = "none")}
+                />
+              ) : (
                 <img
-                  src={article.mediaUrl}
+                  src={item.url}
                   className="rounded-md w-full"
                   alt="media"
                   onError={(e) => (e.currentTarget.style.display = "none")}
                 />
-              );
-            } catch (err) {
-              return (
-                <p className="text-gray-500 italic">Unable to load media.</p>
-              );
-            }
-          })()}
-        </div>
-      ) : (
-        <p className="text-gray-500 italic my-6">No media included.</p>
-      )}
+              )}
+            </div>
+          );
+        }
+
+        // Multiple media: show a gallery grid
+        return (
+          <div className="my-6 grid grid-cols-2 gap-3">
+            {items.map((item, idx) => (
+              <div key={idx} className={`rounded-lg overflow-hidden ${idx === 0 && items.length % 2 !== 0 ? 'col-span-2' : ''}`}>
+                {item.type === "video" ? (
+                  <video
+                    src={item.url}
+                    controls
+                    className="w-full h-full object-cover max-h-[400px]"
+                    onError={(e) => (e.currentTarget.style.display = "none")}
+                  />
+                ) : (
+                  <img
+                    src={item.url}
+                    className="w-full h-full object-cover max-h-[400px]"
+                    alt={`media-${idx + 1}`}
+                    onError={(e) => (e.currentTarget.style.display = "none")}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        );
+      })()}
 
       <div className="prose max-w-none text-gray-800">
         {ReactMarkdown ? (

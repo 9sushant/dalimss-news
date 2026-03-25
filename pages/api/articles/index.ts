@@ -19,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
        return res.status(403).json({ error: "Forbidden: Admins or Editors only" });
     }
 
-    const { title, content, mediaUrl, mediaType, category, customAuthor, metaTitle, metaDescription, focusKeyword } = req.body;
+    const { title, content, mediaUrl, mediaType, mediaItems, category, customAuthor, metaTitle, metaDescription, focusKeyword } = req.body;
 
     if (!title || title.trim().length < 3) {
       return res.status(400).json({ error: "Title is required" });
@@ -48,6 +48,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           slug,
           mediaUrl,
           mediaType,
+          mediaItems: mediaItems || undefined,
           category, // ✅ Added Category
           customAuthor, // ✅ Added Custom Author
           metaTitle,

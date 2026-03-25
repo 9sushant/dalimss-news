@@ -15,18 +15,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  const { slug, title, content, mediaUrl, mediaType, customAuthor } = req.body;
+  const { slug, title, content, mediaUrl, mediaType, mediaItems, customAuthor } = req.body;
 
   if (!slug || !title || !content) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
   try {
-    // Generate new slug if title changed (optional, but good practice if you want URLs to match titles)
-    // For now, let's keep the slug stable to avoid broken links unless explicitly requested, 
-    // OR we can just update the other fields. 
-    // Let's just update the other fields for now to keep it simple.
-
     const article = await prisma.article.findUnique({
       where: { slug },
       select: { authorId: true },
@@ -48,6 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         content,
         mediaUrl,
         mediaType,
+        mediaItems: mediaItems || undefined,
         customAuthor,
       },
     });

@@ -65,6 +65,7 @@ model Article {
   content           String
   mediaUrl          String?
   mediaType         String?
+  mediaItems        Json?     // Array of {url: string, type: "image"|"video"} for multiple media
   readTimeInMinutes Int      @default(5)
   category          String?
   sourceUrl         String?
