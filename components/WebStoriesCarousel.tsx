@@ -1,3 +1,4 @@
+import Link from "next/link";
 import ImageWithFallback from "./ImageWithFallback";
 
 interface StoryPage {
