@@ -1,4 +1,3 @@
-import Link from "next/link";
 import ImageWithFallback from "./ImageWithFallback";
 
 interface StoryPage {
@@ -41,7 +40,7 @@ const WebStoriesCarousel = ({ stories }: Props) => {
       {/* Stories Grid */}
       <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
         {stories.map((story) => (
-          <Link
+          <a
             key={story.id}
             href={`/stories/${story.slug}`}
             className="flex-shrink-0 group"
@@ -53,10 +52,10 @@ const WebStoriesCarousel = ({ stories }: Props) => {
                 alt={story.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
-              
+
               {/* Gradient Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              
+
               {/* Title */}
               <div className="absolute bottom-0 left-0 right-0 p-3">
                 <h3 className="text-white text-sm font-bold leading-tight line-clamp-2">
@@ -82,7 +81,7 @@ const WebStoriesCarousel = ({ stories }: Props) => {
                 </div>
               </div>
             </div>
-          </Link>
+          </a>
         ))}
       </div>
     </div>
