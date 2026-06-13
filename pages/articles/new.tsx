@@ -1,6 +1,9 @@
 
 import React, { useState } from "react";
+import dynamic from "next/dynamic";
 import SeoEditor from "@/components/SeoEditor";
+
+const RichTextEditor = dynamic(() => import("@/components/RichTextEditor"), { ssr: false });
 import { useRouter } from "next/router";
 import { signIn, useSession } from "next-auth/react";
 import { compressImage } from "@/utils/compressImage";
@@ -168,14 +171,14 @@ const NewArticle: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-10 text-white">
-      <h1 className="text-3xl font-semibold mb-6">Create New Article</h1>
+    <div className="max-w-4xl mx-auto px-6 py-10 text-gray-900">
+      <h1 className="text-3xl font-semibold mb-6 text-gray-900">Create New Article</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <input
           type="text"
           placeholder="Title..."
-          className="w-full p-3 rounded bg-slate-900 border border-slate-700"
+          className="w-full p-3 rounded bg-white border border-gray-300 text-gray-900"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
@@ -184,7 +187,7 @@ const NewArticle: React.FC = () => {
         <input
           type="text"
           placeholder="Author Name (Optional)"
-          className="w-full p-3 rounded bg-slate-900 border border-slate-700"
+          className="w-full p-3 rounded bg-white border border-gray-300 text-gray-900"
           value={customAuthor}
           onChange={(e) => setCustomAuthor(e.target.value)}
         />
@@ -193,7 +196,7 @@ const NewArticle: React.FC = () => {
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="w-full p-3 rounded bg-slate-900 border border-slate-700 text-white"
+          className="w-full p-3 rounded bg-white border border-gray-300 text-gray-900"
         >
           <option value="General">General</option>
           <option value="Varanasi">Varanasi</option>
@@ -201,17 +204,16 @@ const NewArticle: React.FC = () => {
           <option value="Education">Education</option>
         </select>
 
-        <textarea
-          placeholder="Write markdown content..."
-          rows={15}
-          className="w-full p-3 rounded bg-slate-900 border border-slate-700 font-serif"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          required
-        />
-        <p className="text-sm text-gray-400 mt-1">
-          💡 <strong>Tip:</strong> To embed a <strong>YouTube video</strong> or <strong>Instagram Reel</strong>, simply paste the link on a new line!
-        </p>
+        <div>
+          <RichTextEditor
+            value={content}
+            onChange={setContent}
+            placeholder="Write your article content here..."
+          />
+          <p className="text-sm text-gray-400 mt-2">
+            💡 <strong>Tip:</strong> Use the toolbar above to format headings, bold, italic, lists, links, and more.
+          </p>
+        </div>
 
         {/* Media Section */}
         <div className="space-y-4">
@@ -219,8 +221,8 @@ const NewArticle: React.FC = () => {
             <h3 className="text-lg font-semibold">
               Media ({mediaFiles.length} {mediaFiles.length === 1 ? "file" : "files"})
             </h3>
-            <label className="flex items-center justify-center px-5 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-xl cursor-pointer transition-all">
-              <span className="text-sm font-semibold text-blue-300">
+            <label className="flex items-center justify-center px-5 py-2.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl cursor-pointer transition-all">
+              <span className="text-sm font-semibold text-blue-600">
                 + Add Photos / Videos
               </span>
               <input
@@ -234,7 +236,7 @@ const NewArticle: React.FC = () => {
           </div>
 
           {compressing && (
-            <p className="text-sm text-yellow-400 animate-pulse">
+            <p className="text-sm text-yellow-600 animate-pulse">
               🗜️ Compressing images...
             </p>
           )}
@@ -266,7 +268,7 @@ const NewArticle: React.FC = () => {
           )}
 
           {mediaFiles.length === 0 && (
-            <div className="border-2 border-dashed border-slate-600 rounded-xl p-8 text-center text-slate-400">
+            <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center text-gray-400">
               <p className="text-lg mb-1">No media attached</p>
               <p className="text-sm">Click &quot;+ Add Photos / Videos&quot; to upload</p>
             </div>

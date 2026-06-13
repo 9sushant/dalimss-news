@@ -1,5 +1,8 @@
 import React, { useState } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
+
+const RichTextEditor = dynamic(() => import("@/components/RichTextEditor"), { ssr: false });
 import { signIn, useSession } from "next-auth/react";
 import { GetServerSideProps } from "next";
 import prisma from "../../../lib/prisma";
@@ -225,13 +228,10 @@ const EditArticle: React.FC<Props> = ({ article }) => {
           onChange={(e) => setCustomAuthor(e.target.value)}
         />
 
-        <textarea
-          placeholder="Write markdown content..."
-          rows={15}
-          className="w-full p-3 rounded bg-white border border-gray-300 font-serif text-gray-900"
+        <RichTextEditor
           value={content}
-          onChange={(e) => setContent(e.target.value)}
-          required
+          onChange={setContent}
+          placeholder="Write your article content here..."
         />
 
         {/* Media Section */}
