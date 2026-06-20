@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import SeoEditor from "@/components/SeoEditor";
+import { CATEGORIES } from "@/lib/categories";
 
 const RichTextEditor = dynamic(() => import("@/components/RichTextEditor"), { ssr: false });
 import { useRouter } from "next/router";
@@ -21,7 +22,7 @@ const NewArticle: React.FC = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [mediaFiles, setMediaFiles] = useState<MediaEntry[]>([]);
-  const [category, setCategory] = useState("General");
+  const [category, setCategory] = useState("India");
   const [customAuthor, setCustomAuthor] = useState("");
 
   const [seoData, setSeoData] = useState({ metaTitle: "", metaDescription: "", focusKeyword: "" });
@@ -98,6 +99,29 @@ const NewArticle: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Editor Checklist Validation: Cannot publish without title, description, category, image, author, and summary/content
+    if (!title.trim() || title.trim().length < 3) {
+      alert("Please provide a valid article title (at least 3 characters).");
+      return;
+    }
+    if (!content.trim() || content.trim().length < 10) {
+      alert("Please provide a valid article content/summary.");
+      return;
+    }
+    if (!customAuthor.trim()) {
+      alert("Please provide the author name.");
+      return;
+    }
+    if (mediaFiles.length === 0) {
+      alert("Please upload at least one image or video for the article.");
+      return;
+    }
+    if (!seoData.metaDescription.trim()) {
+      alert("Please provide a meta description in the SEO editor section.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -186,10 +210,11 @@ const NewArticle: React.FC = () => {
         
         <input
           type="text"
-          placeholder="Author Name (Optional)"
+          placeholder="Author Name"
           className="w-full p-3 rounded bg-white border border-gray-300 text-gray-900"
           value={customAuthor}
           onChange={(e) => setCustomAuthor(e.target.value)}
+          required
         />
         
         {/* Category Dropdown */}
@@ -197,11 +222,13 @@ const NewArticle: React.FC = () => {
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           className="w-full p-3 rounded bg-white border border-gray-300 text-gray-900"
+          required
         >
-          <option value="General">General</option>
-          <option value="Varanasi">Varanasi</option>
-          <option value="India">India</option>
-          <option value="Education">Education</option>
+          {CATEGORIES.map((cat) => (
+            <option key={cat.slug} value={cat.name}>
+              {cat.name}
+            </option>
+          ))}
         </select>
 
         <div>

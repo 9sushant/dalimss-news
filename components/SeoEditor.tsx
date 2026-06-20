@@ -5,13 +5,24 @@ interface SeoEditorProps {
   title: string;
   description: string; // The article content or snippet
   articleSlug?: string;
+  initialMetaTitle?: string | null;
+  initialMetaDescription?: string | null;
+  initialFocusKeyword?: string | null;
   onUpdate: (data: { metaTitle: string; metaDescription: string; focusKeyword: string }) => void;
 }
 
-const SeoEditor: React.FC<SeoEditorProps> = ({ title: draftTitle, description: draftContent, articleSlug, onUpdate }) => {
-  const [metaTitle, setMetaTitle] = useState("");
-  const [metaDescription, setMetaDescription] = useState("");
-  const [focusKeyword, setFocusKeyword] = useState("");
+const SeoEditor: React.FC<SeoEditorProps> = ({
+  title: draftTitle,
+  description: draftContent,
+  articleSlug,
+  initialMetaTitle,
+  initialMetaDescription,
+  initialFocusKeyword,
+  onUpdate,
+}) => {
+  const [metaTitle, setMetaTitle] = useState(initialMetaTitle || "");
+  const [metaDescription, setMetaDescription] = useState(initialMetaDescription || "");
+  const [focusKeyword, setFocusKeyword] = useState(initialFocusKeyword || "");
   const [score, setScore] = useState(0);
 
   // Initialize with draft content if empty

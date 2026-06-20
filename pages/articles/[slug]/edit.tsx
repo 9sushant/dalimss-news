@@ -3,6 +3,8 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 
 const RichTextEditor = dynamic(() => import("@/components/RichTextEditor"), { ssr: false });
+import SeoEditor from "@/components/SeoEditor";
+import { CATEGORIES } from "@/lib/categories";
 import { signIn, useSession } from "next-auth/react";
 import { GetServerSideProps } from "next";
 import prisma from "../../../lib/prisma";
@@ -22,6 +24,10 @@ interface Article {
   mediaType?: "image" | "video" | null;
   mediaItems?: MediaItem[] | null;
   customAuthor?: string | null;
+  category?: string | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  focusKeyword?: string | null;
 }
 
 interface Props {
@@ -35,6 +41,12 @@ const EditArticle: React.FC<Props> = ({ article }) => {
   const [title, setTitle] = useState(article?.title || "");
   const [content, setContent] = useState(article?.content || "");
   const [customAuthor, setCustomAuthor] = useState(article?.customAuthor || "");
+  const [category, setCategory] = useState(article?.category || "India");
+  const [seoData, setSeoData] = useState({
+    metaTitle: article?.metaTitle || "",
+    metaDescription: article?.metaDescription || "",
+    focusKeyword: article?.focusKeyword || "",
+  });
   const [loading, setLoading] = useState(false);
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const [compressing, setCompressing] = useState(false);
@@ -131,6 +143,30 @@ const EditArticle: React.FC<Props> = ({ article }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Enforce publication constraints: Title, content, customAuthor, media, metaDescription
+    if (!title.trim() || title.trim().length < 3) {
+      alert("Please provide a valid article title (at least 3 characters).");
+      return;
+    }
+    if (!content.trim() || content.trim().length < 10) {
+      alert("Please provide valid article content.");
+      return;
+    }
+    if (!customAuthor.trim()) {
+      alert("Please provide the author name.");
+      return;
+    }
+    const totalMediaItems = mediaItems.length + newFiles.length;
+    if (totalMediaItems === 0) {
+      alert("Please upload at least one image or video for the article.");
+      return;
+    }
+    if (!seoData.metaDescription.trim()) {
+      alert("Please provide a meta description in the SEO editor section.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -180,6 +216,8 @@ const EditArticle: React.FC<Props> = ({ article }) => {
           mediaType: primaryMedia?.type || null,
           mediaItems: allMediaItems,
           customAuthor,
+          category,
+          ...seoData,
         }),
       });
 
@@ -222,11 +260,26 @@ const EditArticle: React.FC<Props> = ({ article }) => {
 
         <input
           type="text"
-          placeholder="Author Name (Optional)"
+          placeholder="Author Name"
           className="w-full p-3 rounded bg-white border border-gray-300 text-gray-900"
           value={customAuthor}
           onChange={(e) => setCustomAuthor(e.target.value)}
+          required
         />
+
+        {/* Category Dropdown */}
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="w-full p-3 rounded bg-white border border-gray-300 text-gray-900"
+          required
+        >
+          {CATEGORIES.map((cat) => (
+            <option key={cat.slug} value={cat.name}>
+              {cat.name}
+            </option>
+          ))}
+        </select>
 
         <RichTextEditor
           value={content}
@@ -318,6 +371,16 @@ const EditArticle: React.FC<Props> = ({ article }) => {
             </div>
           )}
         </div>
+
+        <SeoEditor 
+            title={title} 
+            description={content}
+            articleSlug={article.slug}
+            initialMetaTitle={article.metaTitle}
+            initialMetaDescription={article.metaDescription}
+            initialFocusKeyword={article.focusKeyword}
+            onUpdate={setSeoData}
+        />
 
         <div className="flex gap-4">
           <button

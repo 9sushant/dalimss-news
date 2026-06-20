@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  const { slug, title, content, mediaUrl, mediaType, mediaItems, customAuthor } = req.body;
+  const { slug, title, content, mediaUrl, mediaType, mediaItems, customAuthor, category, metaTitle, metaDescription, focusKeyword } = req.body;
 
   if (!slug || !title || !content) {
     return res.status(400).json({ error: "Missing required fields" });
@@ -45,6 +45,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         mediaType,
         mediaItems: mediaItems || undefined,
         customAuthor,
+        category: category || undefined,
+        metaTitle: metaTitle || null,
+        metaDescription: metaDescription || null,
+        focusKeyword: focusKeyword || null,
       },
     });
 
