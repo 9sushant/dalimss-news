@@ -71,7 +71,7 @@ model Article {
   sourceUrl         String?
   customAuthor      String?
   createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  updatedAt         DateTime @default(now()) @updatedAt
   authorId          String?
   author            User?    @relation(fields: [authorId], references: [id])
   
