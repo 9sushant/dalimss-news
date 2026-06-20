@@ -57,7 +57,7 @@ export function ArticleJsonLd({ article, authorUrl }: ArticleJsonLdProps) {
       name: SITE_NAME,
       logo: {
         "@type": "ImageObject",
-        url: `${SITE_URL}/logo.png`,
+        url: `${SITE_URL}/logo-square.png`,
       },
     },
   };

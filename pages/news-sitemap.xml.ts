@@ -44,7 +44,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
       <news:news>
         <news:publication>
           <news:name>Dalimss News</news:name>
-          <news:language>en</news:language>
+          <news:language>hi</news:language>
         </news:publication>
         <news:publication_date>${new Date(article.createdAt).toISOString()}</news:publication_date>
         <news:title>${xmlEscape(article.title)}</news:title>
