@@ -132,6 +132,11 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
         <meta name="twitter:title" content={article.metaTitle || article.title} />
         <meta name="twitter:description" content={seoDescription} />
         <meta name="twitter:image" content={ogImageUrl} />
+        
+        {/* Preload hero image for better LCP */}
+        {article.mediaUrl && (
+          <link rel="preload" as="image" href={article.mediaUrl} />
+        )}
       </Head>
 
       {/* JSON-LD Structured Data */}
