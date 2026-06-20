@@ -10,6 +10,8 @@ import {
   BellIcon
 } from "@heroicons/react/24/outline";
 
+import { NAV_CATEGORIES } from "@/lib/categories";
+
 const Nav: React.FC = () => {
   const { data: session } = useSession();
   const router = useRouter();
@@ -154,22 +156,13 @@ const Nav: React.FC = () => {
                 Home
               </Link>
             </li>
-            <li>
-              <Link href="/?category=Varanasi" className="block py-2 md:py-0 hover:text-[#E21B22] transition-colors">
-                Varanasi
-              </Link>
-            </li>
-
-            <li>
-              <Link href="/?category=India" className="block py-2 md:py-0 hover:text-[#E21B22] transition-colors">
-                India
-              </Link>
-            </li>
-            <li>
-              <Link href="/?category=Education" className="block py-2 md:py-0 hover:text-[#E21B22] transition-colors">
-                Education
-              </Link>
-            </li>
+            {NAV_CATEGORIES.map((cat) => (
+              <li key={cat.slug}>
+                <Link href={`/category/${cat.slug}`} className="block py-2 md:py-0 hover:text-[#E21B22] transition-colors">
+                  {cat.name}
+                </Link>
+              </li>
+            ))}
             <li>
               <Link href="/courses" className="block py-2 md:py-0 hover:text-[#E21B22] transition-colors">
                 Courses

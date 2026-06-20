@@ -1,8 +1,14 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
 
 User-agent: Googlebot
 Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
 
 User-agent: Googlebot-News
 Allow: /
@@ -11,3 +17,4 @@ User-agent: Googlebot-Image
 Allow: /
 
 Sitemap: https://dalimss.news/sitemap.xml
+Sitemap: https://dalimss.news/news-sitemap.xml

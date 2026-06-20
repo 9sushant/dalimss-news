@@ -16,12 +16,23 @@ interface MediaItem {
   type: "image" | "video";
 }
 
+interface RelatedArticleData {
+  id: number;
+  slug: string;
+  title: string;
+  mediaUrl: string | null;
+  createdAt: string;
+  category: string | null;
+  customAuthor: string | null;
+}
+
 interface Article {
   id: number;
   slug: string;
   title: string;
   content: string | null;
   createdAt: string;
+  updatedAt?: string | null;
   mediaUrl?: string | null;
   mediaType?: string | null;
   mediaItems?: MediaItem[] | null;
@@ -35,14 +46,18 @@ interface Article {
 
 interface Props {
   article?: Article | null;
+  relatedArticles: RelatedArticleData[];
 }
 
 import Head from "next/head";
 import ShareButton from "@/components/ShareButton";
+import { ArticleJsonLd } from "@/components/ArticleJsonLd";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { RelatedArticles } from "@/components/RelatedArticles";
+import { SITE_URL, absoluteImageUrl, stripForMeta, authorSlug } from "@/lib/seo";
+import { getCategoryByDbValue, getCategorySlug } from "@/lib/categories";
 
-// ... existing imports ...
-
-const ArticlePage: React.FC<Props> = ({ article }) => {
+const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
   const { data: session } = useSession();
   const [formattedDate, setFormattedDate] = useState<string>('');
 
@@ -62,40 +77,41 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
   }
 
   // Create clean description for SEO
-  const rawContent = article.content || "";
-  const seoDescription = rawContent
-    .replace(/<[^>]+>/g, "") // Strip HTML tags
-    .replace(/[#*`]/g, "") // Strip basic Markdown chars
-    .split("\n")[0] // Take first paragraph
-    .slice(0, 160) + "..."; // Limit length
+  const seoDescription =
+    article.metaDescription || stripForMeta(article.content || "", 160);
 
-  // Create absolute image URL for OG
-  const siteUrl = "https://dalimss.news";
-  const defaultOgImage = `${siteUrl}/logo.jpg`;
-  
-  // Use article media URL for OG image if available
-  let ogImageUrl = defaultOgImage;
-  if (article.mediaUrl) {
-    if (article.mediaUrl.startsWith('http')) {
-      ogImageUrl = article.mediaUrl;
-    } else {
-      ogImageUrl = `${siteUrl}${article.mediaUrl}`;
-    }
-  }
+  // OG image
+  const ogImageUrl = absoluteImageUrl(article.mediaUrl);
 
-    return (
+  // Category info for breadcrumbs
+  const categoryInfo = article.category
+    ? getCategoryByDbValue(article.category)
+    : null;
+  const categorySlug = getCategorySlug(article.category);
+
+  // Author URL
+  const authorName = article.customAuthor || "Dalimss News Desk";
+  const authorUrl = `${SITE_URL}/author/${authorSlug(authorName)}`;
+
+  // Canonical URL
+  const canonicalUrl = `${SITE_URL}/articles/${article.slug}`;
+
+  return (
     <article className="max-w-3xl mx-auto py-8 px-6 text-gray-900">
       <Head>
         <title>{article.metaTitle ? article.metaTitle : `${article.title} | Dalimss News`}</title>
-        <meta name="description" content={article.metaDescription || seoDescription} />
-        <link rel="canonical" href={`${siteUrl}/articles/${article.slug}`} />
+        <meta name="description" content={seoDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+        
+        {/* Robots with max-image-preview */}
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         
         {/* Open Graph - Essential for WhatsApp/Facebook */}
         <meta property="og:site_name" content="Dalimss News" />
         <meta property="og:title" content={article.metaTitle || article.title} />
-        <meta property="og:description" content={article.metaDescription || seoDescription} />
+        <meta property="og:description" content={seoDescription} />
         <meta property="og:type" content="article" />
-        <meta property="og:url" content={`${siteUrl}/articles/${article.slug}`} />
+        <meta property="og:url" content={canonicalUrl} />
         <meta property="og:image" content={ogImageUrl} />
         <meta property="og:image:secure_url" content={ogImageUrl} />
         <meta property="og:image:type" content="image/jpeg" />
@@ -106,7 +122,7 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
         
         {/* Article specific Meta tags */}
         <meta property="article:published_time" content={new Date(article.createdAt).toISOString()} />
-        <meta property="article:modified_time" content={new Date(article.createdAt).toISOString()} />
+        <meta property="article:modified_time" content={new Date(article.updatedAt || article.createdAt).toISOString()} />
         {article.customAuthor && <meta property="article:author" content={article.customAuthor} />}
         {article.category && <meta property="article:section" content={article.category} />}
         
@@ -114,43 +130,23 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@dalimss_news" />
         <meta name="twitter:title" content={article.metaTitle || article.title} />
-        <meta name="twitter:description" content={article.metaDescription || seoDescription} />
+        <meta name="twitter:description" content={seoDescription} />
         <meta name="twitter:image" content={ogImageUrl} />
-
-        {/* JSON-LD Schema for Rich Snippets */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "NewsArticle",
-              mainEntityOfPage: {
-                "@type": "WebPage",
-                "@id": `${siteUrl}/articles/${article.slug}`,
-              },
-              headline: article.metaTitle || article.title,
-              image: [ogImageUrl],
-              datePublished: new Date(article.createdAt).toISOString(),
-              dateModified: new Date(article.createdAt).toISOString(),
-              author: {
-                "@type": "Person",
-                name: article.customAuthor || "Dalimss News",
-              },
-              publisher: {
-                "@type": "Organization",
-                name: "Dalimss News",
-                logo: {
-                  "@type": "ImageObject",
-                  url: `${siteUrl}/logo.png`,
-                },
-              },
-              description: article.metaDescription || seoDescription,
-            }),
-          }}
-        />
       </Head>
 
-      {/* EDIT & DELETE BUTTONS */}
+      {/* JSON-LD Structured Data */}
+      <ArticleJsonLd article={article} authorUrl={authorUrl} />
+
+      {/* Breadcrumbs */}
+      <Breadcrumbs
+        items={[
+          ...(categoryInfo
+            ? [{ name: categoryInfo.name, href: `/category/${categoryInfo.slug}` }]
+            : []),
+          { name: article.title.length > 60 ? article.title.slice(0, 57) + "..." : article.title, href: `/articles/${article.slug}` },
+        ]}
+      />
+
       {/* EDIT & DELETE BUTTONS (ADMIN ONLY) */}
       {session && session.user && (session.user.role === "admin" || session.user.role === "editor" || session.user.email === "admin@dalimss.com" || session.user.email === "sushantgaurav@dalimss.com" || session.user.email === "dalimsssushant@gmail.com") && (
         <div className="flex justify-end mb-4 gap-4">
@@ -187,13 +183,21 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
       {/* HEADER */}
       <header className="mb-6">
         {article.category && (
-          <span className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded mb-2">
+          <a
+            href={`/category/${categorySlug}`}
+            className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded mb-2 hover:bg-blue-200 transition-colors"
+          >
             {article.category}
-          </span>
+          </a>
         )}
         <h1 className="text-4xl font-bold mb-3 text-gray-900">{article.title}</h1>
         <div className="text-sm text-gray-600 flex flex-wrap items-center gap-2">
-          <span>By {article.customAuthor || "Unknown Author"}</span>
+          <a
+            href={`/author/${authorSlug(authorName)}`}
+            className="hover:text-red-600 transition-colors"
+          >
+            By {authorName}
+          </a>
           <span>•</span>
           <time dateTime={article.createdAt} suppressHydrationWarning>
             {formattedDate || new Date(article.createdAt).toLocaleDateString("en-IN")}
@@ -240,7 +244,9 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
                 <img
                   src={item.url}
                   className="rounded-md w-full"
-                  alt="media"
+                  alt={article.title}
+                  width={1200}
+                  height={630}
                   onError={(e) => (e.currentTarget.style.display = "none")}
                 />
               )}
@@ -264,7 +270,7 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
                   <img
                     src={item.url}
                     className="w-full h-full object-cover max-h-[400px]"
-                    alt={`media-${idx + 1}`}
+                    alt={`${article.title} - ${idx + 1}`}
                     onError={(e) => (e.currentTarget.style.display = "none")}
                   />
                 )}
@@ -399,6 +405,9 @@ const ArticlePage: React.FC<Props> = ({ article }) => {
           Source: <a href={article.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Original Post</a>
         </div>
       )}
+
+      {/* RELATED ARTICLES */}
+      <RelatedArticles articles={relatedArticles} />
     </article>
   );
 };
@@ -414,9 +423,41 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   if (!isNaN(numericId)) whereClause.OR.push({ id: numericId });
 
   let article = null;
+  let relatedArticles: any[] = [];
 
   try {
-    article = await prisma.article.findFirst({ where: whereClause });
+    article = await prisma.article.findFirst({
+      where: whereClause,
+      include: {
+        author: {
+          select: {
+            name: true,
+            image: true,
+          },
+        },
+      },
+    });
+
+    // Fetch related articles from the same category
+    if (article && article.category) {
+      relatedArticles = await prisma.article.findMany({
+        where: {
+          category: article.category,
+          id: { not: article.id },
+        },
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          mediaUrl: true,
+          createdAt: true,
+          category: true,
+          customAuthor: true,
+        },
+        orderBy: { createdAt: "desc" },
+        take: 6,
+      });
+    }
   } catch (err) {
     console.error("DB ERROR:", err);
   }
@@ -424,6 +465,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   return {
     props: {
       article: article ? JSON.parse(JSON.stringify(article)) : null,
+      relatedArticles: JSON.parse(JSON.stringify(relatedArticles)),
     },
   };
 };

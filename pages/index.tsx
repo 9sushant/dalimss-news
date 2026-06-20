@@ -147,7 +147,11 @@ export default function HomePage({ articles, stories }: Props) {
     "@context": "https://schema.org",
     "@type": "NewsMediaOrganization",
     name: "Dalimss News",
-    alternateName: "वाराणसी समाचार | Dalimss News",
+    alternateName: [
+      "Dalimss News India",
+      "वाराणसी समाचार | Dalimss News",
+      "डेलीएमएस न्यूज"
+    ],
     url: siteUrl,
     logo: {
       "@type": "ImageObject",
@@ -160,45 +164,55 @@ export default function HomePage({ articles, stories }: Props) {
       addressRegion: "Uttar Pradesh",
       addressCountry: "IN",
     },
-    areaServed: {
-      "@type": "City",
-      name: "Varanasi",
-    },
+    areaServed: [
+      {
+        "@type": "Country",
+        name: "India",
+      },
+      {
+        "@type": "State",
+        name: "Uttar Pradesh",
+      },
+      {
+        "@type": "City",
+        name: "Varanasi",
+      }
+    ],
   };
 
   return (
     <>
     <Head>
-      <title>Varanasi News in Hindi | वाराणसी समाचार - Dalimss News</title>
-      <meta name="description" content="Get latest Varanasi news in Hindi. वाराणसी की ताजा खबरें, उत्तर प्रदेश समाचार, राजनीति, शिक्षा और स्थानीय खबरें सिर्फ Dalimss News पर।" />
-      <meta name="keywords" content="Varanasi news, वाराणसी समाचार, Varanasi news today, varanasi ki khabar, varanasi latest news, uttar pradesh news, UP news hindi, बनारस न्यूज़, Banaras news, dalimss news" />
+      <title>Dalimss News — Latest India News, Uttar Pradesh, Varanasi, Education, Business & Reviews</title>
+      <meta name="description" content="Get the latest national news, Uttar Pradesh stories, Varanasi local updates, education exam alerts, business insights, and technology reviews from Dalimss News." />
+      <meta name="keywords" content="Varanasi news, वाराणसी समाचार, India news today, national news, uttar pradesh news, education news, business news, tech reviews, banaras news, dalimss news" />
       <link rel="canonical" href={siteUrl} />
 
       {/* Geo Targeting */}
       <meta name="geo.region" content="IN-UP" />
-      <meta name="geo.placename" content="Varanasi, Uttar Pradesh" />
+      <meta name="geo.placename" content="India, Uttar Pradesh, Varanasi" />
       <meta name="geo.position" content="25.3176;82.9739" />
       <meta name="ICBM" content="25.3176, 82.9739" />
-      <meta name="language" content="Hindi" />
-      <meta name="content-language" content="hi-IN" />
+      <meta name="language" content="English, Hindi" />
+      <meta name="content-language" content="en-IN, hi-IN" />
 
       {/* Open Graph */}
       <meta property="og:type" content="website" />
       <meta property="og:site_name" content="Dalimss News" />
-      <meta property="og:title" content="Varanasi News in Hindi | वाराणसी समाचार - Dalimss News" />
-      <meta property="og:description" content="Get latest Varanasi news in Hindi. वाराणसी की ताजा खबरें, उत्तर प्रदेश समाचार, राजनीति, शिक्षा और स्थानीय खबरें।" />
+      <meta property="og:title" content="Dalimss News — Latest India News, Uttar Pradesh, Varanasi, Education, Business & Reviews" />
+      <meta property="og:description" content="Get the latest national news, Uttar Pradesh stories, Varanasi local updates, education exam alerts, business insights, and technology reviews from Dalimss News." />
       <meta property="og:url" content={siteUrl} />
       <meta property="og:image" content={heroOgImage} />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
-      <meta property="og:locale" content="hi_IN" />
-      <meta property="og:locale:alternate" content="en_IN" />
+      <meta property="og:locale" content="en_IN" />
+      <meta property="og:locale:alternate" content="hi_IN" />
 
       {/* Twitter Card */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:site" content="@dalimss_news" />
-      <meta name="twitter:title" content="Varanasi News in Hindi | वाराणसी समाचार - Dalimss News" />
-      <meta name="twitter:description" content="वाराणसी की ताजा खबरें - Dalimss News" />
+      <meta name="twitter:title" content="Dalimss News — Latest India News, Uttar Pradesh, Varanasi, Education, Business & Reviews" />
+      <meta name="twitter:description" content="Get the latest national news, Uttar Pradesh stories, Varanasi local updates, education exam alerts, business insights, and technology reviews." />
       <meta name="twitter:image" content={heroOgImage} />
 
       {/* JSON-LD Structured Data */}

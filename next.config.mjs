@@ -20,8 +20,17 @@ const nextConfig = {
     ],
   },
 
-  // ❌ REMOVE `api: { bodyParser:false }` from here (Next.js 14 does not support)
-  
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.dalimss.news" }],
+        destination: "https://dalimss.news/:path*",
+        permanent: true,
+      },
+    ];
+  },
+
   async headers() {
     return [
       {

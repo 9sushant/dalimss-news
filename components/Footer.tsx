@@ -1,42 +1,87 @@
 import Link from "next/link";
+import { NAV_CATEGORIES } from "@/lib/categories";
 
 const Footer = () => {
   return (
-    <footer className="bg-white border-t border-gray-200 mt-12 py-8">
-      <div className="container mx-auto px-4 text-center">
-        {/* Quick Links */}
-        <div className="flex flex-wrap items-center justify-center gap-4 mb-6 text-sm">
-          <Link href="/about" className="text-gray-600 hover:text-red-600 transition-colors">
-            About Us
-          </Link>
-          <span className="text-gray-300">|</span>
-          <Link href="/contact" className="text-gray-600 hover:text-red-600 transition-colors">
-            Contact Us
-          </Link>
-          <span className="text-gray-300">|</span>
-          <Link href="/privacy-policy" className="text-gray-600 hover:text-red-600 transition-colors">
-            Privacy Policy
-          </Link>
+    <footer className="bg-gray-950 text-gray-300 border-t border-gray-800 mt-16 py-12 font-sans">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 text-left">
+          {/* Column 1: Branding */}
+          <div className="space-y-4">
+            <h3 className="text-white font-serif text-xl font-bold tracking-tight">
+              Dalimss <span className="text-red-500">News</span>
+            </h3>
+            <p className="text-gray-400 text-sm leading-relaxed max-w-sm">
+              Dalimss News is India&apos;s digital news publication, providing national coverage, local reports, in-depth explainers, technology reviews, and educational resources.
+            </p>
+            <p className="text-gray-400 text-xs leading-relaxed max-w-sm">
+              We stand for ethical journalism, public trust, and rigorous fact-checking.
+            </p>
+          </div>
+
+          {/* Column 2: Categories */}
+          <div className="space-y-4">
+            <h4 className="text-white text-sm font-bold uppercase tracking-wider">
+              News Categories
+            </h4>
+            <div className="grid grid-cols-2 gap-2 text-sm text-left">
+              {NAV_CATEGORIES.slice(0, 8).map((cat) => (
+                <Link
+                  key={cat.slug}
+                  href={`/category/${cat.slug}`}
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  {cat.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Column 3: Trust & Policies */}
+          <div className="space-y-4">
+            <h4 className="text-white text-sm font-bold uppercase tracking-wider">
+              Policies & Trust
+            </h4>
+            <ul className="space-y-2 text-sm flex flex-col text-left">
+              <Link href="/editorial-policy" className="text-gray-400 hover:text-white transition-colors">
+                Editorial Policy
+              </Link>
+              <Link href="/corrections-policy" className="text-gray-400 hover:text-white transition-colors">
+                Corrections Policy
+              </Link>
+              <Link href="/about" className="text-gray-400 hover:text-white transition-colors">
+                About Us
+              </Link>
+              <Link href="/contact" className="text-gray-400 hover:text-white transition-colors">
+                Contact Us
+              </Link>
+              <Link href="/privacy-policy" className="text-gray-400 hover:text-white transition-colors">
+                Privacy Policy
+              </Link>
+            </ul>
+          </div>
         </div>
 
-        <p className="text-gray-600 text-sm mb-6">
-          Copyright © 2026 Dalimss News . All rights reserved.
-        </p>
+        <hr className="border-gray-800 my-8" />
 
-        <div className="flex flex-col items-center">
-          <h3 className="text-gray-900 font-bold mb-4">Follow Us On</h3>
+        {/* Bottom Utility / Copyright & Socials */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+          <p>
+            © {new Date().getFullYear()} Dalimss News. All rights reserved. Registered under Indian digital media regulations.
+          </p>
+
           <div className="flex gap-4">
             <Link 
               href="https://www.instagram.com/dalimss.news.banaras/" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-gray-600 hover:text-[#E1306C] transition-colors"
+              className="text-gray-400 hover:text-[#E1306C] transition-colors"
               aria-label="Instagram"
             >
               <svg 
                 xmlns="http://www.w3.org/2000/svg" 
-                width="24" 
-                height="24" 
+                width="20" 
+                height="20" 
                 viewBox="0 0 24 24" 
                 fill="none" 
                 stroke="currentColor" 
@@ -55,13 +100,13 @@ const Footer = () => {
               href="https://www.youtube.com/@dalimss_news" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-gray-600 hover:text-[#FF0000] transition-colors"
+              className="text-gray-400 hover:text-[#FF0000] transition-colors"
               aria-label="YouTube"
             >
               <svg 
                 xmlns="http://www.w3.org/2000/svg" 
-                width="24" 
-                height="24" 
+                width="20" 
+                height="20" 
                 viewBox="0 0 24 24" 
                 fill="none" 
                 stroke="currentColor" 
