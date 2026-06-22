@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  const { slug, title, content, mediaUrl, mediaType, mediaItems, customAuthor, category, metaTitle, metaDescription, focusKeyword, tags, imageAltText } = req.body;
+  const { slug, newSlug, title, content, mediaUrl, mediaType, mediaItems, customAuthor, category, metaTitle, metaDescription, focusKeyword, tags, imageAltText, sourceUrl } = req.body;
 
   if (!slug || !title || !content) {
     return res.status(400).json({ error: "Missing required fields" });
@@ -36,11 +36,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(403).json({ error: "Forbidden: You do not own this article" });
     }
 
-    const updatedArticle = await prisma.article.update({
+      const updatedArticle = await prisma.article.update({
       where: { slug },
       data: {
         title,
         content,
+        slug: newSlug || undefined,
+        sourceUrl: sourceUrl || null,
         mediaUrl,
         mediaType,
         mediaItems: mediaItems || undefined,

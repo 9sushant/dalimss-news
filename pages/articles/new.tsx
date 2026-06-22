@@ -20,10 +20,13 @@ const NewArticle: React.FC = () => {
   const { data: session, status } = useSession();
 
   const [title, setTitle] = useState("");
+  const [slug, setSlug] = useState("");
+  const [slugEdited, setSlugEdited] = useState(false);
   const [content, setContent] = useState("");
   const [mediaFiles, setMediaFiles] = useState<MediaEntry[]>([]);
   const [category, setCategory] = useState("India");
   const [customAuthor, setCustomAuthor] = useState("");
+  const [sourceUrl, setSourceUrl] = useState("");
 
   const [seoData, setSeoData] = useState({ metaTitle: "", metaDescription: "", focusKeyword: "", tags: "", imageAltText: "" });
   const [loading, setLoading] = useState(false);
@@ -169,6 +172,8 @@ const NewArticle: React.FC = () => {
           mediaItems: uploadedItems.length > 0 ? uploadedItems : undefined,
           category,
           customAuthor,
+          sourceUrl,
+          slug,
           ...seoData,
         }),
       });
@@ -202,11 +207,43 @@ const NewArticle: React.FC = () => {
         <input
           type="text"
           placeholder="Title..."
-          className="w-full p-3 rounded bg-white border border-gray-300 text-gray-900"
+          className="w-full p-3 rounded bg-white border border-gray-300 text-gray-900 font-bold text-xl"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) => {
+             setTitle(e.target.value);
+             if (!slugEdited) {
+               setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, ""));
+             }
+          }}
           required
         />
+
+        <div className="flex flex-col sm:flex-row gap-4">
+           <div className="flex-1">
+             <label className="block text-sm text-gray-600 mb-1">URL Slug</label>
+             <input
+               type="text"
+               placeholder="custom-url-slug"
+               className="w-full p-2 rounded bg-gray-50 border border-gray-300 text-gray-900"
+               value={slug}
+               onChange={(e) => {
+                 setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""));
+                 setSlugEdited(true);
+               }}
+               required
+             />
+           </div>
+           <div className="flex-1">
+             <label className="block text-sm text-gray-600 mb-1">Source/Attribution URL (Optional)</label>
+             <input
+               type="url"
+               placeholder="https://..."
+               className="w-full p-2 rounded bg-gray-50 border border-gray-300 text-gray-900"
+               value={sourceUrl}
+               onChange={(e) => setSourceUrl(e.target.value)}
+             />
+           </div>
+        </div>
         
         <input
           type="text"

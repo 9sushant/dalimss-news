@@ -19,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
        return res.status(403).json({ error: "Forbidden: Admins or Editors only" });
     }
 
-    const { title, content, mediaUrl, mediaType, mediaItems, category, customAuthor, metaTitle, metaDescription, focusKeyword, tags, imageAltText } = req.body;
+    const { title, content, mediaUrl, mediaType, mediaItems, category, customAuthor, metaTitle, metaDescription, focusKeyword, tags, imageAltText, slug, sourceUrl } = req.body;
 
     if (!title || title.trim().length < 3) {
       return res.status(400).json({ error: "Title is required" });
@@ -30,22 +30,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     try {
-      // Generate short random ID (6 chars) instead of long timestamp
+      // Generate short random ID (6 chars)
       const shortId = Math.random().toString(36).substring(2, 8);
-      const slug =
-        title
+      
+      let finalSlug = slug;
+      if (!finalSlug) {
+        finalSlug = title
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, "-")
           .replace(/(^-|-$)+/g, "")
-          .substring(0, 50) + // Limit title part to 50 chars
-        "-" +
-        shortId;
+          .substring(0, 50) + "-" + shortId;
+      }
 
       const article = await prisma.article.create({
         data: {
           title,
           content,
-          slug,
+          slug: finalSlug,
+          sourceUrl,
           mediaUrl,
           mediaType,
           mediaItems: mediaItems || undefined,
