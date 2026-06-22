@@ -8,7 +8,9 @@ interface SeoEditorProps {
   initialMetaTitle?: string | null;
   initialMetaDescription?: string | null;
   initialFocusKeyword?: string | null;
-  onUpdate: (data: { metaTitle: string; metaDescription: string; focusKeyword: string }) => void;
+  initialTags?: string | null;
+  initialImageAltText?: string | null;
+  onUpdate: (data: { metaTitle: string; metaDescription: string; focusKeyword: string; tags: string; imageAltText: string }) => void;
 }
 
 const SeoEditor: React.FC<SeoEditorProps> = ({
@@ -18,11 +20,15 @@ const SeoEditor: React.FC<SeoEditorProps> = ({
   initialMetaTitle,
   initialMetaDescription,
   initialFocusKeyword,
+  initialTags,
+  initialImageAltText,
   onUpdate,
 }) => {
   const [metaTitle, setMetaTitle] = useState(initialMetaTitle || "");
   const [metaDescription, setMetaDescription] = useState(initialMetaDescription || "");
   const [focusKeyword, setFocusKeyword] = useState(initialFocusKeyword || "");
+  const [tags, setTags] = useState(initialTags || "");
+  const [imageAltText, setImageAltText] = useState(initialImageAltText || "");
   const [score, setScore] = useState(0);
 
   // Initialize with draft content if empty
@@ -40,8 +46,8 @@ const SeoEditor: React.FC<SeoEditorProps> = ({
   // Update parent and calculate score
   useEffect(() => {
     calculateScore();
-    onUpdate({ metaTitle, metaDescription, focusKeyword });
-  }, [metaTitle, metaDescription, focusKeyword]);
+    onUpdate({ metaTitle, metaDescription, focusKeyword, tags, imageAltText });
+  }, [metaTitle, metaDescription, focusKeyword, tags, imageAltText]);
 
   const calculateScore = () => {
     let newScore = 0;
@@ -160,6 +166,28 @@ const SeoEditor: React.FC<SeoEditorProps> = ({
                     style={{width: `${Math.min(100, (metaDescription.length/160)*100)}%`}}
                 />
             </div>
+         </div>
+
+         <div>
+            <label className="block text-gray-400 text-sm mb-1">Tags (comma separated)</label>
+            <input 
+               type="text" 
+               className="w-full p-2 bg-slate-800 border border-slate-600 rounded text-white"
+               placeholder="e.g. politics, varanasi, election"
+               value={tags}
+               onChange={(e) => setTags(e.target.value)}
+            />
+         </div>
+
+         <div>
+            <label className="block text-gray-400 text-sm mb-1">Image Alt Text (Accessibility & SEO)</label>
+            <input 
+               type="text" 
+               className="w-full p-2 bg-slate-800 border border-slate-600 rounded text-white"
+               placeholder="Describe the main article image"
+               value={imageAltText}
+               onChange={(e) => setImageAltText(e.target.value)}
+            />
          </div>
       </div>
 

@@ -125,6 +125,9 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
         <meta property="article:modified_time" content={new Date(article.updatedAt || article.createdAt).toISOString()} />
         {article.customAuthor && <meta property="article:author" content={article.customAuthor} />}
         {article.category && <meta property="article:section" content={article.category} />}
+        {(article as any).tags && (article as any).tags.split(",").map((t: string, i: number) => (
+          <meta key={i} property="article:tag" content={t.trim()} />
+        ))}
         
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
@@ -249,7 +252,7 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
                 <img
                   src={item.url}
                   className="rounded-md w-full"
-                  alt={article.title}
+                  alt={(article as any).imageAltText || article.title}
                   width={1200}
                   height={630}
                   onError={(e) => (e.currentTarget.style.display = "none")}

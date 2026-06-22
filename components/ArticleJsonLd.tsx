@@ -47,6 +47,7 @@ export function ArticleJsonLd({ article, authorUrl }: ArticleJsonLdProps) {
     dateModified: new Date(
       article.updatedAt || article.createdAt
     ).toISOString(),
+    keywords: (article as any).tags ? (article as any).tags.split(",").map((t: string) => t.trim()) : undefined,
     author: {
       "@type": "Person",
       name: article.customAuthor || "Dalimss News Desk",

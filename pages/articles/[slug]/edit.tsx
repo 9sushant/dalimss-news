@@ -46,6 +46,8 @@ const EditArticle: React.FC<Props> = ({ article }) => {
     metaTitle: article?.metaTitle || "",
     metaDescription: article?.metaDescription || "",
     focusKeyword: article?.focusKeyword || "",
+    tags: (article as any)?.tags || "",
+    imageAltText: (article as any)?.imageAltText || "",
   });
   const [loading, setLoading] = useState(false);
   const [uploadingMedia, setUploadingMedia] = useState(false);
@@ -379,6 +381,8 @@ const EditArticle: React.FC<Props> = ({ article }) => {
             initialMetaTitle={article.metaTitle}
             initialMetaDescription={article.metaDescription}
             initialFocusKeyword={article.focusKeyword}
+            initialTags={(article as any)?.tags}
+            initialImageAltText={(article as any)?.imageAltText}
             onUpdate={setSeoData}
         />
 

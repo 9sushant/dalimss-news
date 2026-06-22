@@ -25,7 +25,7 @@ const NewArticle: React.FC = () => {
   const [category, setCategory] = useState("India");
   const [customAuthor, setCustomAuthor] = useState("");
 
-  const [seoData, setSeoData] = useState({ metaTitle: "", metaDescription: "", focusKeyword: "" });
+  const [seoData, setSeoData] = useState({ metaTitle: "", metaDescription: "", focusKeyword: "", tags: "", imageAltText: "" });
   const [loading, setLoading] = useState(false);
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const [compressing, setCompressing] = useState(false);
