@@ -56,6 +56,9 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     { path: "/privacy-policy", priority: "0.3", freq: "monthly" },
     { path: "/editorial-policy", priority: "0.5", freq: "monthly" },
     { path: "/corrections-policy", priority: "0.5", freq: "monthly" },
+    { path: "/authors", priority: "0.5", freq: "weekly" },
+    { path: "/terms-and-conditions", priority: "0.3", freq: "monthly" },
+    { path: "/advertise-with-us", priority: "0.3", freq: "monthly" },
     { path: "/varanasi-news", priority: "0.9", freq: "hourly" },
   ];
 

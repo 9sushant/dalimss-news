@@ -79,6 +79,8 @@ model Article {
   metaTitle       String?
   metaDescription String?
   focusKeyword    String?
+  tags            String?   // Added for SEO
+  imageAltText    String?   // Added for SEO
 }
 
 model WebStory {
