@@ -210,6 +210,14 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
           <time dateTime={article.createdAt} suppressHydrationWarning>
             {formattedDate || new Date(article.createdAt).toLocaleDateString("en-IN")}
           </time>
+          {article.updatedAt && new Date(article.updatedAt).getTime() - new Date(article.createdAt).getTime() > 60000 && (
+            <>
+              <span>•</span>
+              <time dateTime={article.updatedAt} className="text-gray-500 italic" suppressHydrationWarning>
+                Updated: {new Date(article.updatedAt).toLocaleDateString("en-IN")}
+              </time>
+            </>
+          )}
           {article.readTimeInMinutes
             ? <><span>•</span><span>{article.readTimeInMinutes} min read</span></>
             : null}

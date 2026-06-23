@@ -34,6 +34,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     orderBy: {
       createdAt: "desc",
     },
+    take: 1000,
   });
 
   const urls = articles
