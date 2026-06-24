@@ -20,6 +20,7 @@ const Layout = ({ children }: LayoutProps) => (
       <link rel="icon" href="/favicon.ico" sizes="any" />
       <link rel="apple-touch-icon" href="/favicon.png" />
       <link rel="manifest" href="/site.webmanifest" />
+      <link rel="alternate" type="application/rss+xml" title="Dalimss News Feed" href="https://dalimss.news/feed.xml" />
       {/* Google AdSense */}
       <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7477796529453554" crossOrigin="anonymous"></script>
     </Head>
