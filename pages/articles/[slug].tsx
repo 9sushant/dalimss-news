@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { GetServerSideProps } from "next";
+import { GetStaticProps, GetStaticPaths } from "next";
 import { useSession } from "next-auth/react";
 import prisma from "../../lib/prisma";
 import * as RMarkdownModule from "react-markdown";
@@ -430,7 +430,7 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
 
 export default ArticlePage;
 
-export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+export const getStaticProps: GetStaticProps = async ({ params }) => {
   const slug = String(params?.slug || "");
 
   const whereClause: any = { OR: [{ slug }] };
@@ -478,10 +478,40 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
     console.error("DB ERROR:", err);
   }
 
+  if (!article) {
+    return {
+      notFound: true,
+      revalidate: 60,
+    };
+  }
+
   return {
     props: {
-      article: article ? JSON.parse(JSON.stringify(article)) : null,
+      article: JSON.parse(JSON.stringify(article)),
       relatedArticles: JSON.parse(JSON.stringify(relatedArticles)),
     },
+    revalidate: 60,
+  };
+};
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  let paths: { params: { slug: string } }[] = [];
+  try {
+    // Pre-render the most recent 20 articles at build time
+    const recentArticles = await prisma.article.findMany({
+      select: { slug: true },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+    });
+    paths = recentArticles.map((art) => ({
+      params: { slug: art.slug },
+    }));
+  } catch (err) {
+    console.error("Failed to fetch paths for pre-rendering:", err);
+  }
+
+  return {
+    paths,
+    fallback: "blocking",
   };
 };

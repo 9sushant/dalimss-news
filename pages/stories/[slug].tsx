@@ -198,6 +198,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params, res }) =>
 </html>`;
 
     res.setHeader("Content-Type", "text/html");
+    res.setHeader("Cache-Control", "public, max-age=0, s-maxage=60, stale-while-revalidate=59");
     res.write(html);
     res.end();
 
