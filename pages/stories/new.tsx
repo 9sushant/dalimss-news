@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { compressImage } from "@/utils/compressImage";
 
 interface StoryPageInput {
   imageUrl: string;
@@ -46,22 +47,46 @@ export default function CreateStoryPage() {
       body: formData,
     });
 
-    if (!res.ok) throw new Error("Upload failed");
+    if (!res.ok) {
+      const text = await res.text();
+      let errorMsg = "Upload failed";
+      try {
+        errorMsg = JSON.parse(text).error || errorMsg;
+      } catch {}
+      if (res.status === 413) {
+        errorMsg = "File is too large. Please compress or use a smaller image.";
+      }
+      throw new Error(errorMsg);
+    }
     const data = await res.json();
     return data.url;
   };
 
-  const handleCoverFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleCoverFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    let file = e.target.files?.[0];
     if (file) {
+      if (file.type.startsWith("image/") && file.size > 500 * 1024) {
+        try {
+          file = await compressImage(file);
+        } catch (err) {
+          console.error("Compression failed, using original:", err);
+        }
+      }
       setCoverFile(file);
       setCoverImage(URL.createObjectURL(file));
     }
   };
 
-  const handlePageFileChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handlePageFileChange = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    let file = e.target.files?.[0];
     if (file) {
+      if (file.type.startsWith("image/") && file.size > 500 * 1024) {
+        try {
+          file = await compressImage(file);
+        } catch (err) {
+          console.error("Compression failed, using original:", err);
+        }
+      }
       const updated = [...pages];
       updated[index].imageFile = file;
       updated[index].imageUrl = URL.createObjectURL(file);
