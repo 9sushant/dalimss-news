@@ -53,6 +53,11 @@ export function ArticleJsonLd({ article, authorUrl }: ArticleJsonLdProps) {
       name: article.customAuthor || "Dalimss News Desk",
       ...(authorUrl ? { url: authorUrl } : {}),
     },
+    isPartOf: {
+      "@type": "WebSite",
+      name: SITE_NAME,
+      url: SITE_URL,
+    },
     publisher: {
       "@type": "Organization",
       name: SITE_NAME,

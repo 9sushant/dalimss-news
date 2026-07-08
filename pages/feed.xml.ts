@@ -95,6 +95,11 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     <title>Dalimss News</title>
     <link>${SITE_URL}</link>
     <description>Varanasi's fastest growing digital news platform. वाराणसी, पूर्वांचल और उत्तर प्रदेश की ताज़ा खबरें।</description>
+    <image>
+      <url>${SITE_URL}/logo-square.png</url>
+      <title>Dalimss News</title>
+      <link>${SITE_URL}</link>
+    </image>
     <language>hi</language>
     <lastBuildDate>${lastBuildDate}</lastBuildDate>
     <atom:link href="${SITE_URL}/feed.xml" rel="self" type="application/rss+xml" />
