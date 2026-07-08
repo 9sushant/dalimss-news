@@ -296,15 +296,19 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 
   try {
-    // Query articles matching the category's dbValues (case-insensitive)
+    const categoryFilter = {
+      OR: category.dbValues.map((val) => ({
+        category: {
+          contains: val,
+          mode: "insensitive" as const,
+        },
+      })),
+    };
+
+    // Query articles matching the category's dbValues (case-insensitive contains)
     const [articles, totalCount] = await Promise.all([
       prisma.article.findMany({
-        where: {
-          category: {
-            in: category.dbValues,
-            mode: "insensitive",
-          },
-        },
+        where: categoryFilter,
         orderBy: [{ createdAt: "desc" }, { id: "desc" }],
         take: ARTICLES_PER_PAGE,
         select: {
@@ -327,12 +331,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         },
       }),
       prisma.article.count({
-        where: {
-          category: {
-            in: category.dbValues,
-            mode: "insensitive",
-          },
-        },
+        where: categoryFilter,
       }),
     ]);
 

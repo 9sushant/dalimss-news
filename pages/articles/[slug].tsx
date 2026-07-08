@@ -456,9 +456,12 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
     // Fetch related articles from the same category
     if (article && article.category) {
+      const categoryList = article.category.split(",").map((c) => c.trim()).filter(Boolean);
       relatedArticles = await prisma.article.findMany({
         where: {
-          category: article.category,
+          OR: categoryList.map((cat) => ({
+            category: { contains: cat, mode: "insensitive" },
+          })),
           id: { not: article.id },
         },
         select: {

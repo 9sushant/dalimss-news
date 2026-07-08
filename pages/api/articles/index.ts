@@ -75,7 +75,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const where: any = {};
 
   if (category) {
-    where.category = String(category);
+    where.category = {
+      contains: String(category),
+      mode: 'insensitive',
+    };
   }
 
   if (search) {

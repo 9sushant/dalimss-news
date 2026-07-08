@@ -43,7 +43,11 @@ const EditArticle: React.FC<Props> = ({ article }) => {
   const [slugEdited, setSlugEdited] = useState(false);
   const [content, setContent] = useState(article?.content || "");
   const [customAuthor, setCustomAuthor] = useState(article?.customAuthor || "");
-  const [category, setCategory] = useState(article?.category || "India");
+  const getInitialCategories = (): string[] => {
+    if (!article?.category) return ["India"];
+    return article.category.split(",").map(c => c.trim()).filter(Boolean);
+  };
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(getInitialCategories());
   const [sourceUrl, setSourceUrl] = useState((article as any)?.sourceUrl || "");
   const [seoData, setSeoData] = useState({
     metaTitle: article?.metaTitle || "",
@@ -221,7 +225,7 @@ const EditArticle: React.FC<Props> = ({ article }) => {
           mediaType: primaryMedia?.type || null,
           mediaItems: allMediaItems,
           customAuthor,
-          category,
+          category: selectedCategories.join(", "),
           sourceUrl,
           newSlug: slugEdited ? slug : undefined,
           ...seoData,
@@ -306,19 +310,41 @@ const EditArticle: React.FC<Props> = ({ article }) => {
           required
         />
 
-        {/* Category Dropdown */}
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="w-full p-3 rounded bg-white border border-gray-300 text-gray-900"
-          required
-        >
-          {CATEGORIES.map((cat) => (
-            <option key={cat.slug} value={cat.name}>
-              {cat.name}
-            </option>
-          ))}
-        </select>
+        {/* Category Multi-Selector */}
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-700">
+            Categories (Select all that apply)
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {CATEGORIES.map((cat) => {
+              const isSelected = selectedCategories.includes(cat.name);
+              return (
+                <button
+                  key={cat.slug}
+                  type="button"
+                  onClick={() => {
+                    if (isSelected) {
+                      if (selectedCategories.length > 1) {
+                        setSelectedCategories(selectedCategories.filter((c) => c !== cat.name));
+                      } else {
+                        alert("An article must belong to at least one category.");
+                      }
+                    } else {
+                      setSelectedCategories([...selectedCategories, cat.name]);
+                    }
+                  }}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${
+                    isSelected
+                      ? "bg-red-600 border-red-600 text-white shadow-sm scale-105"
+                      : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400"
+                  }`}
+                >
+                  {cat.name}
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
         <RichTextEditor
           value={content}
