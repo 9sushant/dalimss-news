@@ -25,7 +25,7 @@ const Footer = () => {
               News Categories
             </h4>
             <div className="grid grid-cols-2 gap-2 text-sm text-left">
-              {NAV_CATEGORIES.slice(0, 8).map((cat) => (
+              {NAV_CATEGORIES.slice(0, 10).map((cat) => (
                 <Link
                   key={cat.slug}
                   href={`/category/${cat.slug}`}

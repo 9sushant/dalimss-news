@@ -53,6 +53,21 @@ export const CATEGORIES: Category[] = [
     priority: 0.9,
   },
   {
+    slug: "gurgaon",
+    name: "Gurgaon",
+    nameHi: "गुरुग्राम",
+    description:
+      "Gurgaon (Gurugram) news: local updates, infrastructure, corporate hubs, real estate, traffic, and civic developments.",
+    dbValues: [
+      "Gurgaon",
+      "gurgaon",
+      "Gurugram",
+      "gurugram",
+      "Gurgaon News",
+    ],
+    priority: 0.9,
+  },
+  {
     slug: "business",
     name: "Business",
     nameHi: "व्यापार",
@@ -176,6 +191,7 @@ export const NAV_CATEGORIES = [
   { slug: "india", name: "India" },
   { slug: "uttar-pradesh", name: "UP" },
   { slug: "varanasi", name: "Varanasi" },
+  { slug: "gurgaon", name: "Gurgaon" },
   { slug: "education", name: "Education" },
   { slug: "business", name: "Business" },
   { slug: "technology", name: "Tech" },

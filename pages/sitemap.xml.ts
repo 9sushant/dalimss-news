@@ -60,6 +60,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     { path: "/terms-and-conditions", priority: "0.3", freq: "monthly" },
     { path: "/advertise-with-us", priority: "0.3", freq: "monthly" },
     { path: "/varanasi-news", priority: "0.9", freq: "hourly" },
+    { path: "/gurgaon-news", priority: "0.9", freq: "hourly" },
   ];
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
