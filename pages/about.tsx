@@ -51,10 +51,10 @@ const AboutPage: React.FC = () => {
                 <span className="text-sm font-medium text-red-300">About Dalimss News</span>
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-                Empowering Varanasi with <span className="text-red-500">Truth & Integrity</span>
+                Empowering Communities with <span className="text-red-500">Truth & Integrity</span>
               </h1>
               <p className="text-lg md:text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
-                Dalimss News is a digital-first news platform committed to delivering accurate, timely, and relevant news with a strong focus on Varanasi, Purvanchal (Eastern Uttar Pradesh), and key national developments.
+                Dalimss News is a premier digital news platform committed to delivering accurate, timely, and unbiased news across Varanasi, Uttar Pradesh, Gurgaon, and key national developments.
               </p>
             </div>
           </div>
