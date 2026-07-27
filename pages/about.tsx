@@ -54,7 +54,7 @@ const AboutPage: React.FC = () => {
                 Empowering Communities with <span className="text-red-500">Truth & Integrity</span>
               </h1>
               <p className="text-lg md:text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
-                Dalimss News is a premier digital news platform committed to delivering accurate, timely, and unbiased news across Varanasi, Uttar Pradesh, Gurgaon, and key national developments.
+                Dalimss News is a premier digital news platform committed to delivering accurate, timely, and unbiased news across Varanasi, Uttar Pradesh, Gurugram, and key national developments.
               </p>
             </div>
           </div>

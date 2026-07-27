@@ -77,7 +77,7 @@ export default function AdvertiseWithUs() {
     { label: "Monthly Impressions", value: "3.5M+" },
     { label: "Active Readers", value: "450K+" },
     { label: "Core Demographics", value: "25-45 Yrs" },
-    { label: "Key Hubs", value: "Varanasi, UP & Gurgaon" },
+    { label: "Key Hubs", value: "Varanasi, UP & Gurugram" },
   ];
 
   const faqs = [
@@ -90,8 +90,8 @@ export default function AdvertiseWithUs() {
       a: "All sponsored content and advertorials are clearly labeled with a 'Sponsored' or 'Brand Partnership' badge in strict compliance with ASCI and Indian digital media regulations. Our advertising team operates separately from our newsroom."
     },
     {
-      q: "Can I target specific geographical regions like UP or Gurgaon?",
-      a: "Yes! We support geo-targeted ad serving, allowing you to run localized campaigns specifically in Varanasi, Eastern UP (Purvanchal), NCR/Gurgaon, or nationwide across India."
+      q: "Can I target specific geographical regions like UP or Gurugram?",
+      a: "Yes! We support geo-targeted ad serving, allowing you to run localized campaigns specifically in Varanasi, Eastern UP (Purvanchal), NCR/Gurugram, or nationwide across India."
     },
     {
       q: "Do you offer campaign performance reporting?",
@@ -105,11 +105,11 @@ export default function AdvertiseWithUs() {
         <title>Advertise With Us | Media Kit & Advertising Solutions — Dalimss News</title>
         <meta
           name="description"
-          content="Advertise with Dalimss News. Reach millions of engaged readers across Varanasi, Uttar Pradesh, Gurgaon, and India through display ads, sponsored content, and web stories."
+          content="Advertise with Dalimss News. Reach millions of engaged readers across Varanasi, Uttar Pradesh, Gurugram, and India through display ads, sponsored content, and web stories."
         />
         <meta
           name="keywords"
-          content="Advertise Dalimss News, digital news advertising, Varanasi ads, UP news advertising, Gurgaon news ads, sponsored content India, news website banner ads"
+          content="Advertise Dalimss News, digital news advertising, Varanasi ads, UP news advertising, Gurugram news ads, sponsored content India, news website banner ads"
         />
         <link rel="canonical" href="https://dalimss.news/advertise-with-us" />
       </Head>
@@ -129,7 +129,7 @@ export default function AdvertiseWithUs() {
                 Amplify Your Brand with <span className="text-red-500">Dalimss News</span>
               </h1>
               <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto font-light leading-relaxed mb-10">
-                Connect with hyper-engaged, educated audiences across <strong className="text-white font-semibold">Varanasi, Uttar Pradesh, Gurgaon</strong>, and nationwide digital readers.
+                Connect with hyper-engaged, educated audiences across <strong className="text-white font-semibold">Varanasi, Uttar Pradesh, Gurugram</strong>, and nationwide digital readers.
               </p>
 
               {/* STATS STRIP */}
@@ -165,7 +165,7 @@ export default function AdvertiseWithUs() {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-3 font-serif">Unrivaled Regional Authority</h3>
                 <p className="text-gray-600 text-sm leading-relaxed">
-                  Deeply rooted trusted journalism in Varanasi, Purvanchal, and expanding corporate presence in Gurgaon NCR. Your brand gains instant localized trust.
+                  Deeply rooted trusted journalism in Varanasi, Purvanchal, and expanding corporate presence in Gurugram NCR. Your brand gains instant localized trust.
                 </p>
               </div>
 
@@ -413,7 +413,7 @@ export default function AdvertiseWithUs() {
                       <div>
                         <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Headquarters & Bureau</p>
                         <p className="text-sm font-medium text-gray-300">
-                          Varanasi & Gurgaon, Uttar Pradesh & Haryana, India
+                          Varanasi & Gurugram, Uttar Pradesh & Haryana, India
                         </p>
                       </div>
                     </div>
@@ -466,4 +466,3 @@ export default function AdvertiseWithUs() {
     </div>
   );
 }
-

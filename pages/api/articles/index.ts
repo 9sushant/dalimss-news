@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
 
+import { getCategoryBySlug, getCategoryByDbValue } from "@/lib/categories";
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // ----------- CREATE ARTICLE (POST) -----------
   if (req.method === "POST") {
@@ -75,10 +77,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const where: any = {};
 
   if (category) {
-    where.category = {
-      contains: String(category),
-      mode: 'insensitive',
-    };
+    const matchedCategory = getCategoryBySlug(String(category)) || getCategoryByDbValue(String(category));
+    if (matchedCategory) {
+      where.OR = matchedCategory.dbValues.map((val) => ({
+        category: { contains: val, mode: "insensitive" as const },
+      }));
+    } else {
+      where.category = {
+        contains: String(category),
+        mode: "insensitive" as const,
+      };
+    }
   }
 
   if (search) {

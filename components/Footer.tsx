@@ -12,7 +12,7 @@ const Footer = () => {
               Dalimss <span className="text-red-500">News</span>
             </h3>
             <p className="text-gray-300 text-sm leading-relaxed max-w-sm">
-              Dalimss News is a premier digital news platform delivering real-time national headlines, in-depth local reporting across Varanasi and Gurgaon, expert tech reviews, and educational insights.
+              Dalimss News is a premier digital news platform delivering real-time national headlines, in-depth local reporting across Varanasi and Gurugram, expert tech reviews, and educational insights.
             </p>
             <p className="text-gray-400 text-xs leading-relaxed max-w-sm flex items-center gap-1.5 font-medium">
               <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block"></span>

@@ -9,7 +9,7 @@ interface Props {
   articles: Article[];
 }
 
-export default function GurgaonNewsPage({ articles }: Props) {
+export default function GurugramNewsPage({ articles }: Props) {
   const siteUrl = "https://dalimss.news";
 
   const breadcrumbSchema = {
@@ -25,7 +25,7 @@ export default function GurgaonNewsPage({ articles }: Props) {
       {
         "@type": "ListItem",
         position: 2,
-        name: "Gurgaon News",
+        name: "Gurugram News",
         item: `${siteUrl}/gurgaon-news`,
       },
     ],
@@ -34,9 +34,9 @@ export default function GurgaonNewsPage({ articles }: Props) {
   const collectionSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "Gurgaon News | गुरुग्राम समाचार",
+    name: "Gurugram News | गुरुग्राम समाचार",
     description:
-      "Latest Gurgaon and Gurugram news, local updates, Haryana news, corporate developments, real estate, traffic and civic updates from Dalimss News.",
+      "Latest Gurugram news, local updates, Haryana news, corporate developments, real estate, traffic and civic updates from Dalimss News.",
     url: `${siteUrl}/gurgaon-news`,
     publisher: {
       "@type": "Organization",
@@ -51,20 +51,20 @@ export default function GurgaonNewsPage({ articles }: Props) {
   return (
     <>
       <Head>
-        <title>Gurgaon News Today | गुरुग्राम समाचार - Dalimss News</title>
+        <title>Gurugram News Today | गुरुग्राम समाचार - Dalimss News</title>
         <meta
           name="description"
-          content="Latest Gurgaon news today in Hindi and English. गुरुग्राम की ताज़ा खबरें, स्थानीय समाचार, कॉरपोरेट अपडेट, रियल एस्टेट, ट्रैफिक - सभी अपडेट Dalimss News पर। Read Gurgaon news, Gurugram news, Cyber City updates."
+          content="Latest Gurugram news today in Hindi and English. गुरुग्राम की ताज़ा खबरें, स्थानीय समाचार, कॉरपोरेट अपडेट, रियल एस्टेट, ट्रैफिक - सभी अपडेट Dalimss News पर। Read Gurugram news and Cyber City updates."
         />
         <meta
           name="keywords"
-          content="Gurgaon news today, gurugram news in hindi, गुरुग्राम समाचार, गुड़गांव खबर, gurgaon news, cyber city news, gurugram local news, gurgaon real estate, Haryana news today, dalimss news gurgaon"
+          content="Gurugram news today, gurugram news in hindi, गुरुग्राम समाचार, cyber city news, gurugram local news, gurugram real estate, Haryana news today, dalimss news gurugram"
         />
         <link rel="canonical" href={`${siteUrl}/gurgaon-news`} />
 
         {/* Geo Targeting */}
         <meta name="geo.region" content="IN-HR" />
-        <meta name="geo.placename" content="Gurgaon, Haryana, India" />
+        <meta name="geo.placename" content="Gurugram, Haryana, India" />
         <meta name="geo.position" content="28.4595;77.0266" />
         <meta name="ICBM" content="28.4595, 77.0266" />
         <meta name="language" content="Hindi, English" />
@@ -75,7 +75,7 @@ export default function GurgaonNewsPage({ articles }: Props) {
         <meta property="og:site_name" content="Dalimss News" />
         <meta
           property="og:title"
-          content="Gurgaon News Today | गुरुग्राम समाचार - Dalimss News"
+          content="Gurugram News Today | गुरुग्राम समाचार - Dalimss News"
         />
         <meta
           property="og:description"
@@ -89,7 +89,7 @@ export default function GurgaonNewsPage({ articles }: Props) {
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@dalimss_news" />
-        <meta name="twitter:title" content="Gurgaon News | गुरुग्राम समाचार - Dalimss News" />
+        <meta name="twitter:title" content="Gurugram News | गुरुग्राम समाचार - Dalimss News" />
         <meta
           name="twitter:description"
           content="गुरुग्राम की ताज़ा खबरें - Dalimss News"
@@ -115,14 +115,14 @@ export default function GurgaonNewsPage({ articles }: Props) {
               Home
             </Link>
             <ChevronRightIcon className="h-3 w-3" />
-            <span className="text-gray-800 font-medium">Gurgaon News</span>
+            <span className="text-gray-800 font-medium">Gurugram News</span>
           </nav>
           <h1 className="text-3xl md:text-4xl font-bold font-serif text-gray-900">
-            Gurgaon News{" "}
+            Gurugram News{" "}
             <span className="text-red-600">| गुरुग्राम समाचार</span>
           </h1>
           <p className="text-gray-500 mt-2 text-sm">
-            Latest news from Gurgaon &amp; Gurugram — Corporate, Infrastructure, Real Estate, Civic Events &amp;
+            Latest news from Gurugram — Corporate, Infrastructure, Real Estate, Civic Events &amp;
             more
           </p>
         </div>
@@ -130,7 +130,7 @@ export default function GurgaonNewsPage({ articles }: Props) {
         {articles.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-gray-400 text-xl">
-              No Gurgaon news articles found.
+              No Gurugram news articles found.
             </p>
             <Link
               href="/"
@@ -186,15 +186,15 @@ export const getServerSideProps: GetServerSideProps = async () => {
       : "http://localhost:3000");
 
   try {
-    // Fetch Gurgaon category articles
+    // Fetch Gurugram category articles
     const res = await fetch(
-      `${baseUrl}/api/articles?category=Gurgaon&limit=30`
+      `${baseUrl}/api/articles?category=Gurugram&limit=30`
     );
     if (!res.ok) throw new Error(`Failed: ${res.status}`);
     const articles = await res.json();
     return { props: { articles: Array.isArray(articles) ? articles : [] } };
   } catch (error) {
-    console.error("Error fetching Gurgaon articles:", error);
+    console.error("Error fetching Gurugram articles:", error);
     return { props: { articles: [] } };
   }
 };
