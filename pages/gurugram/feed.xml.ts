@@ -1,10 +1,16 @@
 import { GetServerSideProps } from "next";
 import { buildRssFeed } from "@/lib/rss";
 
-const Feed = () => null;
+const GurugramFeed = () => null;
 
 export const getServerSideProps: GetServerSideProps = async ({ res }) => {
-  const rss = await buildRssFeed();
+  const rss = await buildRssFeed({
+    categorySlug: "gurgaon",
+    title: "Gurugram News - Dalimss News",
+    description:
+      "Latest verified Gurugram and Gurgaon news from Dalimss News.",
+    selfPath: "/gurugram/feed.xml",
+  });
 
   res.setHeader("Content-Type", "application/xml; charset=utf-8");
   res.setHeader(
@@ -17,4 +23,4 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   return { props: {} };
 };
 
-export default Feed;
+export default GurugramFeed;

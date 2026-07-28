@@ -1,9 +1,46 @@
-User-agent: *
+# OpenAI Search / ChatGPT citations
+User-agent: OAI-SearchBot
 Allow: /
 Disallow: /admin/
 Disallow: /api/
 Disallow: /auth/
 
+# OpenAI model-development crawler
+User-agent: GPTBot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+
+# User-requested ChatGPT page access
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+
+# Claude search indexing
+User-agent: Claude-SearchBot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+
+# User-requested Claude page access
+User-agent: Claude-User
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+
+# Anthropic model-development crawler
+User-agent: ClaudeBot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+
+# Google Search, Google News and Google AI search features
 User-agent: Googlebot
 Allow: /
 Disallow: /admin/
@@ -12,9 +49,26 @@ Disallow: /auth/
 
 User-agent: Googlebot-News
 Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+
+# Gemini training and grounding
+User-agent: Google-Extended
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
 
 User-agent: Googlebot-Image
 Allow: /
+
+# Other compliant crawlers
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
 
 Sitemap: https://dalimss.news/sitemap.xml
 Sitemap: https://dalimss.news/news-sitemap.xml

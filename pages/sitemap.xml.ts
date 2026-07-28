@@ -4,7 +4,7 @@
 import { GetServerSideProps } from "next";
 import prisma from "@/lib/prisma";
 import { CATEGORIES } from "@/lib/categories";
-import { authorSlug } from "@/lib/seo";
+import { authorSlug, canonicalArticleSlug } from "@/lib/seo";
 
 const Sitemap = () => {
   return null;
@@ -60,7 +60,17 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     { path: "/terms-and-conditions", priority: "0.3", freq: "monthly" },
     { path: "/advertise-with-us", priority: "0.3", freq: "monthly" },
     { path: "/varanasi-news", priority: "0.9", freq: "hourly" },
-    { path: "/gurgaon-news", priority: "0.9", freq: "hourly" },
+    { path: "/gurugram-news", priority: "0.9", freq: "hourly" },
+    { path: "/bhu-news", priority: "0.8", freq: "hourly" },
+    { path: "/varanasi-infrastructure", priority: "0.8", freq: "hourly" },
+    { path: "/kashi-vishwanath-news", priority: "0.8", freq: "hourly" },
+    { path: "/varanasi-airport-news", priority: "0.8", freq: "hourly" },
+    { path: "/feed.xml", priority: "0.4", freq: "hourly" },
+    { path: "/varanasi/feed.xml", priority: "0.4", freq: "hourly" },
+    { path: "/gurugram/feed.xml", priority: "0.4", freq: "hourly" },
+    { path: "/education/feed.xml", priority: "0.4", freq: "hourly" },
+    { path: "/technology/feed.xml", priority: "0.4", freq: "hourly" },
+    { path: "/llms.txt", priority: "0.3", freq: "weekly" },
   ];
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
@@ -111,7 +121,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
         .map(
           (article) => `
       <url>
-        <loc>${baseUrl}/articles/${article.slug}</loc>
+        <loc>${baseUrl}/articles/${canonicalArticleSlug(article.slug)}</loc>
         <lastmod>${new Date(article.updatedAt || article.createdAt).toISOString()}</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>

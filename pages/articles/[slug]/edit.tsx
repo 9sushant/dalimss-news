@@ -290,14 +290,18 @@ const EditArticle: React.FC<Props> = ({ article }) => {
              />
            </div>
            <div className="flex-1">
-             <label className="block text-sm text-gray-600 mb-1">Source/Attribution URL (Optional)</label>
+             <label className="block text-sm text-gray-600 mb-1">Primary Source URL (Optional)</label>
              <input
                type="url"
-               placeholder="https://..."
+               placeholder="Official order, statement, notice or document URL"
                className="w-full p-2 rounded bg-gray-50 border border-gray-300 text-gray-900"
                value={sourceUrl}
                onChange={(e) => setSourceUrl(e.target.value)}
              />
+             <p className="mt-1 text-xs text-gray-500">
+               Add government notices, court records, police statements, press
+               releases or other primary material when available.
+             </p>
            </div>
         </div>
 

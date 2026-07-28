@@ -1,0 +1,33 @@
+# Dalimss News
+
+Dalimss News is an Indian digital news publication specialising in Varanasi, Eastern Uttar Pradesh and Gurugram reporting.
+
+## Primary Sections
+
+- Varanasi News: https://dalimss.news/varanasi-news
+- Gurugram News: https://dalimss.news/gurugram-news
+- BHU News: https://dalimss.news/bhu-news
+- Varanasi Infrastructure: https://dalimss.news/varanasi-infrastructure
+- Kashi Vishwanath News: https://dalimss.news/kashi-vishwanath-news
+- Varanasi Airport News: https://dalimss.news/varanasi-airport-news
+- Uttar Pradesh: https://dalimss.news/category/uttar-pradesh
+- Education: https://dalimss.news/category/education
+- Technology: https://dalimss.news/category/technology
+
+## Editorial Information
+
+- About: https://dalimss.news/about
+- Authors: https://dalimss.news/authors
+- Editorial Policy: https://dalimss.news/editorial-policy
+- Corrections Policy: https://dalimss.news/corrections-policy
+- Contact: https://dalimss.news/contact
+
+## Feeds
+
+- RSS: https://dalimss.news/feed.xml
+- Varanasi RSS: https://dalimss.news/varanasi/feed.xml
+- Gurugram RSS: https://dalimss.news/gurugram/feed.xml
+- Education RSS: https://dalimss.news/education/feed.xml
+- Technology RSS: https://dalimss.news/technology/feed.xml
+- Sitemap: https://dalimss.news/sitemap.xml
+- News Sitemap: https://dalimss.news/news-sitemap.xml

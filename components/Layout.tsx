@@ -21,6 +21,10 @@ const Layout = ({ children }: LayoutProps) => (
       <link rel="apple-touch-icon" href="/favicon.png" />
       <link rel="manifest" href="/site.webmanifest" />
       <link rel="alternate" type="application/rss+xml" title="Dalimss News Feed" href="https://dalimss.news/feed.xml" />
+      <link rel="alternate" type="application/rss+xml" title="Varanasi News Feed" href="https://dalimss.news/varanasi/feed.xml" />
+      <link rel="alternate" type="application/rss+xml" title="Gurugram News Feed" href="https://dalimss.news/gurugram/feed.xml" />
+      <link rel="alternate" type="application/rss+xml" title="Education News Feed" href="https://dalimss.news/education/feed.xml" />
+      <link rel="alternate" type="application/rss+xml" title="Technology News Feed" href="https://dalimss.news/technology/feed.xml" />
       {/* Google AdSense */}
       <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7477796529453554" crossOrigin="anonymous"></script>
     </Head>

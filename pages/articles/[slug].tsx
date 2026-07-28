@@ -42,6 +42,8 @@ interface Article {
   sourceUrl?: string | null;
   metaTitle?: string | null;
   metaDescription?: string | null;
+  tags?: string | null;
+  imageAltText?: string | null;
 }
 
 interface Props {
@@ -54,7 +56,14 @@ import ShareButton from "@/components/ShareButton";
 import { ArticleJsonLd } from "@/components/ArticleJsonLd";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { RelatedArticles } from "@/components/RelatedArticles";
-import { SITE_URL, absoluteImageUrl, stripForMeta, authorSlug } from "@/lib/seo";
+import {
+  SITE_URL,
+  absoluteImageUrl,
+  stripForMeta,
+  authorSlug,
+  canonicalArticleSlug,
+  ARTICLE_SLUG_REDIRECTS,
+} from "@/lib/seo";
 import { getCategoryByDbValue, getCategorySlug } from "@/lib/categories";
 
 const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
@@ -93,8 +102,8 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
   const authorName = article.customAuthor || "Dalimss News Desk";
   const authorUrl = `${SITE_URL}/author/${authorSlug(authorName)}`;
 
-  // Canonical URL
-  const canonicalUrl = `${SITE_URL}/articles/${article.slug}`;
+  const articleSlug = canonicalArticleSlug(article.slug);
+  const canonicalUrl = `${SITE_URL}/articles/${articleSlug}`;
 
   return (
     <article className="max-w-3xl mx-auto py-8 px-6 text-gray-900">
@@ -125,7 +134,7 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
         <meta property="article:modified_time" content={new Date(article.updatedAt || article.createdAt).toISOString()} />
         {article.customAuthor && <meta property="article:author" content={article.customAuthor} />}
         {article.category && <meta property="article:section" content={article.category} />}
-        {(article as any).tags && (article as any).tags.split(",").map((t: string, i: number) => (
+        {article.tags && article.tags.split(",").map((t: string, i: number) => (
           <meta key={i} property="article:tag" content={t.trim()} />
         ))}
         
@@ -151,7 +160,7 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
           ...(categoryInfo
             ? [{ name: categoryInfo.name, href: `/category/${categoryInfo.slug}` }]
             : []),
-          { name: article.title.length > 60 ? article.title.slice(0, 57) + "..." : article.title, href: `/articles/${article.slug}` },
+          { name: article.title.length > 60 ? article.title.slice(0, 57) + "..." : article.title, href: `/articles/${articleSlug}` },
         ]}
       />
 
@@ -223,7 +232,7 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
             : null}
           <div className="ml-auto">
             <ShareButton 
-              url={`/articles/${article.slug}`} 
+              url={`/articles/${articleSlug}`}
               title={article.title} 
               variant="full"
             />
@@ -260,7 +269,7 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
                 <img
                   src={item.url}
                   className="rounded-md w-full"
-                  alt={(article as any).imageAltText || article.title}
+                    alt={article.imageAltText || article.title}
                   width={1200}
                   height={630}
                   onError={(e) => (e.currentTarget.style.display = "none")}
@@ -415,12 +424,28 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
         )}
       </div>
 
-      {/* SOURCE LINK */}
-      {article.sourceUrl && (
-        <div className="mt-8 pt-4 border-t text-sm text-gray-500">
-          Source: <a href={article.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Original Post</a>
-        </div>
-      )}
+      <section className="mt-8 pt-5 border-t border-gray-200 text-sm text-gray-600">
+        <h2 className="text-base font-bold text-gray-900 mb-2">
+          Reporting basis
+        </h2>
+        <p>
+          This report is based on Dalimss News editorial review, available
+          source material and updates verified by the newsroom.
+        </p>
+        {article.sourceUrl && (
+          <p className="mt-2">
+            Primary source:{" "}
+            <a
+              href={article.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline"
+            >
+              Original document or statement
+            </a>
+          </p>
+        )}
+      </section>
 
       {/* RELATED ARTICLES */}
       <RelatedArticles articles={relatedArticles} />
@@ -432,8 +457,12 @@ export default ArticlePage;
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const slug = String(params?.slug || "");
+  const legacySlug = Object.entries(ARTICLE_SLUG_REDIRECTS).find(
+    ([, canonicalSlug]) => canonicalSlug === slug
+  )?.[0];
 
   const whereClause: any = { OR: [{ slug }] };
+  if (legacySlug) whereClause.OR.push({ slug: legacySlug });
 
   const numericId = Number(slug);
   if (!isNaN(numericId)) whereClause.OR.push({ id: numericId });

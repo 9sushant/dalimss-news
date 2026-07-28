@@ -1,7 +1,12 @@
 // components/ArticleJsonLd.tsx
 // Reusable NewsArticle JSON-LD structured data component
 
-import { SITE_URL, SITE_NAME, absoluteImageUrl } from "@/lib/seo";
+import {
+  SITE_URL,
+  SITE_NAME,
+  absoluteImageUrl,
+  canonicalArticleSlug,
+} from "@/lib/seo";
 
 interface ArticleJsonLdProps {
   article: {
@@ -14,14 +19,16 @@ interface ArticleJsonLdProps {
     updatedAt?: string | null;
     customAuthor?: string | null;
     category?: string | null;
+    sourceUrl?: string | null;
     metaTitle?: string | null;
     metaDescription?: string | null;
+    tags?: string | null;
   };
   authorUrl?: string;
 }
 
 export function ArticleJsonLd({ article, authorUrl }: ArticleJsonLdProps) {
-  const url = `${SITE_URL}/articles/${article.slug}`;
+  const url = `${SITE_URL}/articles/${canonicalArticleSlug(article.slug)}`;
   const imageUrl = absoluteImageUrl(article.mediaUrl);
 
   // Build description
@@ -47,7 +54,13 @@ export function ArticleJsonLd({ article, authorUrl }: ArticleJsonLdProps) {
     dateModified: new Date(
       article.updatedAt || article.createdAt
     ).toISOString(),
-    keywords: (article as any).tags ? (article as any).tags.split(",").map((t: string) => t.trim()) : undefined,
+    inLanguage: "en-IN",
+    articleSection: article.category || "News",
+    isAccessibleForFree: true,
+    keywords: article.tags
+      ? article.tags.split(",").map((tag) => tag.trim()).filter(Boolean)
+      : undefined,
+    citation: article.sourceUrl || undefined,
     author: {
       "@type": "Person",
       name: article.customAuthor || "Dalimss News Desk",
@@ -59,11 +72,14 @@ export function ArticleJsonLd({ article, authorUrl }: ArticleJsonLdProps) {
       url: SITE_URL,
     },
     publisher: {
-      "@type": "Organization",
+      "@type": "NewsMediaOrganization",
       name: SITE_NAME,
+      url: SITE_URL,
       logo: {
         "@type": "ImageObject",
         url: `${SITE_URL}/logo-square.png`,
+        width: 512,
+        height: 512,
       },
     },
   };

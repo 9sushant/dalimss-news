@@ -44,11 +44,16 @@ export default function AuthorPage({
     name: authorName,
     url: canonicalUrl,
     worksFor: {
-      "@type": "Organization",
+      "@type": "NewsMediaOrganization",
       name: SITE_NAME,
       url: SITE_URL,
     },
     jobTitle: "Journalist",
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "Newsroom",
+      email: "dalimssnews@gmail.com",
+    },
   };
 
   const collectionSchema = {
@@ -131,6 +136,11 @@ export default function AuthorPage({
               <p className="text-gray-500 text-sm mb-4">
                 Journalist at {SITE_NAME}
               </p>
+              <p className="text-gray-600 text-sm leading-relaxed max-w-2xl mb-4">
+                {authorName} reports for Dalimss News with a focus on verified
+                public-interest updates, source transparency, corrections and
+                local context for readers in India.
+              </p>
 
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm">
                 <div className="bg-red-50 text-red-700 px-4 py-2 rounded-full font-semibold">
@@ -145,6 +155,12 @@ export default function AuthorPage({
                     })}
                   </div>
                 )}
+                <Link
+                  href="/corrections-policy"
+                  className="bg-gray-100 text-gray-600 px-4 py-2 rounded-full hover:text-red-600"
+                >
+                  Corrections standards
+                </Link>
               </div>
             </div>
           </div>

@@ -158,7 +158,16 @@ const Nav: React.FC = () => {
             </li>
             {NAV_CATEGORIES.map((cat) => (
               <li key={cat.slug}>
-                <Link href={`/category/${cat.slug}`} className="block py-2 md:py-0 hover:text-[#E21B22] transition-colors">
+                <Link
+                  href={
+                    cat.slug === "varanasi"
+                      ? "/varanasi-news"
+                      : cat.slug === "gurgaon"
+                        ? "/gurugram-news"
+                        : `/category/${cat.slug}`
+                  }
+                  className="block py-2 md:py-0 hover:text-[#E21B22] transition-colors"
+                >
                   {cat.name}
                 </Link>
               </li>

@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
 
 import { getCategoryBySlug, getCategoryByDbValue } from "@/lib/categories";
+import { articleUrl, submitIndexNow } from "@/lib/indexnow";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // ----------- CREATE ARTICLE (POST) -----------
@@ -64,6 +65,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           authorId: session.user.id ?? null,
         },
       });
+
+      await submitIndexNow([articleUrl(article.slug)]);
 
       return res.status(200).json(article);
     } catch (err) {

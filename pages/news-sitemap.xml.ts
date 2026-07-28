@@ -3,15 +3,8 @@
 
 import { GetServerSideProps } from "next";
 import prisma from "@/lib/prisma";
-
-function xmlEscape(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
-}
+import { xmlEscape } from "@/lib/xml";
+import { canonicalArticleSlug } from "@/lib/seo";
 
 const NewsSitemap = () => null;
 
@@ -41,11 +34,11 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     .map(
       (article) => `
     <url>
-      <loc>${baseUrl}/articles/${article.slug}</loc>
+      <loc>${baseUrl}/articles/${canonicalArticleSlug(article.slug)}</loc>
       <news:news>
-        <news:publication>
-          <news:name>Dalimss News</news:name>
-          <news:language>hi</news:language>
+          <news:publication>
+            <news:name>Dalimss News</news:name>
+          <news:language>en</news:language>
         </news:publication>
         <news:publication_date>${new Date(article.createdAt).toISOString()}</news:publication_date>
         <news:title>${xmlEscape(article.title)}</news:title>

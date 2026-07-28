@@ -5,6 +5,15 @@ export const SITE_URL = "https://dalimss.news";
 export const SITE_NAME = "Dalimss News";
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/logo.png`;
 
+export const ARTICLE_SLUG_REDIRECTS: Record<string, string> = {
+  "what-is-artificial-intelligence-ai":
+    "vda-cracks-down-on-illegal-constructions-in-zone-4-multiple-buildings-sealed",
+};
+
+export function canonicalArticleSlug(slug: string): string {
+  return ARTICLE_SLUG_REDIRECTS[slug] || slug;
+}
+
 /**
  * Generate a URL-safe slug from an author name
  */

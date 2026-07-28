@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
 import prisma from "../../../lib/prisma";
-import slugify from "slugify";
+import { articleUrl, submitIndexNow } from "@/lib/indexnow";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "PUT") {
@@ -24,7 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const article = await prisma.article.findUnique({
       where: { slug },
-      select: { authorId: true },
+      select: { authorId: true, slug: true },
     });
 
     if (!article) {
@@ -36,7 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(403).json({ error: "Forbidden: You do not own this article" });
     }
 
-      const updatedArticle = await prisma.article.update({
+    const updatedArticle = await prisma.article.update({
       where: { slug },
       data: {
         title,
@@ -55,6 +55,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         imageAltText: imageAltText || null,
       },
     });
+
+    await submitIndexNow([articleUrl(article.slug), articleUrl(updatedArticle.slug)]);
 
     return res.status(200).json(updatedArticle);
   } catch (error) {

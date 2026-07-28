@@ -28,6 +28,17 @@ const nextConfig = {
         destination: "https://dalimss.news/:path*",
         permanent: true,
       },
+      {
+        source: "/gurgaon-news",
+        destination: "/gurugram-news",
+        permanent: true,
+      },
+      {
+        source: "/articles/what-is-artificial-intelligence-ai",
+        destination:
+          "/articles/vda-cracks-down-on-illegal-constructions-in-zone-4-multiple-buildings-sealed",
+        permanent: true,
+      },
     ];
   },
 

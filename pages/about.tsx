@@ -26,6 +26,39 @@ const milestones = [
 ];
 
 const AboutPage: React.FC = () => {
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "NewsMediaOrganization",
+    name: "Dalimss News",
+    url: "https://dalimss.news",
+    logo: {
+      "@type": "ImageObject",
+      url: "https://dalimss.news/logo-square.png",
+      width: 512,
+      height: 512,
+    },
+    email: "dalimssnews@gmail.com",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Varanasi",
+      addressRegion: "Uttar Pradesh",
+      postalCode: "221001",
+      addressCountry: "IN",
+    },
+    sameAs: [
+      "https://www.instagram.com/dalimss_news",
+      "https://x.com/dalimss_news",
+    ],
+    ethicsPolicy: "https://dalimss.news/editorial-policy",
+    correctionsPolicy: "https://dalimss.news/corrections-policy",
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "Newsroom",
+      telephone: "+91-63927-52976",
+      email: "dalimssnews@gmail.com",
+    },
+  };
+
   return (
     <>
       <Head>
@@ -33,6 +66,11 @@ const AboutPage: React.FC = () => {
         <meta name="description" content="Learn about Dalimss News - Varanasi's leading digital news platform. Our mission, team, and commitment to quality journalism." />
         <meta property="og:title" content="About Us | Dalimss News" />
         <meta property="og:description" content="Learn about Dalimss News - Varanasi's leading digital news platform." />
+        <link rel="canonical" href="https://dalimss.news/about" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
       </Head>
 
 

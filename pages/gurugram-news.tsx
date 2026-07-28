@@ -1,8 +1,8 @@
 import TopicHubPage from "@/components/TopicHubPage";
 import { makeTopicHubServerSideProps, TopicHubProps } from "@/lib/topicHubs";
 
-export default function VaranasiNewsPage(props: TopicHubProps) {
+export default function GurugramNewsPage(props: TopicHubProps) {
   return <TopicHubPage {...props} />;
 }
 
-export const getServerSideProps = makeTopicHubServerSideProps("varanasi");
+export const getServerSideProps = makeTopicHubServerSideProps("gurugram");

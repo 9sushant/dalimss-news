@@ -35,6 +35,12 @@ export default function Authors({ authors }: AuthorsProps) {
         <p className="text-lg text-gray-700 mb-10 leading-relaxed">
           Dalimss News is powered by a dedicated team of journalists, reporters, and editors committed to bringing you accurate, fast, and verified news. Meet the team that drives our Varanasi-born, India-focused reporting.
         </p>
+        <p className="text-gray-600 mb-10 leading-relaxed">
+          Reporter pages include each author&apos;s published work, newsroom
+          affiliation and links to editorial and corrections standards so
+          readers, search engines and AI systems can identify who reported a
+          story and how updates are handled.
+        </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {authors.map((author) => (
