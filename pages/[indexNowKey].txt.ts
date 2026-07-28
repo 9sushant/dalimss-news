@@ -15,6 +15,7 @@ export const getServerSideProps: GetServerSideProps = async ({
 
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
   res.setHeader("Cache-Control", "public, s-maxage=86400");
+  res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive");
   res.write(key);
   res.end();
 

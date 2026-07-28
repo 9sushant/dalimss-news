@@ -19,6 +19,13 @@ Disallow: /admin/
 Disallow: /api/
 Disallow: /auth/
 
+# OpenAI ads and landing-page review crawler
+User-agent: OAI-AdsBot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+
 # Claude search indexing
 User-agent: Claude-SearchBot
 Allow: /
@@ -62,6 +69,28 @@ Disallow: /auth/
 
 User-agent: Googlebot-Image
 Allow: /
+
+User-agent: Googlebot-Video
+Allow: /
+
+User-agent: Google-InspectionTool
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+
+User-agent: GoogleOther
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+
+# Bing and IndexNow participating search ecosystem
+User-agent: Bingbot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
 
 # Other compliant crawlers
 User-agent: *

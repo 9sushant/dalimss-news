@@ -34,6 +34,16 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: "/authors/:slug",
+        destination: "/author/:slug",
+        permanent: true,
+      },
+      {
+        source: "/dalimss-news/about",
+        destination: "/about",
+        permanent: true,
+      },
+      {
         source: "/articles/what-is-artificial-intelligence-ai",
         destination:
           "/articles/vda-cracks-down-on-illegal-constructions-in-zone-4-multiple-buildings-sealed",
@@ -44,6 +54,69 @@ const nextConfig = {
 
   async headers() {
     return [
+      {
+        source: '/admin/:path*',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow, noarchive'
+          }
+        ]
+      },
+      {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow, noarchive'
+          }
+        ]
+      },
+      {
+        source: '/auth/:path*',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow, noarchive'
+          }
+        ]
+      },
+      {
+        source: '/articles/:slug/edit',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow, noarchive'
+          }
+        ]
+      },
+      {
+        source: '/stories/:slug/edit',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow, noarchive'
+          }
+        ]
+      },
+      {
+        source: '/profile',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow, noarchive'
+          }
+        ]
+      },
+      {
+        source: '/my-courses',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow, noarchive'
+          }
+        ]
+      },
       {
         source: '/:path*',
         headers: [

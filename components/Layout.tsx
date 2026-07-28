@@ -1,6 +1,7 @@
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { ReactNode } from "react";
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
 interface LayoutProps {
   children: ReactNode;
@@ -20,11 +21,28 @@ const Layout = ({ children }: LayoutProps) => (
       <link rel="icon" href="/favicon.ico" sizes="any" />
       <link rel="apple-touch-icon" href="/favicon.png" />
       <link rel="manifest" href="/site.webmanifest" />
+      <link rel="search" type="application/opensearchdescription+xml" title={SITE_NAME} href={`${SITE_URL}/opensearch.xml`} />
       <link rel="alternate" type="application/rss+xml" title="Dalimss News Feed" href="https://dalimss.news/feed.xml" />
       <link rel="alternate" type="application/rss+xml" title="Varanasi News Feed" href="https://dalimss.news/varanasi/feed.xml" />
       <link rel="alternate" type="application/rss+xml" title="Gurugram News Feed" href="https://dalimss.news/gurugram/feed.xml" />
       <link rel="alternate" type="application/rss+xml" title="Education News Feed" href="https://dalimss.news/education/feed.xml" />
       <link rel="alternate" type="application/rss+xml" title="Technology News Feed" href="https://dalimss.news/technology/feed.xml" />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: SITE_NAME,
+            url: SITE_URL,
+            potentialAction: {
+              "@type": "SearchAction",
+              target: `${SITE_URL}/?search={search_term_string}`,
+              "query-input": "required name=search_term_string",
+            },
+          }),
+        }}
+      />
       {/* Google AdSense */}
       <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7477796529453554" crossOrigin="anonymous"></script>
     </Head>
