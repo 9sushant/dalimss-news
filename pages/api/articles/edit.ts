@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
 import prisma from "../../../lib/prisma";
 import { articleUrl, submitIndexNow } from "@/lib/indexnow";
+import { createUniqueArticleSlug } from "@/lib/articleSlugs";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "PUT") {
@@ -36,12 +37,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(403).json({ error: "Forbidden: You do not own this article" });
     }
 
+    const finalSlug = newSlug
+      ? await createUniqueArticleSlug(newSlug, { ignoreSlug: article.slug })
+      : undefined;
+
     const updatedArticle = await prisma.article.update({
       where: { slug },
       data: {
         title,
         content,
-        slug: newSlug || undefined,
+        slug: finalSlug,
         sourceUrl: sourceUrl || null,
         mediaUrl,
         mediaType,

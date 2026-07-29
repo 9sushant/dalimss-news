@@ -5,6 +5,7 @@ import { authOptions } from "../auth/[...nextauth]";
 
 import { getCategoryBySlug, getCategoryByDbValue } from "@/lib/categories";
 import { articleUrl, submitIndexNow } from "@/lib/indexnow";
+import { createUniqueArticleSlug } from "@/lib/articleSlugs";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // ----------- CREATE ARTICLE (POST) -----------
@@ -33,17 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     try {
-      // Generate short random ID (6 chars)
-      const shortId = Math.random().toString(36).substring(2, 8);
-      
-      let finalSlug = slug;
-      if (!finalSlug) {
-        finalSlug = title
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/(^-|-$)+/g, "")
-          .substring(0, 50) + "-" + shortId;
-      }
+      const finalSlug = await createUniqueArticleSlug(slug || title);
 
       const article = await prisma.article.create({
         data: {
