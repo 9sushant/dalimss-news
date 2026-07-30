@@ -1,16 +1,48 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useSession, signIn, signOut } from "next-auth/react";
-import { 
-  MagnifyingGlassIcon, 
-  Bars3Icon, 
+import { signIn, signOut, useSession } from "next-auth/react";
+import {
+  Bars3Icon,
+  ChevronDownIcon,
+  MagnifyingGlassIcon,
+  MicrophoneIcon,
+  PencilSquareIcon,
+  PlusIcon,
   UserCircleIcon,
-  BellIcon
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
-
 import { NAV_CATEGORIES } from "@/lib/categories";
+
+const EDITOR_EMAILS = new Set([
+  "admin@dalimss.com",
+  "sushantgaurav@dalimss.com",
+  "dalimsssushant@gmail.com",
+]);
+
+const PRIMARY_CATEGORY_SLUGS = new Set([
+  "india",
+  "uttar-pradesh",
+  "varanasi",
+  "gurgaon",
+  "education",
+  "business",
+  "technology",
+]);
+
+function categoryHref(slug: string) {
+  if (slug === "varanasi") return "/varanasi-news";
+  if (slug === "gurgaon") return "/gurugram-news";
+  return `/category/${slug}`;
+}
+
+const primaryCategories = NAV_CATEGORIES.filter((category) =>
+  PRIMARY_CATEGORY_SLUGS.has(category.slug)
+);
+const moreCategories = NAV_CATEGORIES.filter(
+  (category) => !PRIMARY_CATEGORY_SLUGS.has(category.slug)
+);
 
 const Nav: React.FC = () => {
   const { data: session } = useSession();
@@ -19,230 +51,384 @@ const Nav: React.FC = () => {
   const [currentDate, setCurrentDate] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  React.useEffect(() => {
-    setCurrentDate(new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+  const isEditor =
+    session?.user?.role === "admin" ||
+    session?.user?.role === "editor" ||
+    EDITOR_EMAILS.has(session?.user?.email || "");
+
+  useEffect(() => {
+    setCurrentDate(
+      new Date().toLocaleDateString("en-IN", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    );
   }, []);
 
-  // Close mobile menu on scroll
-  React.useEffect(() => {
-    const handleScroll = () => {
-      if (isMenuOpen) {
-        setIsMenuOpen(false);
-      }
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [isMenuOpen]);
+  useEffect(() => {
+    const closeMenu = () => setIsMenuOpen(false);
+    router.events.on("routeChangeStart", closeMenu);
+    return () => router.events.off("routeChangeStart", closeMenu);
+  }, [router.events]);
 
-  // Sync search input with URL
-  React.useEffect(() => {
-    if (router.query.search) {
-      setSearchQuery(String(router.query.search));
-    } else {
-      setSearchQuery("");
-    }
+  useEffect(() => {
+    setSearchQuery(router.query.search ? String(router.query.search) : "");
   }, [router.query.search]);
 
   const handleSearch = () => {
-    if (searchQuery.trim()) {
-      router.push(`/?search=${encodeURIComponent(searchQuery)}`);
+    const query = searchQuery.trim();
+    if (query) {
+      router.push(`/?search=${encodeURIComponent(query)}`);
     } else if (router.query.search) {
       router.push("/");
     }
+    setIsMenuOpen(false);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
-  };
+  const isActive = (href: string) =>
+    href === "/"
+      ? router.pathname === "/"
+      : router.asPath === href || router.asPath.startsWith(`${href}/`);
+
+  const desktopLinkClass = (href: string) =>
+    `relative whitespace-nowrap py-3 text-[12px] font-extrabold uppercase tracking-[0.055em] transition-colors xl:text-[13px] ${
+      isActive(href)
+        ? "text-[#E21B22] after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-[#E21B22]"
+        : "text-slate-800 hover:text-[#E21B22]"
+    }`;
 
   return (
-    <header className="flex flex-col bg-white border-b border-gray-200 sticky top-0 z-50 font-sans">
-      {/* Top Utility Bar */}
-      <div className="hidden md:flex justify-between items-center px-4 lg:px-8 py-1 bg-gray-50 text-xs text-gray-500 border-b border-gray-100">
-        <div className="flex gap-4">
+    <header className="sticky top-0 z-50 flex flex-col border-b border-slate-200 bg-white font-sans shadow-[0_2px_14px_rgba(15,23,42,0.035)]">
+      <div className="hidden border-b border-slate-100 bg-slate-50/80 md:block">
+        <div className="mx-auto flex h-8 max-w-[1500px] items-center justify-between px-5 text-[11px] text-slate-500 lg:px-8">
           <span>{currentDate}</span>
-        </div>
-        <div className="flex gap-4">
-          {/* Reserved for future links */}
+          <span className="hidden tracking-wide lg:block">
+            Independent reporting from Varanasi and beyond
+          </span>
         </div>
       </div>
 
-      {/* Main Header */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 md:h-20">
-          
-          {/* Logo */}
-          <Link href="/" className="flex-shrink-0">
-             <Image 
-               src="/logo.png" 
-               alt="Dalimss News" 
-               width={180} 
-               height={60} 
-               className="h-10 md:h-14 w-auto object-contain"
-               priority
-             />
+      <div className="mx-auto w-full max-w-[1500px] px-4 sm:px-6 lg:px-8">
+        <div className="flex h-[72px] items-center justify-between gap-5 md:h-[88px]">
+          <Link
+            href="/"
+            className="flex min-w-0 shrink-0 items-center"
+            aria-label="Dalimss News home"
+          >
+            <Image
+              src="/logo.png"
+              alt="Dalimss News"
+              width={180}
+              height={60}
+              className="h-10 w-auto object-contain md:h-14"
+              priority
+            />
           </Link>
 
-          {/* Mobile Menu Button */}
-          <button 
-            className="md:hidden p-2 text-gray-700"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          <button
+            type="button"
+            className="grid h-10 w-10 place-items-center rounded-full border border-slate-200 text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 xl:hidden"
+            onClick={() => setIsMenuOpen((open) => !open)}
+            aria-label={isMenuOpen ? "Close navigation" : "Open navigation"}
+            aria-expanded={isMenuOpen}
           >
-            <Bars3Icon className="h-6 w-6" />
+            {isMenuOpen ? (
+              <XMarkIcon className="h-5 w-5" />
+            ) : (
+              <Bars3Icon className="h-5 w-5" />
+            )}
           </button>
 
-          {/* Desktop Search & Actions */}
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden min-w-0 items-center gap-3 xl:flex">
             <div className="relative">
-              <input 
-                type="text" 
-                placeholder="Search news..." 
-                className="pl-3 pr-10 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-red-600 w-64 transition-colors"
+              <input
+                type="search"
+                placeholder="Search news..."
+                className="w-52 rounded-full border border-slate-300 bg-slate-50 py-2.5 pl-4 pr-11 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-[#E21B22] focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-100 xl:w-72"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={handleKeyDown}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") handleSearch();
+                }}
               />
-              <MagnifyingGlassIcon 
-                className="h-4 w-4 text-gray-500 absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer hover:text-red-600" 
+              <button
+                type="button"
                 onClick={handleSearch}
-              />
+                className="absolute right-1.5 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full text-slate-500 transition hover:bg-white hover:text-[#E21B22]"
+                aria-label="Search"
+              >
+                <MagnifyingGlassIcon className="h-[18px] w-[18px]" />
+              </button>
             </div>
 
-            <div className="flex items-center gap-4">
-
-
-              {!session ? (
-                <button 
-                  onClick={() => signIn()} 
-                  className="text-sm font-semibold text-gray-700 hover:text-red-600 flex items-center gap-1"
-                >
-                  <UserCircleIcon className="h-6 w-6" />
-                  Sign In
-                </button>
-              ) : (
-                <div className="flex items-center gap-3">
-                  {session.user?.image ? (
-                    <Image
-                      src={session.user.image}
-                      alt="User Avatar"
-                      width={32}
-                      height={32}
-                      className="rounded-full border border-gray-200"
-                    />
-                  ) : (
-                    <UserCircleIcon className="h-8 w-8 text-gray-700" />
-                  )}
-                  <button 
-                    onClick={() => signOut()} 
-                    className="text-xs font-medium text-red-600 hover:text-red-700 border border-red-200 px-2 py-1 rounded"
+            {isEditor && (
+              <details className="group relative">
+                <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full bg-slate-950 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-[#E21B22] [&::-webkit-details-marker]:hidden">
+                  <PlusIcon className="h-4 w-4" />
+                  Create
+                  <ChevronDownIcon className="h-3.5 w-3.5 transition group-open:rotate-180" />
+                </summary>
+                <div className="absolute right-0 top-full mt-3 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_20px_55px_rgba(15,23,42,0.16)]">
+                  <Link
+                    href="/articles/new"
+                    className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-slate-700 transition hover:bg-red-50 hover:text-[#E21B22]"
                   >
-                    Sign Out
-                  </button>
+                    <span className="grid h-9 w-9 place-items-center rounded-full bg-red-50 text-[#E21B22]">
+                      <PencilSquareIcon className="h-5 w-5" />
+                    </span>
+                    Write article
+                  </Link>
+                  <Link
+                    href="/podcasts/new"
+                    className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-slate-700 transition hover:bg-red-50 hover:text-[#E21B22]"
+                  >
+                    <span className="grid h-9 w-9 place-items-center rounded-full bg-red-50 text-[#E21B22]">
+                      <MicrophoneIcon className="h-5 w-5" />
+                    </span>
+                    Upload podcast
+                  </Link>
                 </div>
-              )}
-            </div>
+              </details>
+            )}
+
+            {!session ? (
+              <button
+                type="button"
+                onClick={() => signIn()}
+                className="flex items-center gap-2 rounded-full px-2 py-2 text-sm font-semibold text-slate-700 transition hover:text-[#E21B22]"
+              >
+                <UserCircleIcon className="h-7 w-7" />
+                <span className="hidden xl:inline">Sign in</span>
+              </button>
+            ) : (
+              <div className="flex items-center gap-2">
+                {session.user?.image ? (
+                  <Image
+                    src={session.user.image}
+                    alt={session.user.name || "User"}
+                    width={34}
+                    height={34}
+                    className="h-[34px] w-[34px] rounded-full border border-slate-200 object-cover"
+                  />
+                ) : (
+                  <UserCircleIcon className="h-8 w-8 text-slate-600" />
+                )}
+                <button
+                  type="button"
+                  onClick={() => signOut()}
+                  className="whitespace-nowrap rounded-full border border-red-200 px-3 py-2 text-xs font-bold text-[#E21B22] transition hover:bg-red-50"
+                >
+                  Sign out
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Navigation Bar */}
-      <nav className={`md:block ${isMenuOpen ? 'block' : 'hidden'} border-t border-gray-100 bg-white`}>
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <ul className="flex flex-col gap-1 py-2 text-sm font-bold uppercase tracking-wide text-gray-800 md:flex-row md:items-center md:justify-center md:gap-3 lg:gap-5">
-            <li>
-              <Link href="/" className="block py-2 md:py-0 hover:text-[#E21B22] transition-colors">
+      <nav className="hidden border-t border-slate-100 bg-white xl:block">
+        <div className="mx-auto flex h-12 max-w-[1500px] items-stretch justify-between gap-4 px-6 lg:px-8">
+          <ul className="flex min-w-0 items-stretch gap-4 xl:gap-6">
+            <li className="flex items-stretch">
+              <Link href="/" className={desktopLinkClass("/")}>
                 Home
               </Link>
             </li>
-            {NAV_CATEGORIES.map((cat) => (
-              <li key={cat.slug}>
-                <Link
-                  href={
-                    cat.slug === "varanasi"
-                      ? "/varanasi-news"
-                      : cat.slug === "gurgaon"
-                        ? "/gurugram-news"
-                        : `/category/${cat.slug}`
-                  }
-                  className="block py-2 md:py-0 hover:text-[#E21B22] transition-colors"
-                >
-                  {cat.name}
-                </Link>
-              </li>
-            ))}
-            <li>
+            {primaryCategories.map((category) => {
+              const href = categoryHref(category.slug);
+              return (
+                <li key={category.slug} className="flex items-stretch">
+                  <Link href={href} className={desktopLinkClass(href)}>
+                    {category.name}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+
+          <ul className="flex shrink-0 items-stretch gap-4 xl:gap-6">
+            <li className="flex items-stretch">
               <Link
                 href="/podcasts"
-                className="flex items-center gap-1.5 py-2 transition-colors hover:text-[#E21B22] md:py-0"
+                className={`${desktopLinkClass(
+                  "/podcasts"
+                )} flex items-center gap-1.5`}
               >
                 <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#E21B22] opacity-50" />
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#E21B22] opacity-40" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-[#E21B22]" />
                 </span>
                 OTT / Podcasts
               </Link>
             </li>
-            <li>
-              <Link href="/courses" className="block py-2 md:py-0 hover:text-[#E21B22] transition-colors">
+            <li className="flex items-stretch">
+              <Link href="/courses" className={desktopLinkClass("/courses")}>
                 Courses
               </Link>
             </li>
-            <li>
-              <Link href="/about" className="block py-2 md:py-0 hover:text-[#E21B22] transition-colors">
+            <li className="flex items-stretch">
+              <Link href="/about" className={desktopLinkClass("/about")}>
                 About
               </Link>
             </li>
-            {session && session.user && (session.user.role === "admin" || session.user.role === "editor" || session.user.email === "admin@dalimss.com" || session.user.email === "sushantgaurav@dalimss.com" || session.user.email === "dalimsssushant@gmail.com") && (
-               <li>
-                <Link 
-                  href="/articles/new" 
-                  className="block py-2 md:py-0 text-[#E21B22] hover:text-red-700 transition-colors"
-                >
-                  Write Article
-                </Link>
-              </li>
-            )}
-            {session && session.user && (session.user.role === "admin" || session.user.role === "editor" || session.user.email === "admin@dalimss.com" || session.user.email === "sushantgaurav@dalimss.com" || session.user.email === "dalimsssushant@gmail.com") && (
-              <li>
-                <Link
-                  href="/podcasts/new"
-                  className="block py-2 text-[#E21B22] transition-colors hover:text-red-700 md:py-0"
-                >
-                  Upload Podcast
-                </Link>
-              </li>
-            )}
-            {/* Mobile Auth Buttons */}
-            <li className="md:hidden border-t border-gray-100 mt-2 pt-2">
-              {!session ? (
-                <button 
-                  onClick={() => signIn()} 
-                  className="block w-full text-left py-2 text-gray-700 hover:text-red-600"
-                >
-                  Sign In
-                </button>
-              ) : (
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 py-2 text-gray-600">
-                      {session.user?.image && (
-                        <Image src={session.user.image} width={24} height={24} className="rounded-full" alt="" />
-                      )}
-                      <span className="text-xs normal-case font-normal">{session.user?.name} {(session.user?.role === "admin" || session.user?.email === "sushantgaurav@dalimss.com" || session.user?.email === "dalimsssushant@gmail.com") && "(Admin)"}</span>
-                   </div>
-                   <button 
-                    onClick={() => signOut()} 
-                    className="block w-full text-left py-2 text-red-600 hover:text-red-700"
-                  >
-                    Sign Out
-                  </button>
+            <li className="flex items-center">
+              <details className="group relative">
+                <summary className="flex cursor-pointer list-none items-center gap-1.5 py-3 text-[12px] font-extrabold uppercase tracking-[0.055em] text-slate-800 transition hover:text-[#E21B22] xl:text-[13px] [&::-webkit-details-marker]:hidden">
+                  More
+                  <ChevronDownIcon className="h-3.5 w-3.5 transition group-open:rotate-180" />
+                </summary>
+                <div className="absolute right-0 top-full z-20 mt-1 w-52 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_20px_55px_rgba(15,23,42,0.16)]">
+                  {moreCategories.map((category) => {
+                    const href = categoryHref(category.slug);
+                    return (
+                      <Link
+                        key={category.slug}
+                        href={href}
+                        className={`block rounded-xl px-4 py-2.5 text-sm font-semibold transition hover:bg-red-50 hover:text-[#E21B22] ${
+                          isActive(href)
+                            ? "bg-red-50 text-[#E21B22]"
+                            : "text-slate-700"
+                        }`}
+                      >
+                        {category.name}
+                      </Link>
+                    );
+                  })}
                 </div>
-              )}
+              </details>
             </li>
           </ul>
         </div>
       </nav>
+
+      {isMenuOpen && (
+        <nav className="border-t border-slate-100 bg-white px-4 pb-5 pt-4 shadow-xl xl:hidden">
+          <div className="mx-auto max-w-2xl">
+            <div className="relative mb-5">
+              <input
+                type="search"
+                placeholder="Search news..."
+                className="w-full rounded-2xl border border-slate-300 bg-slate-50 py-3 pl-4 pr-12 text-sm focus:border-[#E21B22] focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-100"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") handleSearch();
+                }}
+              />
+              <button
+                type="button"
+                onClick={handleSearch}
+                className="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full text-slate-500"
+                aria-label="Search"
+              >
+                <MagnifyingGlassIcon className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-1">
+              <Link
+                href="/"
+                className="rounded-xl px-3 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-slate-50 hover:text-[#E21B22]"
+              >
+                Home
+              </Link>
+              {NAV_CATEGORIES.map((category) => (
+                <Link
+                  key={category.slug}
+                  href={categoryHref(category.slug)}
+                  className="rounded-xl px-3 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-slate-50 hover:text-[#E21B22]"
+                >
+                  {category.name}
+                </Link>
+              ))}
+              <Link
+                href="/podcasts"
+                className="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2.5 text-sm font-bold text-[#E21B22]"
+              >
+                <MicrophoneIcon className="h-4 w-4" />
+                OTT / Podcasts
+              </Link>
+              <Link
+                href="/courses"
+                className="rounded-xl px-3 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-slate-50 hover:text-[#E21B22]"
+              >
+                Courses
+              </Link>
+              <Link
+                href="/about"
+                className="rounded-xl px-3 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-slate-50 hover:text-[#E21B22]"
+              >
+                About
+              </Link>
+            </div>
+
+            {isEditor && (
+              <div className="mt-4 rounded-2xl bg-slate-950 p-3 text-white">
+                <p className="px-2 pb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-white/45">
+                  Creator studio
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  <Link
+                    href="/articles/new"
+                    className="flex items-center justify-center gap-2 rounded-xl bg-white/10 px-3 py-3 text-xs font-bold transition hover:bg-white/15"
+                  >
+                    <PencilSquareIcon className="h-4 w-4 text-red-400" />
+                    Write article
+                  </Link>
+                  <Link
+                    href="/podcasts/new"
+                    className="flex items-center justify-center gap-2 rounded-xl bg-[#E21B22] px-3 py-3 text-xs font-bold transition hover:bg-red-600"
+                  >
+                    <MicrophoneIcon className="h-4 w-4" />
+                    Upload podcast
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            <div className="mt-4 border-t border-slate-100 pt-4">
+              {!session ? (
+                <button
+                  type="button"
+                  onClick={() => signIn()}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 py-3 text-sm font-bold text-slate-700"
+                >
+                  <UserCircleIcon className="h-5 w-5" />
+                  Sign in
+                </button>
+              ) : (
+                <div className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 p-3">
+                  <div className="flex min-w-0 items-center gap-2">
+                    {session.user?.image ? (
+                      <Image
+                        src={session.user.image}
+                        width={30}
+                        height={30}
+                        className="h-[30px] w-[30px] rounded-full object-cover"
+                        alt=""
+                      />
+                    ) : (
+                      <UserCircleIcon className="h-7 w-7 text-slate-500" />
+                    )}
+                    <span className="truncate text-xs font-semibold normal-case text-slate-600">
+                      {session.user?.name || session.user?.email}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => signOut()}
+                    className="shrink-0 text-xs font-bold text-[#E21B22]"
+                  >
+                    Sign out
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </nav>
+      )}
     </header>
   );
 };
