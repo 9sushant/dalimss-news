@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -48,8 +48,10 @@ const Nav: React.FC = () => {
   const { data: session } = useSession();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<"create" | "more" | null>(null);
   const [currentDate, setCurrentDate] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const navContainerRef = useRef<HTMLDivElement>(null);
 
   const isEditor =
     session?.user?.role === "admin" ||
@@ -67,10 +69,40 @@ const Nav: React.FC = () => {
     );
   }, []);
 
+  // Close dropdowns & mobile menu on outside click or Escape key
   useEffect(() => {
-    const closeMenu = () => setIsMenuOpen(false);
-    router.events.on("routeChangeStart", closeMenu);
-    return () => router.events.off("routeChangeStart", closeMenu);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        navContainerRef.current &&
+        !navContainerRef.current.contains(event.target as Node)
+      ) {
+        setOpenDropdown(null);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpenDropdown(null);
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  // Close dropdowns & mobile menu on route change
+  useEffect(() => {
+    const closeAll = () => {
+      setIsMenuOpen(false);
+      setOpenDropdown(null);
+    };
+    router.events.on("routeChangeStart", closeAll);
+    return () => router.events.off("routeChangeStart", closeAll);
   }, [router.events]);
 
   useEffect(() => {
@@ -84,6 +116,16 @@ const Nav: React.FC = () => {
     } else if (router.query.search) {
       router.push("/");
     }
+    setIsMenuOpen(false);
+    setOpenDropdown(null);
+  };
+
+  const toggleDropdown = (dropdown: "create" | "more") => {
+    setOpenDropdown((prev) => (prev === dropdown ? null : dropdown));
+  };
+
+  const closeDropdowns = () => {
+    setOpenDropdown(null);
     setIsMenuOpen(false);
   };
 
@@ -100,136 +142,166 @@ const Nav: React.FC = () => {
     }`;
 
   return (
-    <header className="sticky top-0 z-50 flex flex-col border-b border-slate-200 bg-white font-sans shadow-[0_2px_14px_rgba(15,23,42,0.035)]">
-      <div className="hidden border-b border-slate-100 bg-slate-50/80 md:block">
-        <div className="mx-auto flex h-8 max-w-[1500px] items-center px-5 text-[11px] text-slate-500 lg:px-8">
-          <span>{currentDate}</span>
-        </div>
-      </div>
-
-      <div className="mx-auto w-full max-w-[1500px] px-4 sm:px-6 lg:px-8">
-        <div className="flex h-[72px] items-center justify-between gap-5 md:h-[88px]">
-          <Link
-            href="/"
-            className="flex min-w-0 shrink-0 items-center"
-            aria-label="Dalimss News home"
-          >
-            <Image
-              src="/logo.png"
-              alt="Dalimss News"
-              width={180}
-              height={60}
-              className="h-10 w-auto object-contain md:h-14"
-              priority
-            />
-          </Link>
-
-          <button
-            type="button"
-            className="grid h-10 w-10 place-items-center rounded-full border border-slate-200 text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 xl:hidden"
-            onClick={() => setIsMenuOpen((open) => !open)}
-            aria-label={isMenuOpen ? "Close navigation" : "Open navigation"}
-            aria-expanded={isMenuOpen}
-          >
-            {isMenuOpen ? (
-              <XMarkIcon className="h-5 w-5" />
-            ) : (
-              <Bars3Icon className="h-5 w-5" />
-            )}
-          </button>
-
-          <div className="hidden min-w-0 items-center gap-3 xl:flex">
-            <div className="relative">
-              <input
-                type="search"
-                placeholder="Search news..."
-                className="w-52 rounded-full border border-slate-300 bg-slate-50 py-2.5 pl-4 pr-11 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-[#E21B22] focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-100 xl:w-72"
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") handleSearch();
-                }}
-              />
-              <button
-                type="button"
-                onClick={handleSearch}
-                className="absolute right-1.5 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full text-slate-500 transition hover:bg-white hover:text-[#E21B22]"
-                aria-label="Search"
-              >
-                <MagnifyingGlassIcon className="h-[18px] w-[18px]" />
-              </button>
-            </div>
-
-            {isEditor && (
-              <details className="group relative">
-                <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full bg-slate-950 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-[#E21B22] [&::-webkit-details-marker]:hidden">
-                  <PlusIcon className="h-4 w-4" />
-                  Create
-                  <ChevronDownIcon className="h-3.5 w-3.5 transition group-open:rotate-180" />
-                </summary>
-                <div className="absolute right-0 top-full z-[60] mt-20 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_20px_55px_rgba(15,23,42,0.16)]">
-                  <Link
-                    href="/articles/new"
-                    className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-slate-700 transition hover:bg-red-50 hover:text-[#E21B22]"
-                  >
-                    <span className="grid h-9 w-9 place-items-center rounded-full bg-red-50 text-[#E21B22]">
-                      <PencilSquareIcon className="h-5 w-5" />
-                    </span>
-                    Write article
-                  </Link>
-                  <Link
-                    href="/podcasts/new"
-                    className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-slate-700 transition hover:bg-red-50 hover:text-[#E21B22]"
-                  >
-                    <span className="grid h-9 w-9 place-items-center rounded-full bg-red-50 text-[#E21B22]">
-                      <MicrophoneIcon className="h-5 w-5" />
-                    </span>
-                    Upload podcast
-                  </Link>
-                </div>
-              </details>
-            )}
-
-            {!session ? (
-              <button
-                type="button"
-                onClick={() => signIn()}
-                className="flex items-center gap-2 rounded-full px-2 py-2 text-sm font-semibold text-slate-700 transition hover:text-[#E21B22]"
-              >
-                <UserCircleIcon className="h-7 w-7" />
-                <span className="hidden xl:inline">Sign in</span>
-              </button>
-            ) : (
-              <div className="flex items-center gap-2">
-                {session.user?.image ? (
-                  <Image
-                    src={session.user.image}
-                    alt={session.user.name || "User"}
-                    width={34}
-                    height={34}
-                    className="h-[34px] w-[34px] rounded-full border border-slate-200 object-cover"
-                  />
-                ) : (
-                  <UserCircleIcon className="h-8 w-8 text-slate-600" />
-                )}
-                <button
-                  type="button"
-                  onClick={() => signOut()}
-                  className="whitespace-nowrap rounded-full border border-red-200 px-3 py-2 text-xs font-bold text-[#E21B22] transition hover:bg-red-50"
-                >
-                  Sign out
-                </button>
-              </div>
-            )}
+    <div ref={navContainerRef} className="w-full font-sans">
+      {/* Upper Section: Date Bar + Main Header (Scrolls away with page) */}
+      <header className="border-b border-slate-100 bg-white">
+        {/* Top Date Bar */}
+        <div className="hidden border-b border-slate-100 bg-slate-50/80 md:block">
+          <div className="mx-auto flex h-8 max-w-[1500px] items-center px-5 text-[11px] text-slate-500 lg:px-8">
+            <span>{currentDate}</span>
           </div>
         </div>
-      </div>
 
-      <nav className="hidden border-t border-slate-100 bg-white xl:block">
+        {/* Main Logo & User Action Bar */}
+        <div className="mx-auto w-full max-w-[1500px] px-4 sm:px-6 lg:px-8">
+          <div className="flex h-[72px] items-center justify-between gap-5 md:h-[88px]">
+            <Link
+              href="/"
+              onClick={closeDropdowns}
+              className="flex min-w-0 shrink-0 items-center"
+              aria-label="Dalimss News home"
+            >
+              <Image
+                src="/logo.png"
+                alt="Dalimss News"
+                width={180}
+                height={60}
+                className="h-10 w-auto object-contain md:h-14"
+                priority
+              />
+            </Link>
+
+            <button
+              type="button"
+              className="grid h-10 w-10 place-items-center rounded-full border border-slate-200 text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 xl:hidden"
+              onClick={() => {
+                setIsMenuOpen((open) => !open);
+                setOpenDropdown(null);
+              }}
+              aria-label={isMenuOpen ? "Close navigation" : "Open navigation"}
+              aria-expanded={isMenuOpen}
+            >
+              {isMenuOpen ? (
+                <XMarkIcon className="h-5 w-5" />
+              ) : (
+                <Bars3Icon className="h-5 w-5" />
+              )}
+            </button>
+
+            <div className="hidden min-w-0 items-center gap-3 xl:flex">
+              <div className="relative">
+                <input
+                  type="search"
+                  placeholder="Search news..."
+                  className="w-52 rounded-full border border-slate-300 bg-slate-50 py-2.5 pl-4 pr-11 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-[#E21B22] focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-100 xl:w-72"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") handleSearch();
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={handleSearch}
+                  className="absolute right-1.5 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full text-slate-500 transition hover:bg-white hover:text-[#E21B22]"
+                  aria-label="Search"
+                >
+                  <MagnifyingGlassIcon className="h-[18px] w-[18px]" />
+                </button>
+              </div>
+
+              {isEditor && (
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => toggleDropdown("create")}
+                    className="flex cursor-pointer items-center gap-2 rounded-full bg-slate-950 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-[#E21B22]"
+                    aria-expanded={openDropdown === "create"}
+                    aria-haspopup="true"
+                  >
+                    <PlusIcon className="h-4 w-4" />
+                    Create
+                    <ChevronDownIcon
+                      className={`h-3.5 w-3.5 transition-transform duration-200 ${
+                        openDropdown === "create" ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+                  {openDropdown === "create" && (
+                    <div className="absolute right-0 top-full z-[60] mt-2 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_20px_55px_rgba(15,23,42,0.16)]">
+                      <Link
+                        href="/articles/new"
+                        onClick={closeDropdowns}
+                        className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-slate-700 transition hover:bg-red-50 hover:text-[#E21B22]"
+                      >
+                        <span className="grid h-9 w-9 place-items-center rounded-full bg-red-50 text-[#E21B22]">
+                          <PencilSquareIcon className="h-5 w-5" />
+                        </span>
+                        Write article
+                      </Link>
+                      <Link
+                        href="/podcasts/new"
+                        onClick={closeDropdowns}
+                        className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-slate-700 transition hover:bg-red-50 hover:text-[#E21B22]"
+                      >
+                        <span className="grid h-9 w-9 place-items-center rounded-full bg-red-50 text-[#E21B22]">
+                          <MicrophoneIcon className="h-5 w-5" />
+                        </span>
+                        Upload podcast
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {!session ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    closeDropdowns();
+                    signIn();
+                  }}
+                  className="flex items-center gap-2 rounded-full px-2 py-2 text-sm font-semibold text-slate-700 transition hover:text-[#E21B22]"
+                >
+                  <UserCircleIcon className="h-7 w-7" />
+                  <span className="hidden xl:inline">Sign in</span>
+                </button>
+              ) : (
+                <div className="flex items-center gap-2">
+                  {session.user?.image ? (
+                    <Image
+                      src={session.user.image}
+                      alt={session.user.name || "User"}
+                      width={34}
+                      height={34}
+                      className="h-[34px] w-[34px] rounded-full border border-slate-200 object-cover"
+                    />
+                  ) : (
+                    <UserCircleIcon className="h-8 w-8 text-slate-600" />
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      closeDropdowns();
+                      signOut();
+                    }}
+                    className="whitespace-nowrap rounded-full border border-red-200 px-3 py-2 text-xs font-bold text-[#E21B22] transition hover:bg-red-50"
+                  >
+                    Sign out
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Sticky Category Navigation Bar (Desktop) */}
+      <nav className="sticky top-0 z-50 hidden border-b border-slate-200 bg-white shadow-[0_2px_14px_rgba(15,23,42,0.035)] xl:block">
         <div className="mx-auto flex h-12 max-w-[1500px] items-stretch justify-between gap-4 px-6 lg:px-8">
           <ul className="flex min-w-0 items-stretch gap-4 xl:gap-6">
             <li className="flex items-stretch">
-              <Link href="/" className={desktopLinkClass("/")}>
+              <Link href="/" onClick={closeDropdowns} className={desktopLinkClass("/")}>
                 Home
               </Link>
             </li>
@@ -237,7 +309,7 @@ const Nav: React.FC = () => {
               const href = categoryHref(category.slug);
               return (
                 <li key={category.slug} className="flex items-stretch">
-                  <Link href={href} className={desktopLinkClass(href)}>
+                  <Link href={href} onClick={closeDropdowns} className={desktopLinkClass(href)}>
                     {category.name}
                   </Link>
                 </li>
@@ -249,6 +321,7 @@ const Nav: React.FC = () => {
             <li className="flex items-stretch">
               <Link
                 href="/podcasts"
+                onClick={closeDropdowns}
                 className={`${desktopLinkClass(
                   "/podcasts"
                 )} flex items-center gap-1.5`}
@@ -261,28 +334,39 @@ const Nav: React.FC = () => {
               </Link>
             </li>
             <li className="flex items-stretch">
-              <Link href="/courses" className={desktopLinkClass("/courses")}>
+              <Link href="/courses" onClick={closeDropdowns} className={desktopLinkClass("/courses")}>
                 Courses
               </Link>
             </li>
             <li className="flex items-stretch">
-              <Link href="/about" className={desktopLinkClass("/about")}>
+              <Link href="/about" onClick={closeDropdowns} className={desktopLinkClass("/about")}>
                 About
               </Link>
             </li>
-            <li className="flex items-center">
-              <details className="group relative">
-                <summary className="flex cursor-pointer list-none items-center gap-1.5 py-3 text-[12px] font-extrabold uppercase tracking-[0.055em] text-slate-800 transition hover:text-[#E21B22] xl:text-[13px] [&::-webkit-details-marker]:hidden">
-                  More
-                  <ChevronDownIcon className="h-3.5 w-3.5 transition group-open:rotate-180" />
-                </summary>
-                <div className="absolute right-0 top-full z-20 mt-1 w-52 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_20px_55px_rgba(15,23,42,0.16)]">
+            <li className="relative flex items-center">
+              <button
+                type="button"
+                onClick={() => toggleDropdown("more")}
+                className="flex cursor-pointer items-center gap-1.5 py-3 text-[12px] font-extrabold uppercase tracking-[0.055em] text-slate-800 transition hover:text-[#E21B22] xl:text-[13px]"
+                aria-expanded={openDropdown === "more"}
+                aria-haspopup="true"
+              >
+                More
+                <ChevronDownIcon
+                  className={`h-3.5 w-3.5 transition-transform duration-200 ${
+                    openDropdown === "more" ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {openDropdown === "more" && (
+                <div className="absolute right-0 top-full z-[60] mt-1 w-52 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_20px_55px_rgba(15,23,42,0.16)]">
                   {moreCategories.map((category) => {
                     const href = categoryHref(category.slug);
                     return (
                       <Link
                         key={category.slug}
                         href={href}
+                        onClick={closeDropdowns}
                         className={`block rounded-xl px-4 py-2.5 text-sm font-semibold transition hover:bg-red-50 hover:text-[#E21B22] ${
                           isActive(href)
                             ? "bg-red-50 text-[#E21B22]"
@@ -294,12 +378,13 @@ const Nav: React.FC = () => {
                     );
                   })}
                 </div>
-              </details>
+              )}
             </li>
           </ul>
         </div>
       </nav>
 
+      {/* Mobile Drawer Navigation */}
       {isMenuOpen && (
         <nav className="border-t border-slate-100 bg-white px-4 pb-5 pt-4 shadow-xl xl:hidden">
           <div className="mx-auto max-w-2xl">
@@ -327,6 +412,7 @@ const Nav: React.FC = () => {
             <div className="grid grid-cols-2 gap-1">
               <Link
                 href="/"
+                onClick={closeDropdowns}
                 className="rounded-xl px-3 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-slate-50 hover:text-[#E21B22]"
               >
                 Home
@@ -335,6 +421,7 @@ const Nav: React.FC = () => {
                 <Link
                   key={category.slug}
                   href={categoryHref(category.slug)}
+                  onClick={closeDropdowns}
                   className="rounded-xl px-3 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-slate-50 hover:text-[#E21B22]"
                 >
                   {category.name}
@@ -342,6 +429,7 @@ const Nav: React.FC = () => {
               ))}
               <Link
                 href="/podcasts"
+                onClick={closeDropdowns}
                 className="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2.5 text-sm font-bold text-[#E21B22]"
               >
                 <MicrophoneIcon className="h-4 w-4" />
@@ -349,12 +437,14 @@ const Nav: React.FC = () => {
               </Link>
               <Link
                 href="/courses"
+                onClick={closeDropdowns}
                 className="rounded-xl px-3 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-slate-50 hover:text-[#E21B22]"
               >
                 Courses
               </Link>
               <Link
                 href="/about"
+                onClick={closeDropdowns}
                 className="rounded-xl px-3 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-slate-50 hover:text-[#E21B22]"
               >
                 About
@@ -369,6 +459,7 @@ const Nav: React.FC = () => {
                 <div className="grid grid-cols-2 gap-2">
                   <Link
                     href="/articles/new"
+                    onClick={closeDropdowns}
                     className="flex items-center justify-center gap-2 rounded-xl bg-white/10 px-3 py-3 text-xs font-bold transition hover:bg-white/15"
                   >
                     <PencilSquareIcon className="h-4 w-4 text-red-400" />
@@ -376,6 +467,7 @@ const Nav: React.FC = () => {
                   </Link>
                   <Link
                     href="/podcasts/new"
+                    onClick={closeDropdowns}
                     className="flex items-center justify-center gap-2 rounded-xl bg-[#E21B22] px-3 py-3 text-xs font-bold transition hover:bg-red-600"
                   >
                     <MicrophoneIcon className="h-4 w-4" />
@@ -389,7 +481,10 @@ const Nav: React.FC = () => {
               {!session ? (
                 <button
                   type="button"
-                  onClick={() => signIn()}
+                  onClick={() => {
+                    closeDropdowns();
+                    signIn();
+                  }}
                   className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 py-3 text-sm font-bold text-slate-700"
                 >
                   <UserCircleIcon className="h-5 w-5" />
@@ -415,7 +510,10 @@ const Nav: React.FC = () => {
                   </div>
                   <button
                     type="button"
-                    onClick={() => signOut()}
+                    onClick={() => {
+                      closeDropdowns();
+                      signOut();
+                    }}
                     className="shrink-0 text-xs font-bold text-[#E21B22]"
                   >
                     Sign out
@@ -426,7 +524,7 @@ const Nav: React.FC = () => {
           </div>
         </nav>
       )}
-    </header>
+    </div>
   );
 };
 
