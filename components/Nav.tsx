@@ -102,11 +102,8 @@ const Nav: React.FC = () => {
   return (
     <header className="sticky top-0 z-50 flex flex-col border-b border-slate-200 bg-white font-sans shadow-[0_2px_14px_rgba(15,23,42,0.035)]">
       <div className="hidden border-b border-slate-100 bg-slate-50/80 md:block">
-        <div className="mx-auto flex h-8 max-w-[1500px] items-center justify-between px-5 text-[11px] text-slate-500 lg:px-8">
+        <div className="mx-auto flex h-8 max-w-[1500px] items-center px-5 text-[11px] text-slate-500 lg:px-8">
           <span>{currentDate}</span>
-          <span className="hidden tracking-wide lg:block">
-            Independent reporting from Varanasi and beyond
-          </span>
         </div>
       </div>
 
