@@ -167,7 +167,7 @@ const Nav: React.FC = () => {
                   Create
                   <ChevronDownIcon className="h-3.5 w-3.5 transition group-open:rotate-180" />
                 </summary>
-                <div className="absolute right-0 top-full mt-3 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_20px_55px_rgba(15,23,42,0.16)]">
+                <div className="absolute right-0 top-full z-[60] mt-20 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_20px_55px_rgba(15,23,42,0.16)]">
                   <Link
                     href="/articles/new"
                     className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-slate-700 transition hover:bg-red-50 hover:text-[#E21B22]"
