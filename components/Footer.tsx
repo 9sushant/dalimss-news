@@ -26,6 +26,12 @@ const Footer = () => {
               News Categories
             </h4>
             <div className="grid grid-cols-2 gap-2 text-sm text-left">
+              <Link
+                href="/podcasts"
+                className="font-semibold text-red-400 transition-colors hover:text-white"
+              >
+                OTT & Podcasts
+              </Link>
               {NAV_CATEGORIES.slice(0, 10).map((cat) => (
                 <Link
                   key={cat.slug}
@@ -55,6 +61,9 @@ const Footer = () => {
               </Link>
               <Link href="/contact" className="text-gray-400 hover:text-white transition-colors">
                 Contact Us
+              </Link>
+              <Link href="/podcasts/feed.xml" className="text-gray-400 hover:text-white transition-colors">
+                Podcast RSS Feed
               </Link>
               <Link href="/privacy-policy" className="text-gray-400 hover:text-white transition-colors">
                 Privacy Policy

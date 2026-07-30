@@ -46,6 +46,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   articles      Article[]
+  podcastEpisodes PodcastEpisode[]
   role          String    @default("user")
   password      String?
 }
@@ -103,6 +104,38 @@ model WebStoryPage {
   heading     String?
   text        String?
   order       Int      @default(0)
+}
+
+model PodcastEpisode {
+  id            Int      @id @default(autoincrement())
+  slug          String   @unique
+  title         String
+  description   String
+  showName      String   @default("Dalimss News Podcasts")
+  hostName      String
+  guestNames    String?
+  category      String?
+  language      String   @default("Hindi")
+  seasonNumber  Int?
+  episodeNumber Int?
+  duration      Int?
+  coverImage    String
+  audioUrl      String?
+  videoUrl      String?
+  mediaBytes    String?
+  mediaMimeType String?
+  mediaType     String   @default("audio")
+  explicit      Boolean  @default(false)
+  featured      Boolean  @default(false)
+  published     Boolean  @default(true)
+  publishedAt   DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  authorId      String?
+  author        User?    @relation(fields: [authorId], references: [id])
+
+  @@index([published, publishedAt])
+  @@index([category])
 }
 
 model Course {

@@ -12,3 +12,31 @@ html {
 body {
     @apply bg-white text-gray-900 antialiased font-sans;
 }
+
+.podcast-range {
+    height: 4px;
+    cursor: pointer;
+    appearance: none;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.22);
+    accent-color: #ff4d3d;
+}
+
+.podcast-range::-webkit-slider-thumb {
+    width: 14px;
+    height: 14px;
+    appearance: none;
+    border: 3px solid #ff4d3d;
+    border-radius: 9999px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.24);
+}
+
+.podcast-range::-moz-range-thumb {
+    width: 10px;
+    height: 10px;
+    border: 3px solid #ff4d3d;
+    border-radius: 9999px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.24);
+}

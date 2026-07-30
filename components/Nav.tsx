@@ -150,7 +150,7 @@ const Nav: React.FC = () => {
       {/* Navigation Bar */}
       <nav className={`md:block ${isMenuOpen ? 'block' : 'hidden'} border-t border-gray-100 bg-white`}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <ul className="flex flex-col md:flex-row md:items-center md:justify-center gap-1 md:gap-6 py-2 text-sm font-bold text-gray-800 uppercase tracking-wide">
+          <ul className="flex flex-col gap-1 py-2 text-sm font-bold uppercase tracking-wide text-gray-800 md:flex-row md:items-center md:justify-center md:gap-3 lg:gap-5">
             <li>
               <Link href="/" className="block py-2 md:py-0 hover:text-[#E21B22] transition-colors">
                 Home
@@ -173,6 +173,18 @@ const Nav: React.FC = () => {
               </li>
             ))}
             <li>
+              <Link
+                href="/podcasts"
+                className="flex items-center gap-1.5 py-2 transition-colors hover:text-[#E21B22] md:py-0"
+              >
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#E21B22] opacity-50" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-[#E21B22]" />
+                </span>
+                OTT / Podcasts
+              </Link>
+            </li>
+            <li>
               <Link href="/courses" className="block py-2 md:py-0 hover:text-[#E21B22] transition-colors">
                 Courses
               </Link>
@@ -189,6 +201,16 @@ const Nav: React.FC = () => {
                   className="block py-2 md:py-0 text-[#E21B22] hover:text-red-700 transition-colors"
                 >
                   Write Article
+                </Link>
+              </li>
+            )}
+            {session && session.user && (session.user.role === "admin" || session.user.role === "editor" || session.user.email === "admin@dalimss.com" || session.user.email === "sushantgaurav@dalimss.com" || session.user.email === "dalimsssushant@gmail.com") && (
+              <li>
+                <Link
+                  href="/podcasts/new"
+                  className="block py-2 text-[#E21B22] transition-colors hover:text-red-700 md:py-0"
+                >
+                  Upload Podcast
                 </Link>
               </li>
             )}

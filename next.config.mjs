@@ -118,6 +118,15 @@ const nextConfig = {
         ]
       },
       {
+        source: '/podcasts/new',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow, noarchive'
+          }
+        ]
+      },
+      {
         source: '/:path*',
         headers: [
           {

@@ -142,7 +142,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({
           >
             {/* Header */}
             <div className="px-4 py-2 border-b border-gray-100 mb-1">
-              <h3 className="text-sm font-semibold text-gray-900 text-center">Share Article</h3>
+              <h3 className="text-sm font-semibold text-gray-900 text-center">Share</h3>
             </div>
 
             {/* Copy Link */}

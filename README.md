@@ -17,3 +17,14 @@ The site also publishes:
 - `https://dalimss.news/gurugram/feed.xml`
 - `https://dalimss.news/education/feed.xml`
 - `https://dalimss.news/technology/feed.xml`
+
+## OTT And Podcasts
+
+Editors can publish audio or video episodes from `/podcasts/new`. Episode media
+uses direct multipart Vercel Blob uploads, so `BLOB_READ_WRITE_TOKEN` must be
+available in the production and preview environments.
+
+Public podcast endpoints:
+
+- `https://dalimss.news/podcasts`
+- `https://dalimss.news/podcasts/feed.xml`

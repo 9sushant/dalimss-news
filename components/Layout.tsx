@@ -27,6 +27,7 @@ const Layout = ({ children }: LayoutProps) => (
       <link rel="alternate" type="application/rss+xml" title="Gurugram News Feed" href="https://dalimss.news/gurugram/feed.xml" />
       <link rel="alternate" type="application/rss+xml" title="Education News Feed" href="https://dalimss.news/education/feed.xml" />
       <link rel="alternate" type="application/rss+xml" title="Technology News Feed" href="https://dalimss.news/technology/feed.xml" />
+      <link rel="alternate" type="application/rss+xml" title="Dalimss News Podcasts" href="https://dalimss.news/podcasts/feed.xml" />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
