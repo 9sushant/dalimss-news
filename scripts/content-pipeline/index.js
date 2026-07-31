@@ -131,12 +131,14 @@ async function transformContent(item) {
     1. **Title**: Catchy, SEO-optimized headline (max 10 words).
     2. **Content**: 300-500 words, journalistic tone, third-person perspective. Remove hashtags and emojis.
     3. **Category**: Choose ONE from [Politics, Entertainment, Technology, Sports, Education, General News].
+    4. **Editorial summary**: A plain-text, factual summary between 100 and 160 characters.
     
     OUTPUT FORMAT (JSON ONLY):
     {
       "title": "string",
       "content": "html string (use <p>, <h2> tags)",
-      "category": "string"
+      "category": "string",
+      "editorial_summary": "plain text string"
     }
   `;
 
@@ -151,8 +153,11 @@ async function transformContent(item) {
     return {
       ...result,
       source_url: item.url,
+      source_label: `Original ${item.source} post`,
       image_url: item.image_url,
       author: "",
+      image_alt_text: "",
+      image_caption: "",
       reporting_basis: `Drafted from a ${item.source} post at ${item.url}. A human editor must independently verify the claims, add reporting and record contact attempts before publication.`,
       human_reviewed: false
     };

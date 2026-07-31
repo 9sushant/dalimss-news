@@ -4,7 +4,11 @@
 import { GetServerSideProps } from "next";
 import prisma from "@/lib/prisma";
 import { CATEGORIES } from "@/lib/categories";
-import { authorSlug, canonicalArticleSlug } from "@/lib/seo";
+import {
+  authorSlug,
+  canonicalArticleSlug,
+  canonicalAuthorName,
+} from "@/lib/seo";
 
 const Sitemap = () => {
   return null;
@@ -54,7 +58,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   const authorSet = new Set<string>();
   articles.forEach((a) => {
     if (a.customAuthor && a.customAuthor.trim()) {
-      authorSet.add(a.customAuthor.trim());
+      authorSet.add(canonicalAuthorName(a.customAuthor));
     }
   });
 

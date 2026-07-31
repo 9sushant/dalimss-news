@@ -7,7 +7,10 @@ import {
   absoluteImageUrl,
   canonicalArticleSlug,
   toISOWithTZ,
+  stripForMeta,
+  canonicalAuthorName,
 } from "@/lib/seo";
+import { normalizeArticleSources } from "@/lib/articleSources";
 
 interface ArticleJsonLdProps {
   article: {
@@ -21,6 +24,7 @@ interface ArticleJsonLdProps {
     customAuthor?: string | null;
     category?: string | null;
     sourceUrl?: string | null;
+    sourceUrls?: unknown;
     metaTitle?: string | null;
     metaDescription?: string | null;
     tags?: string | null;
@@ -32,17 +36,23 @@ interface ArticleJsonLdProps {
 export function ArticleJsonLd({ article, authorUrl }: ArticleJsonLdProps) {
   const url = `${SITE_URL}/articles/${canonicalArticleSlug(article.slug)}`;
   const imageUrl = absoluteImageUrl(article.mediaUrl);
-  const authorName = article.customAuthor || "Dalimss News Desk";
+  const authorName = canonicalAuthorName(
+    article.customAuthor || "Dalimss News Desk"
+  );
   const isNewsroomByline = authorName === "Dalimss News Desk";
+  const sources = normalizeArticleSources(article.sourceUrls);
+  const citations = [
+    ...sources.map((source) => source.url),
+    ...(article.sourceUrl &&
+    !sources.some((source) => source.url === article.sourceUrl)
+      ? [article.sourceUrl]
+      : []),
+  ];
 
-  // Build description
-  const description =
-    article.metaDescription ||
-    article.excerpt ||
-    (article.content || "")
-      .replace(/<[^>]+>/g, "")
-      .replace(/[#*`]/g, "")
-      .slice(0, 200);
+  const description = stripForMeta(
+    article.metaDescription || article.excerpt || article.content || "",
+    160
+  );
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -51,7 +61,7 @@ export function ArticleJsonLd({ article, authorUrl }: ArticleJsonLdProps) {
       "@type": "WebPage",
       "@id": url,
     },
-    headline: article.metaTitle || article.title,
+    headline: stripForMeta(article.metaTitle || article.title, 110),
     description,
     image: imageUrl ? [imageUrl] : [],
     datePublished: toISOWithTZ(article.createdAt),
@@ -62,7 +72,12 @@ export function ArticleJsonLd({ article, authorUrl }: ArticleJsonLdProps) {
     keywords: article.tags
       ? article.tags.split(",").map((tag) => tag.trim()).filter(Boolean)
       : undefined,
-    citation: article.sourceUrl || undefined,
+    citation:
+      citations.length === 1
+        ? citations[0]
+        : citations.length > 1
+        ? citations
+        : undefined,
     author: {
       "@type": isNewsroomByline ? "Organization" : "Person",
       name: authorName,

@@ -5,7 +5,12 @@ import Link from "next/link";
 import ArticleCard from "@/components/ArticleCard";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Article } from "@/types";
-import { SITE_URL, SITE_NAME, absoluteImageUrl } from "@/lib/seo";
+import {
+  SITE_URL,
+  SITE_NAME,
+  absoluteImageUrl,
+  canonicalAuthorName,
+} from "@/lib/seo";
 import { getCategoryBySlug, Category } from "@/lib/categories";
 import prisma from "@/lib/prisma";
 
@@ -325,9 +330,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
           metaTitle: true,
           metaDescription: true,
           focusKeyword: true,
-          author: {
-            select: { name: true, image: true },
-          },
         },
       }),
       prisma.article.count({
@@ -344,8 +346,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       mediaUrl: a.mediaUrl,
       mediaType: a.mediaType as Article["mediaType"],
       createdAt: a.createdAt.toISOString(),
-      authorName: a.customAuthor || a.author?.name || "Dalimss News Desk",
-      authorAvatarUrl: a.author?.image || "",
+      authorName: canonicalAuthorName(
+        a.customAuthor || "Dalimss News Desk"
+      ),
+      authorAvatarUrl: "",
       readTimeInMinutes: a.readTimeInMinutes,
       claps: 0,
       commentsCount: 0,

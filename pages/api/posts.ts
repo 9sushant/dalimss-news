@@ -1,6 +1,12 @@
 
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/prisma";
+import { normalizeArticleSources } from "@/lib/articleSources";
+import {
+  canonicalAuthorName,
+  stripForMeta,
+} from "@/lib/seo";
+import { Prisma } from "@prisma/client";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // 1. Validations
@@ -25,15 +31,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     image_type,
     reporting_basis,
     language,
+    editorial_summary,
+    image_alt_text,
+    image_caption,
+    source_label,
+    human_reviewed,
   } = req.body;
 
-  if (!title || !content || !author) {
+  if (!title || !content || !author || human_reviewed !== true) {
     return res.status(400).json({
-      error: "A title, article content and accountable human byline are required",
+      error: "A title, article content, accountable human byline and confirmed human editorial review are required",
     });
   }
 
-  if (/\b(ai|bot|automated|automation)\b/i.test(author.trim())) {
+  const byline = canonicalAuthorName(author);
+  if (/\b(admin|ai|bot|automated|automation)\b/i.test(byline)) {
     return res.status(400).json({
       error:
         "Automated bylines are not accepted. Every article needs an accountable human byline.",
@@ -44,6 +56,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({
       error:
         "A specific reporting_basis is required. Name the document, interview, on-ground reporting, data or response used.",
+    });
+  }
+
+  const cleanSummary = stripForMeta(editorial_summary || "", 160);
+  if (cleanSummary.length < 50) {
+    return res.status(400).json({
+      error: "A plain-language editorial_summary of at least 50 characters is required",
     });
   }
 
@@ -64,6 +83,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             mediaType = "video";
         }
     }
+    if (
+      mediaType !== "video" &&
+      (!String(image_alt_text || "").trim() ||
+        !String(image_caption || "").trim())
+    ) {
+      return res.status(400).json({
+        error: "A descriptive image_alt_text and factual image_caption are required",
+      });
+    }
+
+    const sourceUrls = normalizeArticleSources(
+      source_url
+        ? [
+            {
+              label: source_label || "Original source material",
+              url: source_url,
+            },
+          ]
+        : []
+    );
+    if (source_url && sourceUrls.length === 0) {
+      return res.status(400).json({ error: "source_url must be a valid HTTP(S) URL" });
+    }
 
     // Create Article
     const article = await prisma.article.create({
@@ -73,11 +115,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         slug,
         category: category || "General News",
         sourceUrl: source_url,
+        sourceUrls: sourceUrls as unknown as Prisma.InputJsonValue,
         reportingBasis: reporting_basis.trim(),
         language: language === "hi" ? "hi" : "en",
         mediaUrl: image_url,
         mediaType: mediaType,
-        customAuthor: author.trim(),
+        customAuthor: byline,
+        metaTitle: stripForMeta(title, 70),
+        metaDescription: cleanSummary,
+        imageAltText: stripForMeta(image_alt_text || "", 200),
+        imageCaption: stripForMeta(image_caption || "", 240),
         readTimeInMinutes: Math.max(1, Math.ceil(content.length / 500)),
       },
     });

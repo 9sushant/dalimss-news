@@ -6,6 +6,9 @@ import { authOptions } from "../auth/[...nextauth]";
 import { getCategoryBySlug, getCategoryByDbValue } from "@/lib/categories";
 import { articleUrl, submitIndexNow } from "@/lib/indexnow";
 import { createUniqueArticleSlug } from "@/lib/articleSlugs";
+import { normalizeArticleSources } from "@/lib/articleSources";
+import { canonicalAuthorName, stripForMeta } from "@/lib/seo";
+import { Prisma } from "@prisma/client";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // ----------- CREATE ARTICLE (POST) -----------
@@ -23,7 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
        return res.status(403).json({ error: "Forbidden: Admins or Editors only" });
     }
 
-    const { title, content, mediaUrl, mediaType, mediaItems, category, customAuthor, metaTitle, metaDescription, focusKeyword, tags, imageAltText, slug, sourceUrl, reportingBasis, language } = req.body;
+    const { title, content, mediaUrl, mediaType, mediaItems, category, customAuthor, metaTitle, metaDescription, focusKeyword, tags, imageAltText, imageCaption, slug, sourceUrl, sourceUrls, reportingBasis, language } = req.body;
 
     if (!title || title.trim().length < 3) {
       return res.status(400).json({ error: "Title is required" });
@@ -31,6 +34,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (!content || content.trim().length < 10) {
       return res.status(400).json({ error: "Content is too short" });
+    }
+
+    const byline = canonicalAuthorName(String(customAuthor || ""));
+    if (byline.length < 2 || /\b(admin|ai|bot|automation)\b/i.test(byline)) {
+      return res.status(400).json({
+        error: "An accountable public byline is required; administrative or automated bylines are not accepted",
+      });
+    }
+
+    const cleanMetaDescription = stripForMeta(metaDescription || "", 160);
+    const cleanMetaTitle = stripForMeta(metaTitle || title, 70);
+    if (cleanMetaDescription.length < 50) {
+      return res.status(400).json({
+        error: "A plain-language editorial summary of at least 50 characters is required",
+      });
+    }
+
+    if (mediaType !== "video" && !String(imageAltText || "").trim()) {
+      return res.status(400).json({
+        error: "Descriptive image alt text is required for the lead image",
+      });
+    }
+    if (mediaType !== "video" && !String(imageCaption || "").trim()) {
+      return res.status(400).json({
+        error: "A factual caption is required for the lead image",
+      });
     }
 
     if (!reportingBasis || reportingBasis.trim().length < 30) {
@@ -43,9 +72,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!["en", "hi"].includes(language)) {
       return res.status(400).json({ error: "Article language must be English or Hindi" });
     }
+    if (
+      sourceUrl &&
+      normalizeArticleSources([{ label: "Primary source", url: sourceUrl }])
+        .length === 0
+    ) {
+      return res.status(400).json({ error: "Primary source URL is invalid" });
+    }
 
     try {
       const finalSlug = await createUniqueArticleSlug(slug || title);
+      const normalizedSources = normalizeArticleSources(sourceUrls);
+      if (
+        Array.isArray(sourceUrls) &&
+        normalizedSources.length !== sourceUrls.length
+      ) {
+        return res.status(400).json({
+          error: "Every source needs a descriptive label and a valid HTTP(S) URL",
+        });
+      }
 
       const article = await prisma.article.create({
         data: {
@@ -53,18 +98,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           content,
           slug: finalSlug,
           sourceUrl,
+          sourceUrls: normalizedSources as unknown as Prisma.InputJsonValue,
           reportingBasis: reportingBasis.trim(),
           language,
           mediaUrl,
           mediaType,
           mediaItems: mediaItems || undefined,
           category, // ✅ Added Category
-          customAuthor, // ✅ Added Custom Author
-          metaTitle,
-          metaDescription,
+          customAuthor: byline,
+          metaTitle: cleanMetaTitle,
+          metaDescription: cleanMetaDescription,
           focusKeyword,
           tags,
-          imageAltText,
+          imageAltText: stripForMeta(imageAltText || "", 200),
+          imageCaption: stripForMeta(imageCaption || "", 240),
           readTimeInMinutes: Math.max(1, Math.ceil(content.length / 500)), // 🔥 FIXED required field
           authorId: session.user.id ?? null,
         },

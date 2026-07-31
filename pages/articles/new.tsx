@@ -8,6 +8,10 @@ const RichTextEditor = dynamic(() => import("@/components/RichTextEditor"), { ss
 import { useRouter } from "next/router";
 import { signIn, useSession } from "next-auth/react";
 import { compressImage } from "@/utils/compressImage";
+import {
+  editorTextToSources,
+  normalizeArticleSources,
+} from "@/lib/articleSources";
 
 interface MediaEntry {
   file: File;
@@ -27,10 +31,11 @@ const NewArticle: React.FC = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>(["India"]);
   const [customAuthor, setCustomAuthor] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
+  const [sourceLinks, setSourceLinks] = useState("");
   const [reportingBasis, setReportingBasis] = useState("");
   const [language, setLanguage] = useState<"en" | "hi">("en");
 
-  const [seoData, setSeoData] = useState({ metaTitle: "", metaDescription: "", focusKeyword: "", tags: "", imageAltText: "" });
+  const [seoData, setSeoData] = useState({ metaTitle: "", metaDescription: "", focusKeyword: "", tags: "", imageAltText: "", imageCaption: "" });
   const [loading, setLoading] = useState(false);
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const [compressing, setCompressing] = useState(false);
@@ -128,8 +133,35 @@ const NewArticle: React.FC = () => {
       alert("Please upload at least one image or video for the article.");
       return;
     }
-    if (!seoData.metaDescription.trim()) {
-      alert("Please provide a meta description in the SEO editor section.");
+    if (seoData.metaDescription.trim().length < 50) {
+      alert("Please provide a plain-language editorial summary of at least 50 characters.");
+      return;
+    }
+    if (
+      mediaFiles[0]?.type === "image" &&
+      !seoData.imageAltText.trim()
+    ) {
+      alert("Please provide descriptive alt text for the lead image.");
+      return;
+    }
+    const parsedSources = editorTextToSources(sourceLinks);
+    const sourceLineCount = sourceLinks
+      .split("\n")
+      .filter((line) => line.trim()).length;
+    if (
+      parsedSources.length !== sourceLineCount ||
+      normalizeArticleSources(parsedSources).length !== parsedSources.length
+    ) {
+      alert(
+        "Each additional source must use: descriptive label | complete HTTP(S) URL."
+      );
+      return;
+    }
+    if (
+      mediaFiles[0]?.type === "image" &&
+      !seoData.imageCaption.trim()
+    ) {
+      alert("Please provide a factual caption for the lead image.");
       return;
     }
 
@@ -181,6 +213,7 @@ const NewArticle: React.FC = () => {
           category: selectedCategories.join(", "),
           customAuthor,
           sourceUrl,
+          sourceUrls: parsedSources,
           reportingBasis,
           language,
           slug,
@@ -257,6 +290,23 @@ const NewArticle: React.FC = () => {
                releases or other primary material when available.
              </p>
            </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">
+            Additional source links
+          </label>
+          <textarea
+            className="w-full min-h-28 p-3 rounded bg-white border border-gray-300 text-gray-900"
+            value={sourceLinks}
+            onChange={(e) => setSourceLinks(e.target.value)}
+            placeholder={"Official resignation statement | https://example.gov/statement\nNTA examination notification | https://example.gov/notification"}
+          />
+          <p className="mt-1 text-xs text-gray-500">
+            Enter one source per line as: descriptive label | complete URL.
+            Link original documents, briefings, notifications and named
+            statements rather than search results.
+          </p>
         </div>
         
         <input

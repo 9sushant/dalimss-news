@@ -9,6 +9,11 @@ import { signIn, useSession } from "next-auth/react";
 import { GetServerSideProps } from "next";
 import prisma from "../../../lib/prisma";
 import { compressImage } from "@/utils/compressImage";
+import {
+  editorTextToSources,
+  normalizeArticleSources,
+  sourcesToEditorText,
+} from "@/lib/articleSources";
 
 interface MediaItem {
   url: string;
@@ -30,6 +35,8 @@ interface Article {
   focusKeyword?: string | null;
   reportingBasis?: string | null;
   language?: string | null;
+  sourceUrls?: unknown;
+  imageCaption?: string | null;
 }
 
 interface Props {
@@ -51,6 +58,9 @@ const EditArticle: React.FC<Props> = ({ article }) => {
   };
   const [selectedCategories, setSelectedCategories] = useState<string[]>(getInitialCategories());
   const [sourceUrl, setSourceUrl] = useState((article as any)?.sourceUrl || "");
+  const [sourceLinks, setSourceLinks] = useState(
+    sourcesToEditorText(article?.sourceUrls)
+  );
   const [reportingBasis, setReportingBasis] = useState(
     article?.reportingBasis || ""
   );
@@ -63,6 +73,7 @@ const EditArticle: React.FC<Props> = ({ article }) => {
     focusKeyword: article?.focusKeyword || "",
     tags: (article as any)?.tags || "",
     imageAltText: (article as any)?.imageAltText || "",
+    imageCaption: article?.imageCaption || "",
   });
   const [loading, setLoading] = useState(false);
   const [uploadingMedia, setUploadingMedia] = useState(false);
@@ -185,8 +196,31 @@ const EditArticle: React.FC<Props> = ({ article }) => {
       alert("Please upload at least one image or video for the article.");
       return;
     }
-    if (!seoData.metaDescription.trim()) {
-      alert("Please provide a meta description in the SEO editor section.");
+    if (seoData.metaDescription.trim().length < 50) {
+      alert("Please provide a plain-language editorial summary of at least 50 characters.");
+      return;
+    }
+    const leadMediaType =
+      mediaItems[0]?.type || newFiles[0]?.type || article.mediaType;
+    if (leadMediaType === "image" && !seoData.imageAltText.trim()) {
+      alert("Please provide descriptive alt text for the lead image.");
+      return;
+    }
+    const parsedSources = editorTextToSources(sourceLinks);
+    const sourceLineCount = sourceLinks
+      .split("\n")
+      .filter((line) => line.trim()).length;
+    if (
+      parsedSources.length !== sourceLineCount ||
+      normalizeArticleSources(parsedSources).length !== parsedSources.length
+    ) {
+      alert(
+        "Each additional source must use: descriptive label | complete HTTP(S) URL."
+      );
+      return;
+    }
+    if (leadMediaType === "image" && !seoData.imageCaption.trim()) {
+      alert("Please provide a factual caption for the lead image.");
       return;
     }
 
@@ -241,6 +275,7 @@ const EditArticle: React.FC<Props> = ({ article }) => {
           customAuthor,
           category: selectedCategories.join(", "),
           sourceUrl,
+          sourceUrls: parsedSources,
           reportingBasis,
           language,
           newSlug: slugEdited ? slug : undefined,
@@ -319,6 +354,21 @@ const EditArticle: React.FC<Props> = ({ article }) => {
                releases or other primary material when available.
              </p>
            </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">
+            Additional source links
+          </label>
+          <textarea
+            className="w-full min-h-28 p-3 rounded bg-white border border-gray-300 text-gray-900"
+            value={sourceLinks}
+            onChange={(e) => setSourceLinks(e.target.value)}
+            placeholder={"Official statement | https://example.gov/statement\nInstitutional notification | https://example.edu/notice"}
+          />
+          <p className="mt-1 text-xs text-gray-500">
+            Enter one source per line as: descriptive label | complete URL.
+          </p>
         </div>
 
         <input
@@ -504,6 +554,7 @@ const EditArticle: React.FC<Props> = ({ article }) => {
             initialFocusKeyword={article.focusKeyword}
             initialTags={(article as any)?.tags}
             initialImageAltText={(article as any)?.imageAltText}
+            initialImageCaption={article.imageCaption}
             onUpdate={setSeoData}
         />
 

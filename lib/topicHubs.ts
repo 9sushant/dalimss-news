@@ -1,6 +1,7 @@
 import { GetServerSideProps } from "next";
 import prisma from "@/lib/prisma";
 import { Article } from "@/types";
+import { canonicalAuthorName } from "@/lib/seo";
 
 export type TopicHubConfig = {
   slug: string;
@@ -250,9 +251,6 @@ export function makeTopicHubServerSideProps(slug: string): GetServerSideProps {
         metaTitle: true,
         metaDescription: true,
         focusKeyword: true,
-        author: {
-          select: { name: true, image: true },
-        },
       },
     });
 
@@ -264,9 +262,10 @@ export function makeTopicHubServerSideProps(slug: string): GetServerSideProps {
       mediaUrl: article.mediaUrl,
       mediaType: article.mediaType as Article["mediaType"],
       createdAt: article.createdAt.toISOString(),
-      authorName:
-        article.customAuthor || article.author?.name || "Dalimss News Desk",
-      authorAvatarUrl: article.author?.image || "",
+      authorName: canonicalAuthorName(
+        article.customAuthor || "Dalimss News Desk"
+      ),
+      authorAvatarUrl: "",
       readTimeInMinutes: article.readTimeInMinutes,
       claps: 0,
       commentsCount: 0,

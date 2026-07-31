@@ -10,6 +10,26 @@ export const ARTICLE_SLUG_REDIRECTS: Record<string, string> = {
     "vda-cracks-down-on-illegal-constructions-in-zone-4-multiple-buildings-sealed",
 };
 
+const AUTHOR_NAME_CORRECTIONS: Record<string, string> = {
+  "maahr madhok": "Maahir Madhok",
+};
+
+export function canonicalAuthorName(name: string): string {
+  const normalizedName = name.trim().replace(/\s+/g, " ");
+  return AUTHOR_NAME_CORRECTIONS[normalizedName.toLowerCase()] || normalizedName;
+}
+
+export function authorNameVariants(name: string): string[] {
+  const canonicalName = canonicalAuthorName(name);
+  const aliases = Object.entries(AUTHOR_NAME_CORRECTIONS)
+    .filter(([, correctedName]) => correctedName === canonicalName)
+    .map(([alias]) =>
+      alias.replace(/\b\w/g, (character) => character.toUpperCase())
+    );
+
+  return Array.from(new Set([canonicalName, ...aliases]));
+}
+
 export function canonicalArticleSlug(slug: string): string {
   return ARTICLE_SLUG_REDIRECTS[slug] || slug;
 }
@@ -18,7 +38,7 @@ export function canonicalArticleSlug(slug: string): string {
  * Generate a URL-safe slug from an author name
  */
 export function authorSlug(name: string): string {
-  return name
+  return canonicalAuthorName(name)
     .toLowerCase()
     .trim()
     .replace(/[^a-z0-9\s-]/g, "") // Remove special chars
@@ -32,17 +52,25 @@ export function authorSlug(name: string): string {
  * to produce a clean text string for meta descriptions
  */
 export function stripForMeta(content: string, maxLength = 160): string {
-  return (
-    content
-      .replace(/<[^>]+>/g, "") // Strip HTML tags
-      .replace(/[#*`_~\[\]]/g, "") // Strip Markdown chars
-      .replace(/!\[.*?\]\(.*?\)/g, "") // Strip Markdown images
-      .replace(/\[.*?\]\(.*?\)/g, "") // Strip Markdown links
-      .replace(/\n+/g, " ") // Newlines to spaces
-      .replace(/\s+/g, " ") // Collapse whitespace
-      .trim()
-      .slice(0, maxLength) + (content.length > maxLength ? "..." : "")
-  );
+  const plainText = content
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ")
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, " $1 ")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, " $1 ")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;|&#160;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&quot;|&#34;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/[#*`_~]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (plainText.length <= maxLength) return plainText;
+
+  return `${plainText.slice(0, Math.max(0, maxLength - 1)).trimEnd()}…`;
 }
 
 /**

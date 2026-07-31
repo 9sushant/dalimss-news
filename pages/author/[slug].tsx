@@ -4,7 +4,14 @@ import Link from "next/link";
 import ArticleCard from "@/components/ArticleCard";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Article } from "@/types";
-import { SITE_URL, SITE_NAME, authorSlug } from "@/lib/seo";
+import {
+  SITE_URL,
+  SITE_NAME,
+  authorSlug,
+  canonicalAuthorName,
+  authorNameVariants,
+} from "@/lib/seo";
+import { getCategoriesByDbValue } from "@/lib/categories";
 import prisma from "@/lib/prisma";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
 
@@ -13,6 +20,15 @@ interface Props {
   authorSlugStr: string;
   articles: Article[];
   firstPublished: string;
+  beats: string[];
+  profile: {
+    bio: string | null;
+    beat: string | null;
+    experience: string | null;
+    imageUrl: string | null;
+    professionalUrl: string | null;
+    email: string | null;
+  } | null;
 }
 
 /**
@@ -31,15 +47,18 @@ export default function AuthorPage({
   authorSlugStr,
   articles,
   firstPublished,
+  beats,
+  profile,
 }: Props) {
   const canonicalUrl = `${SITE_URL}/author/${authorSlugStr}`;
   const pageTitle = `Articles by ${authorName} | ${SITE_NAME}`;
-  const pageDescription = `Read all ${articles.length} article${
-    articles.length !== 1 ? "s" : ""
-  } by ${authorName} on ${SITE_NAME}. Stay updated with the latest news and analysis.`;
+  const pageDescription =
+    profile?.bio ||
+    `Read all ${articles.length} article${
+      articles.length !== 1 ? "s" : ""
+    } by ${authorName} on ${SITE_NAME}.`;
 
   const personSchema = {
-    "@context": "https://schema.org",
     "@type": "Person",
     name: authorName,
     url: canonicalUrl,
@@ -48,6 +67,12 @@ export default function AuthorPage({
       name: SITE_NAME,
       url: SITE_URL,
     },
+    knowsAbout: beats,
+    ...(profile?.imageUrl ? { image: profile.imageUrl } : {}),
+    ...(profile?.professionalUrl
+      ? { sameAs: [profile.professionalUrl] }
+      : {}),
+    ...(profile?.email ? { email: profile.email } : {}),
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "Newsroom",
@@ -55,18 +80,15 @@ export default function AuthorPage({
     },
   };
 
-  const collectionSchema = {
+  const profilePageSchema = {
     "@context": "https://schema.org",
-    "@type": "CollectionPage",
+    "@type": "ProfilePage",
     name: pageTitle,
     description: pageDescription,
     url: canonicalUrl,
-    author: {
-      "@type": "Person",
-      name: authorName,
-    },
+    mainEntity: personSchema,
     publisher: {
-      "@type": "Organization",
+      "@type": "NewsMediaOrganization",
       name: SITE_NAME,
       logo: {
         "@type": "ImageObject",
@@ -88,7 +110,7 @@ export default function AuthorPage({
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
         <meta property="og:url" content={canonicalUrl} />
-        <meta property="og:image" content={`${SITE_URL}/logo.png`} />
+        <meta property="og:image" content={profile?.imageUrl || `${SITE_URL}/logo.png`} />
         <meta property="og:locale" content="en_IN" />
 
         {/* Twitter Card */}
@@ -100,11 +122,7 @@ export default function AuthorPage({
         {/* JSON-LD */}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(profilePageSchema) }}
         />
       </Head>
 
@@ -122,9 +140,19 @@ export default function AuthorPage({
           <div className="bg-gradient-to-r from-gray-50 to-white border border-gray-100 rounded-xl p-6 md:p-8 flex flex-col md:flex-row items-center md:items-start gap-6">
             {/* Avatar */}
             <div className="flex-shrink-0">
-              <div className="w-24 h-24 md:w-28 md:h-28 bg-red-50 rounded-full flex items-center justify-center border-4 border-white shadow-md">
-                <UserCircleIcon className="w-16 h-16 md:w-20 md:h-20 text-red-300" />
-              </div>
+              {profile?.imageUrl ? (
+                <img
+                  src={profile.imageUrl}
+                  alt={`Portrait of ${authorName}`}
+                  width={112}
+                  height={112}
+                  className="h-24 w-24 rounded-full border-4 border-white object-cover shadow-md md:h-28 md:w-28"
+                />
+              ) : (
+                <div className="w-24 h-24 md:w-28 md:h-28 bg-red-50 rounded-full flex items-center justify-center border-4 border-white shadow-md">
+                  <UserCircleIcon className="w-16 h-16 md:w-20 md:h-20 text-red-300" />
+                </div>
+              )}
             </div>
 
             {/* Info */}
@@ -136,10 +164,27 @@ export default function AuthorPage({
                 Published contributor at {SITE_NAME}
               </p>
               <p className="text-gray-600 text-sm leading-relaxed max-w-2xl mb-4">
-                This page collects stories published under the {authorName}
-                byline. Article pages identify their available reporting basis,
-                primary material and update history.
+                {profile?.bio ||
+                  `This page collects stories published under the ${authorName} byline. Article pages identify their available reporting basis, primary material and update history.`}
               </p>
+              {profile?.experience && (
+                <p className="text-gray-600 text-sm leading-relaxed max-w-2xl mb-4">
+                  <strong className="text-gray-800">Experience:</strong>{" "}
+                  {profile.experience}
+                </p>
+              )}
+              {profile?.beat && (
+                <p className="text-gray-600 text-sm leading-relaxed max-w-2xl mb-4">
+                  <strong className="text-gray-800">Reporting beat:</strong>{" "}
+                  {profile.beat}
+                </p>
+              )}
+              {beats.length > 0 && (
+                <p className="text-gray-600 text-sm leading-relaxed max-w-2xl mb-4">
+                  <strong className="text-gray-800">Published beats:</strong>{" "}
+                  {beats.join(", ")}.
+                </p>
+              )}
 
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm">
                 <div className="bg-red-50 text-red-700 px-4 py-2 rounded-full font-semibold">
@@ -160,6 +205,24 @@ export default function AuthorPage({
                 >
                   Corrections standards
                 </Link>
+                {profile?.professionalUrl && (
+                  <a
+                    href={profile.professionalUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-gray-100 text-gray-600 px-4 py-2 rounded-full hover:text-red-600"
+                  >
+                    Professional profile
+                  </a>
+                )}
+                {profile?.email && (
+                  <a
+                    href={`mailto:${profile.email}`}
+                    className="bg-gray-100 text-gray-600 px-4 py-2 rounded-full hover:text-red-600"
+                  >
+                    Contact
+                  </a>
+                )}
               </div>
             </div>
           </div>
@@ -228,15 +291,18 @@ export default function AuthorPage({
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const slug = context.params?.slug as string;
-  const authorName = slugToName(slug);
+  const authorName = canonicalAuthorName(slugToName(slug));
+  const authorVariants = authorNameVariants(authorName);
 
   try {
     const articles = await prisma.article.findMany({
       where: {
-        customAuthor: {
-          equals: authorName,
-          mode: "insensitive",
-        },
+        OR: authorVariants.map((name) => ({
+          customAuthor: {
+            equals: name,
+            mode: "insensitive" as const,
+          },
+        })),
       },
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       select: {
@@ -253,9 +319,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         metaTitle: true,
         metaDescription: true,
         focusKeyword: true,
-        author: {
-          select: { name: true, image: true },
-        },
       },
     });
 
@@ -265,8 +328,27 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     // Use the actual casing from the first article's customAuthor
     const displayName =
-      articles[0].customAuthor || authorName;
+      canonicalAuthorName(articles[0].customAuthor || authorName);
     const authorSlugStr = authorSlug(displayName);
+    if (slug !== authorSlugStr) {
+      return {
+        redirect: {
+          destination: `/author/${authorSlugStr}`,
+          permanent: true,
+        },
+      };
+    }
+    const profile = await prisma.authorProfile.findUnique({
+      where: { slug: authorSlugStr },
+      select: {
+        bio: true,
+        beat: true,
+        experience: true,
+        imageUrl: true,
+        professionalUrl: true,
+        email: true,
+      },
+    });
 
     // Find earliest publish date
     const firstPublished = articles[articles.length - 1].createdAt.toISOString();
@@ -279,8 +361,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       mediaUrl: a.mediaUrl,
       mediaType: a.mediaType as Article["mediaType"],
       createdAt: a.createdAt.toISOString(),
-      authorName: a.customAuthor || a.author?.name || "Dalimss News Desk",
-      authorAvatarUrl: a.author?.image || "",
+      authorName: canonicalAuthorName(a.customAuthor || "Dalimss News Desk"),
+      authorAvatarUrl: "",
       readTimeInMinutes: a.readTimeInMinutes,
       claps: 0,
       commentsCount: 0,
@@ -289,6 +371,13 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       metaDescription: a.metaDescription,
       focusKeyword: a.focusKeyword,
     }));
+    const beats = Array.from(
+      new Map(
+        articles
+          .flatMap((article) => getCategoriesByDbValue(article.category))
+          .map((category) => [category.slug, category.name])
+      ).values()
+    );
 
     return {
       props: {
@@ -296,6 +385,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         authorSlugStr,
         articles: serializedArticles,
         firstPublished,
+        beats,
+        profile,
       },
     };
   } catch (error) {

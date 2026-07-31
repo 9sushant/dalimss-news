@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/solid";
+import { stripForMeta } from "@/lib/seo";
 
 interface SeoEditorProps {
   title: string;
@@ -10,7 +11,8 @@ interface SeoEditorProps {
   initialFocusKeyword?: string | null;
   initialTags?: string | null;
   initialImageAltText?: string | null;
-  onUpdate: (data: { metaTitle: string; metaDescription: string; focusKeyword: string; tags: string; imageAltText: string }) => void;
+  initialImageCaption?: string | null;
+  onUpdate: (data: { metaTitle: string; metaDescription: string; focusKeyword: string; tags: string; imageAltText: string; imageCaption: string }) => void;
 }
 
 const SeoEditor: React.FC<SeoEditorProps> = ({
@@ -22,13 +24,17 @@ const SeoEditor: React.FC<SeoEditorProps> = ({
   initialFocusKeyword,
   initialTags,
   initialImageAltText,
+  initialImageCaption,
   onUpdate,
 }) => {
   const [metaTitle, setMetaTitle] = useState(initialMetaTitle || "");
-  const [metaDescription, setMetaDescription] = useState(initialMetaDescription || "");
+  const [metaDescription, setMetaDescription] = useState(
+    stripForMeta(initialMetaDescription || "", 160)
+  );
   const [focusKeyword, setFocusKeyword] = useState(initialFocusKeyword || "");
   const [tags, setTags] = useState(initialTags || "");
   const [imageAltText, setImageAltText] = useState(initialImageAltText || "");
+  const [imageCaption, setImageCaption] = useState(initialImageCaption || "");
   const [score, setScore] = useState(0);
 
   // Initialize with draft content if empty
@@ -37,17 +43,15 @@ const SeoEditor: React.FC<SeoEditorProps> = ({
     if (!metaTitle && draftTitle) setMetaTitle(draftTitle);
     
     if (!metaDescription && draftContent) {
-      // Strip markdown/html
-      const plainText = draftContent.replace(/[#*`]/g, "").slice(0, 160);
-      setMetaDescription(plainText);
+      setMetaDescription(stripForMeta(draftContent, 160));
     }
   }, [draftTitle, draftContent]);
 
   // Update parent and calculate score
   useEffect(() => {
     calculateScore();
-    onUpdate({ metaTitle, metaDescription, focusKeyword, tags, imageAltText });
-  }, [metaTitle, metaDescription, focusKeyword, tags, imageAltText]);
+    onUpdate({ metaTitle, metaDescription, focusKeyword, tags, imageAltText, imageCaption });
+  }, [metaTitle, metaDescription, focusKeyword, tags, imageAltText, imageCaption]);
 
   const calculateScore = () => {
     let newScore = 0;
@@ -158,7 +162,7 @@ const SeoEditor: React.FC<SeoEditorProps> = ({
             <textarea 
                className="w-full p-2 bg-slate-800 border border-slate-600 rounded text-white h-24"
                value={metaDescription}
-               onChange={(e) => setMetaDescription(e.target.value)}
+               onChange={(e) => setMetaDescription(stripForMeta(e.target.value, 160))}
             />
              <div className="w-full bg-gray-700 h-1 mt-1 rounded">
                 <div 
@@ -187,6 +191,16 @@ const SeoEditor: React.FC<SeoEditorProps> = ({
                placeholder="Describe the main article image"
                value={imageAltText}
                onChange={(e) => setImageAltText(e.target.value)}
+            />
+         </div>
+
+         <div>
+            <label className="block text-gray-400 text-sm mb-1">Lead Image Caption</label>
+            <textarea
+               className="w-full p-2 bg-slate-800 border border-slate-600 rounded text-white h-20"
+               placeholder="Describe what the image shows, where it was taken, and include credit when available."
+               value={imageCaption}
+               onChange={(e) => setImageCaption(stripForMeta(e.target.value, 240))}
             />
          </div>
       </div>

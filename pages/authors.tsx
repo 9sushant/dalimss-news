@@ -2,7 +2,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { GetServerSideProps } from "next";
 import prisma from "@/lib/prisma";
-import { authorSlug } from "@/lib/seo";
+import { authorSlug, canonicalAuthorName } from "@/lib/seo";
 
 interface Author {
   name: string;
@@ -83,7 +83,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
   const authorCounts: Record<string, number> = {};
   articles.forEach((a) => {
     if (a.customAuthor && a.customAuthor.trim()) {
-      const name = a.customAuthor.trim();
+      const name = canonicalAuthorName(a.customAuthor);
       authorCounts[name] = (authorCounts[name] || 0) + 1;
     }
   });

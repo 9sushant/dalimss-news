@@ -70,6 +70,7 @@ model Article {
   readTimeInMinutes Int      @default(5)
   category          String?
   sourceUrl         String?
+  sourceUrls        Json?
   reportingBasis    String?
   language          String   @default("en")
   customAuthor      String?
@@ -84,6 +85,21 @@ model Article {
   focusKeyword    String?
   tags            String?   // Added for SEO
   imageAltText    String?   // Added for SEO
+  imageCaption    String?
+}
+
+model AuthorProfile {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  name            String
+  bio             String?
+  beat            String?
+  experience      String?
+  imageUrl        String?
+  professionalUrl String?
+  email           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model WebStory {

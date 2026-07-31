@@ -41,9 +41,10 @@ treated as original reporting.
    Keep `ENABLE_PUBLISHING=false` while preparing drafts. Before any API
    submission, a human editor must verify the claims, add an accountable human
    byline, replace the draft reporting basis with specific documents,
-   interviews, observations and contact attempts, and set
-   `human_reviewed=true`. The publishing API rejects automated bylines and vague
-   or missing reporting notes.
+   interviews, observations and contact attempts, write a plain editorial
+   summary, add descriptive image alt text and a factual caption, and set
+   `human_reviewed=true`. The publishing API rejects automated bylines and
+   incomplete reporting metadata.
 
 ## Running
 

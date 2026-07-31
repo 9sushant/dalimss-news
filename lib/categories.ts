@@ -177,11 +177,31 @@ export function getCategoryByDbValue(dbValue: string): Category | undefined {
 }
 
 /**
+ * Resolve comma-separated database values into distinct public categories.
+ */
+export function getCategoriesByDbValue(
+  dbValue: string | null | undefined
+): Category[] {
+  if (!dbValue) return [];
+
+  const seen = new Set<string>();
+
+  return dbValue
+    .split(",")
+    .map((value) => getCategoryByDbValue(value.trim()))
+    .filter((category): category is Category => {
+      if (!category || seen.has(category.slug)) return false;
+      seen.add(category.slug);
+      return true;
+    });
+}
+
+/**
  * Get the category slug for a given article's DB category value
  */
 export function getCategorySlug(dbCategory: string | null | undefined): string {
   if (!dbCategory) return "varanasi"; // Default
-  const cat = getCategoryByDbValue(dbCategory);
+  const cat = getCategoriesByDbValue(dbCategory)[0];
   return cat?.slug || "varanasi";
 }
 
