@@ -15,10 +15,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(401).json({ error: "Unauthorized: Invalid API Key" });
   }
 
-  const { title, content, category, author, source_url, image_url, image_type } = req.body;
+  const {
+    title,
+    content,
+    category,
+    author,
+    source_url,
+    image_url,
+    image_type,
+    reporting_basis,
+    language,
+  } = req.body;
 
-  if (!title || !content) {
-    return res.status(400).json({ error: "Missing title or content" });
+  if (!title || !content || !author) {
+    return res.status(400).json({
+      error: "A title, article content and accountable human byline are required",
+    });
+  }
+
+  if (/\b(ai|bot|automated|automation)\b/i.test(author.trim())) {
+    return res.status(400).json({
+      error:
+        "Automated bylines are not accepted. Every article needs an accountable human byline.",
+    });
+  }
+
+  if (!reporting_basis || reporting_basis.trim().length < 30) {
+    return res.status(400).json({
+      error:
+        "A specific reporting_basis is required. Name the document, interview, on-ground reporting, data or response used.",
+    });
   }
 
   try {
@@ -47,12 +73,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         slug,
         category: category || "General News",
         sourceUrl: source_url,
+        reportingBasis: reporting_basis.trim(),
+        language: language === "hi" ? "hi" : "en",
         mediaUrl: image_url,
         mediaType: mediaType,
-        customAuthor: author || "AI News Bot",
+        customAuthor: author.trim(),
         readTimeInMinutes: Math.max(1, Math.ceil(content.length / 500)),
-        // We do not link authorId here, relying on customAuthor for display 
-        // if the frontend supports it.
       },
     });
 

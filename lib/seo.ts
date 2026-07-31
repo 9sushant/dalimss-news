@@ -61,5 +61,8 @@ export function absoluteImageUrl(
  */
 export function toISOWithTZ(date: string | Date): string {
   const d = new Date(date);
-  return d.toISOString();
+  const indiaOffsetMs = 5.5 * 60 * 60 * 1000;
+  return new Date(d.getTime() + indiaOffsetMs)
+    .toISOString()
+    .replace("Z", "+05:30");
 }

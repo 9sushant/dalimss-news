@@ -4,7 +4,7 @@
 import { GetServerSideProps } from "next";
 import prisma from "@/lib/prisma";
 import { xmlEscape } from "@/lib/xml";
-import { canonicalArticleSlug } from "@/lib/seo";
+import { canonicalArticleSlug, toISOWithTZ } from "@/lib/seo";
 
 const NewsSitemap = () => null;
 
@@ -16,6 +16,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     where: {
       createdAt: {
         gte: twoDaysAgo,
+        lte: new Date(),
       },
     },
     select: {
@@ -23,6 +24,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
       title: true,
       createdAt: true,
       category: true,
+      language: true,
     },
     orderBy: {
       createdAt: "desc",
@@ -38,9 +40,9 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
       <news:news>
           <news:publication>
             <news:name>Dalimss News</news:name>
-          <news:language>en</news:language>
+          <news:language>${article.language === "hi" ? "hi" : "en"}</news:language>
         </news:publication>
-        <news:publication_date>${new Date(article.createdAt).toISOString()}</news:publication_date>
+        <news:publication_date>${toISOWithTZ(article.createdAt)}</news:publication_date>
         <news:title>${xmlEscape(article.title)}</news:title>
       </news:news>
     </url>`

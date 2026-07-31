@@ -3,8 +3,6 @@ import Link from "next/link";
 import { GetServerSideProps } from "next";
 import prisma from "@/lib/prisma";
 import { authorSlug } from "@/lib/seo";
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
 
 interface Author {
   name: string;
@@ -19,21 +17,23 @@ export default function Authors({ authors }: AuthorsProps) {
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
       <Head>
-        <title>Authors & Reporters | Dalimss News</title>
+        <title>Newsroom & Published Contributors | Dalimss News</title>
         <meta
           name="description"
-          content="Meet the editorial team, reporters, and authors behind Dalimss News. Explore their published articles and coverage beats."
+          content="View the named contributors represented in Dalimss News bylines and explore their published reporting."
         />
         <link rel="canonical" href="https://dalimss.news/authors" />
       </Head>
 
-      <Nav />
-
       <main className="container mx-auto px-4 py-12 max-w-4xl">
-        <h1 className="text-4xl font-bold mb-8">Our Authors & Reporters</h1>
+        <h1 className="text-4xl font-bold mb-8">
+          Newsroom & Published Contributors
+        </h1>
         
         <p className="text-lg text-gray-700 mb-10 leading-relaxed">
-          Dalimss News is powered by a dedicated team of journalists, reporters, and editors committed to bringing you accurate, fast, and verified news. Meet the team that drives our Varanasi-born, India-focused reporting.
+          This directory lists the named contributors currently represented in
+          Dalimss News article bylines. It is generated from published work and
+          does not assign job titles that have not been independently stated.
         </p>
         <p className="text-gray-600 mb-10 leading-relaxed">
           Reporter pages include each author&apos;s published work, newsroom
@@ -53,7 +53,7 @@ export default function Authors({ authors }: AuthorsProps) {
                 {author.name}
               </h2>
               <p className="text-sm text-gray-600 mb-4">
-                Reporter / Editor
+                Published contributor
               </p>
               <div className="text-blue-600 font-medium text-sm">
                 View {author.articleCount} published article{author.articleCount !== 1 ? 's' : ''} &rarr;
@@ -66,7 +66,6 @@ export default function Authors({ authors }: AuthorsProps) {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 }

@@ -133,7 +133,7 @@ const ContactPage: React.FC = () => {
             </h1>
             <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto">
               Have a story tip, feedback, or question? We'd love to hear from
-              you. Our team is here to help and responds within 24 hours.
+              you. We aim to review newsroom messages within 48 hours.
             </p>
           </div>
         </div>
@@ -311,8 +311,9 @@ const ContactPage: React.FC = () => {
                     <h3 className="font-bold text-gray-900">Response Time</h3>
                   </div>
                   <p className="text-gray-600 text-sm leading-relaxed">
-                    We typically respond within <strong>24 hours</strong> during
-                    working hours (Mon–Sat, 9 AM – 6 PM IST).
+                    We aim to review newsroom messages within{" "}
+                    <strong>48 hours</strong> during working hours (Mon–Sat, 9
+                    AM – 6 PM IST).
                   </p>
                 </div>
 

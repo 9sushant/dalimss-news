@@ -1,7 +1,9 @@
 
 # Content Automation Pipeline
 
-This script automates the process of fetching content from Social Media (YouTube, Instagram), rewriting it into news articles using OpenAI GPT-4o, and publishing it to Dalimss News.
+This script fetches social-media items and prepares AI-assisted drafts for
+editorial review. Publishing is disabled by default. A social post alone is not
+treated as original reporting.
 
 ## Setup
 
@@ -28,12 +30,20 @@ This script automates the process of fetching content from Social Media (YouTube
    # Publication Target
    TARGET_API_URL=https://dalimss-news.vercel.app/api/posts
    PIPELINE_SECRET=your_secure_secret_string
+   ENABLE_PUBLISHING=false
    
    # Scheduling
    CRON_SCHEDULE="0 * * * *" # Hourly
    ```
 
    **Important**: You must also add `PIPELINE_SECRET` to your main project's `.env` (and Vercel Environment Variables) so the API accepts the requests.
+
+   Keep `ENABLE_PUBLISHING=false` while preparing drafts. Before any API
+   submission, a human editor must verify the claims, add an accountable human
+   byline, replace the draft reporting basis with specific documents,
+   interviews, observations and contact attempts, and set
+   `human_reviewed=true`. The publishing API rejects automated bylines and vague
+   or missing reporting notes.
 
 ## Running
 

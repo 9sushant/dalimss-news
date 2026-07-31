@@ -23,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
        return res.status(403).json({ error: "Forbidden: Admins or Editors only" });
     }
 
-    const { title, content, mediaUrl, mediaType, mediaItems, category, customAuthor, metaTitle, metaDescription, focusKeyword, tags, imageAltText, slug, sourceUrl } = req.body;
+    const { title, content, mediaUrl, mediaType, mediaItems, category, customAuthor, metaTitle, metaDescription, focusKeyword, tags, imageAltText, slug, sourceUrl, reportingBasis, language } = req.body;
 
     if (!title || title.trim().length < 3) {
       return res.status(400).json({ error: "Title is required" });
@@ -31,6 +31,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (!content || content.trim().length < 10) {
       return res.status(400).json({ error: "Content is too short" });
+    }
+
+    if (!reportingBasis || reportingBasis.trim().length < 30) {
+      return res.status(400).json({
+        error:
+          "A specific reporting basis is required (official document, interview, on-ground reporting, data or named statement).",
+      });
+    }
+
+    if (!["en", "hi"].includes(language)) {
+      return res.status(400).json({ error: "Article language must be English or Hindi" });
     }
 
     try {
@@ -42,6 +53,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           content,
           slug: finalSlug,
           sourceUrl,
+          reportingBasis: reportingBasis.trim(),
+          language,
           mediaUrl,
           mediaType,
           mediaItems: mediaItems || undefined,

@@ -12,7 +12,9 @@ const Footer = () => {
               Dalimss <span className="text-red-500">News</span>
             </h3>
             <p className="text-gray-300 text-sm leading-relaxed max-w-sm">
-              Dalimss News is a premier digital news platform delivering real-time national headlines, in-depth local reporting across Varanasi and Gurugram, expert tech reviews, and educational insights.
+              Dalimss News is a Varanasi-based digital publication focused on
+              original, public-interest reporting from Varanasi and
+              Purvanchal.
             </p>
             <p className="text-gray-400 text-xs leading-relaxed max-w-sm flex items-center gap-1.5 font-medium">
               <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block"></span>
@@ -59,6 +61,9 @@ const Footer = () => {
               <Link href="/about" className="text-gray-400 hover:text-white transition-colors">
                 About Us
               </Link>
+              <Link href="/authors" className="text-gray-400 hover:text-white transition-colors">
+                Newsroom & Contributors
+              </Link>
               <Link href="/contact" className="text-gray-400 hover:text-white transition-colors">
                 Contact Us
               </Link>
@@ -68,6 +73,14 @@ const Footer = () => {
               <Link href="/privacy-policy" className="text-gray-400 hover:text-white transition-colors">
                 Privacy Policy
               </Link>
+              <a
+                href="https://google.com/preferences/source?q=dalimss.news"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-flex w-fit rounded-md bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700"
+              >
+                Make us a preferred source on Google
+              </a>
             </ul>
           </div>
         </div>
@@ -77,7 +90,7 @@ const Footer = () => {
         {/* Bottom Utility / Copyright & Socials */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
           <p>
-            © {new Date().getFullYear()} Dalimss News. All rights reserved. Registered under Indian digital media regulations.
+            © {new Date().getFullYear()} Dalimss News. All rights reserved.
           </p>
 
           <div className="flex gap-4">

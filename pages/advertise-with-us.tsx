@@ -54,8 +54,8 @@ export default function AdvertiseWithUs() {
       icon: DocumentCheckIcon,
       title: "Sponsored Content & Advertorials",
       tag: "High Engagement",
-      description: "In-depth featured articles, product launch showcases, and brand stories written by expert storytellers. Guaranteed indexation and social distribution.",
-      specs: "800+ Words, High-Res Media, Dofollow Links, Social Blast"
+      description: "Clearly labelled sponsored articles, product launch showcases, and brand stories subject to editorial and advertising review. Search indexing is never guaranteed.",
+      specs: "Custom scope, High-Res Media, rel=sponsored Links"
     },
     {
       icon: DevicePhoneMobileIcon,
@@ -74,10 +74,10 @@ export default function AdvertiseWithUs() {
   ];
 
   const stats = [
-    { label: "Monthly Impressions", value: "3.5M+" },
-    { label: "Active Readers", value: "450K+" },
-    { label: "Core Demographics", value: "25-45 Yrs" },
-    { label: "Key Hubs", value: "Varanasi, UP & Gurugram" },
+    { label: "Coverage Focus", value: "Varanasi" },
+    { label: "Regional Focus", value: "Purvanchal" },
+    { label: "Campaign Metrics", value: "On Request" },
+    { label: "Ad Disclosure", value: "Clearly Labelled" },
   ];
 
   const faqs = [
@@ -154,7 +154,8 @@ export default function AdvertiseWithUs() {
             <div className="text-center max-w-2xl mx-auto mb-12">
               <h2 className="text-3xl font-bold font-serif text-gray-900 tracking-tight">Why Partner With Us?</h2>
               <p className="text-gray-600 mt-2">
-                We combine deep regional credibility with high-converting modern ad placements.
+                We offer clearly disclosed advertising placements alongside
+                our regional coverage.
               </p>
             </div>
 
@@ -163,9 +164,11 @@ export default function AdvertiseWithUs() {
                 <div className="w-12 h-12 rounded-lg bg-red-50 text-red-600 flex items-center justify-center mb-6 group-hover:bg-red-600 group-hover:text-white transition-colors">
                   <BuildingOffice2Icon className="w-6 h-6" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3 font-serif">Unrivaled Regional Authority</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-3 font-serif">Regional Context</h3>
                 <p className="text-gray-600 text-sm leading-relaxed">
-                  Deeply rooted trusted journalism in Varanasi, Purvanchal, and expanding corporate presence in Gurugram NCR. Your brand gains instant localized trust.
+                  Campaigns can be placed alongside coverage focused on
+                  Varanasi and Purvanchal. Placement does not imply editorial
+                  endorsement.
                 </p>
               </div>
 
@@ -175,7 +178,9 @@ export default function AdvertiseWithUs() {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-3 font-serif">High-Intent Audience</h3>
                 <p className="text-gray-600 text-sm leading-relaxed">
-                  Our readers actively seek updates on Education, Technology Reviews, Local Infrastructure, and Business developments, giving ads higher click-through rates.
+                  Campaigns can align with relevant sections such as education,
+                  local infrastructure, culture and business. Performance
+                  varies and is reported from measured campaign data.
                 </p>
               </div>
 
@@ -185,7 +190,9 @@ export default function AdvertiseWithUs() {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-3 font-serif">Strict Editorial Integrity</h3>
                 <p className="text-gray-600 text-sm leading-relaxed">
-                  Your campaigns run alongside clean, verified, high-quality journalism. Zero clickbait, ensuring maximum brand safety and respect.
+                  Sponsored material is labelled, advertising links use
+                  appropriate attributes, and advertisers do not control
+                  independent newsroom decisions.
                 </p>
               </div>
             </div>
@@ -238,7 +245,8 @@ export default function AdvertiseWithUs() {
               <div className="lg:col-span-7 p-8 sm:p-10">
                 <h2 className="text-2xl font-bold font-serif text-gray-900 mb-2">Request Media Kit & Quote</h2>
                 <p className="text-gray-600 text-sm mb-6">
-                  Fill in your campaign details and our media sales team will respond within 24 hours.
+                  Fill in your campaign details. We aim to review advertising
+                  enquiries within two business days.
                 </p>
 
                 {submitted ? (

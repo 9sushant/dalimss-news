@@ -16,10 +16,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  const { slug, newSlug, title, content, mediaUrl, mediaType, mediaItems, customAuthor, category, metaTitle, metaDescription, focusKeyword, tags, imageAltText, sourceUrl } = req.body;
+  const { slug, newSlug, title, content, mediaUrl, mediaType, mediaItems, customAuthor, category, metaTitle, metaDescription, focusKeyword, tags, imageAltText, sourceUrl, reportingBasis, language } = req.body;
 
   if (!slug || !title || !content) {
     return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  if (!reportingBasis || reportingBasis.trim().length < 30) {
+    return res.status(400).json({
+      error:
+        "A specific reporting basis is required (official document, interview, on-ground reporting, data or named statement).",
+    });
+  }
+
+  if (!["en", "hi"].includes(language)) {
+    return res.status(400).json({ error: "Article language must be English or Hindi" });
   }
 
   try {
@@ -48,6 +59,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         content,
         slug: finalSlug,
         sourceUrl: sourceUrl || null,
+        reportingBasis: reportingBasis.trim(),
+        language,
         mediaUrl,
         mediaType,
         mediaItems: mediaItems || undefined,

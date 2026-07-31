@@ -396,7 +396,7 @@ const CoursesPage: React.FC = () => {
                   <AcademicCapIcon className="h-8 w-8 text-red-600" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Expert Instructors</h3>
-                <p className="text-gray-600">Learn from award-winning journalists and media professionals with decades of experience.</p>
+                <p className="text-gray-600">Course pages identify the instructor and the practical experience relevant to each programme.</p>
               </div>
 
               <div className="text-center p-6">

@@ -28,6 +28,8 @@ interface Article {
   metaTitle?: string | null;
   metaDescription?: string | null;
   focusKeyword?: string | null;
+  reportingBasis?: string | null;
+  language?: string | null;
 }
 
 interface Props {
@@ -49,6 +51,12 @@ const EditArticle: React.FC<Props> = ({ article }) => {
   };
   const [selectedCategories, setSelectedCategories] = useState<string[]>(getInitialCategories());
   const [sourceUrl, setSourceUrl] = useState((article as any)?.sourceUrl || "");
+  const [reportingBasis, setReportingBasis] = useState(
+    article?.reportingBasis || ""
+  );
+  const [language, setLanguage] = useState<"en" | "hi">(
+    article?.language === "hi" ? "hi" : "en"
+  );
   const [seoData, setSeoData] = useState({
     metaTitle: article?.metaTitle || "",
     metaDescription: article?.metaDescription || "",
@@ -166,6 +174,12 @@ const EditArticle: React.FC<Props> = ({ article }) => {
       alert("Please provide the author name.");
       return;
     }
+    if (reportingBasis.trim().length < 30) {
+      alert(
+        "Please describe the specific reporting basis (at least 30 characters). Name the document, interview, location, data, or response used."
+      );
+      return;
+    }
     const totalMediaItems = mediaItems.length + newFiles.length;
     if (totalMediaItems === 0) {
       alert("Please upload at least one image or video for the article.");
@@ -227,6 +241,8 @@ const EditArticle: React.FC<Props> = ({ article }) => {
           customAuthor,
           category: selectedCategories.join(", "),
           sourceUrl,
+          reportingBasis,
+          language,
           newSlug: slugEdited ? slug : undefined,
           ...seoData,
         }),
@@ -313,6 +329,44 @@ const EditArticle: React.FC<Props> = ({ article }) => {
           onChange={(e) => setCustomAuthor(e.target.value)}
           required
         />
+
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">
+            Reporting basis
+          </label>
+          <textarea
+            className="w-full min-h-28 p-3 rounded bg-white border border-gray-300 text-gray-900"
+            value={reportingBasis}
+            onChange={(e) => setReportingBasis(e.target.value)}
+            placeholder="Name the official document, interview, reporting location, data, or response used for this report."
+            minLength={30}
+            required
+          />
+          <p className="mt-1 text-xs text-gray-500">
+            Describe what Dalimss News independently reviewed, observed or
+            verified. Include names, designations, dates and contact attempts
+            where relevant.
+          </p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">
+            Article language
+          </label>
+          <select
+            className="w-full p-3 rounded bg-white border border-gray-300 text-gray-900"
+            value={language}
+            onChange={(e) => setLanguage(e.target.value as "en" | "hi")}
+            required
+          >
+            <option value="en">English</option>
+            <option value="hi">Hindi</option>
+          </select>
+          <p className="mt-1 text-xs text-gray-500">
+            This controls the language declared in article structured data and
+            the Google News sitemap.
+          </p>
+        </div>
 
         {/* Category Multi-Selector */}
         <div className="space-y-2">

@@ -27,6 +27,8 @@ const NewArticle: React.FC = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>(["India"]);
   const [customAuthor, setCustomAuthor] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
+  const [reportingBasis, setReportingBasis] = useState("");
+  const [language, setLanguage] = useState<"en" | "hi">("en");
 
   const [seoData, setSeoData] = useState({ metaTitle: "", metaDescription: "", focusKeyword: "", tags: "", imageAltText: "" });
   const [loading, setLoading] = useState(false);
@@ -116,6 +118,12 @@ const NewArticle: React.FC = () => {
       alert("Please provide the author name.");
       return;
     }
+    if (reportingBasis.trim().length < 30) {
+      alert(
+        "Please describe the specific reporting basis (at least 30 characters). Name the document, interview, location, data, or response used."
+      );
+      return;
+    }
     if (mediaFiles.length === 0) {
       alert("Please upload at least one image or video for the article.");
       return;
@@ -173,6 +181,8 @@ const NewArticle: React.FC = () => {
           category: selectedCategories.join(", "),
           customAuthor,
           sourceUrl,
+          reportingBasis,
+          language,
           slug,
           ...seoData,
         }),
@@ -257,6 +267,44 @@ const NewArticle: React.FC = () => {
           onChange={(e) => setCustomAuthor(e.target.value)}
           required
         />
+
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">
+            Reporting basis
+          </label>
+          <textarea
+            className="w-full min-h-28 p-3 rounded bg-white border border-gray-300 text-gray-900"
+            value={reportingBasis}
+            onChange={(e) => setReportingBasis(e.target.value)}
+            placeholder="Example: Based on the Varanasi Police statement issued at 7:30 AM on 31 July 2026 and an interview with [name, designation]. Dalimss News contacted [office] at [time]; a response was awaited at publication."
+            minLength={30}
+            required
+          />
+          <p className="mt-1 text-xs text-gray-500">
+            Name official documents, people interviewed, reporting locations,
+            contact attempts, data, and publication times where relevant. Do
+            not use generic newsroom-review wording.
+          </p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">
+            Article language
+          </label>
+          <select
+            className="w-full p-3 rounded bg-white border border-gray-300 text-gray-900"
+            value={language}
+            onChange={(e) => setLanguage(e.target.value as "en" | "hi")}
+            required
+          >
+            <option value="en">English</option>
+            <option value="hi">Hindi</option>
+          </select>
+          <p className="mt-1 text-xs text-gray-500">
+            This controls the language declared in article structured data and
+            the Google News sitemap.
+          </p>
+        </div>
         
         {/* Category Multi-Selector */}
         <div className="space-y-2">

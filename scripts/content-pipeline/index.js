@@ -25,6 +25,7 @@ const CONFIG = {
   
   TARGET_API_URL: process.env.TARGET_API_URL || 'http://localhost:3000/api/posts',
   PIPELINE_SECRET: process.env.PIPELINE_SECRET,
+  ENABLE_PUBLISHING: process.env.ENABLE_PUBLISHING === 'true',
   
   CRON_SCHEDULE: process.env.CRON_SCHEDULE || '0 * * * *', // Every hour
 };
@@ -151,7 +152,9 @@ async function transformContent(item) {
       ...result,
       source_url: item.url,
       image_url: item.image_url,
-      author: "AI News Bot"
+      author: "",
+      reporting_basis: `Drafted from a ${item.source} post at ${item.url}. A human editor must independently verify the claims, add reporting and record contact attempts before publication.`,
+      human_reviewed: false
     };
   } catch (error) {
     console.error("LLM Processing Error:", error);
@@ -163,6 +166,18 @@ async function transformContent(item) {
 // --- PUBLISHING ---
 
 async function publishArticle(article) {
+  if (!CONFIG.ENABLE_PUBLISHING) {
+    console.log(`Review required; not published: ${article.title}`);
+    return false;
+  }
+
+  if (!article.human_reviewed || !article.author || !article.reporting_basis) {
+    console.error(
+      `Publish blocked for "${article.title}": add a human byline, specific reporting basis and human_reviewed=true after editorial review.`
+    );
+    return false;
+  }
+
   try {
     const res = await axios.post(CONFIG.TARGET_API_URL, article, {
       headers: {

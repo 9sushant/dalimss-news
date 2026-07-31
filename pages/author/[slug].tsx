@@ -48,7 +48,6 @@ export default function AuthorPage({
       name: SITE_NAME,
       url: SITE_URL,
     },
-    jobTitle: "Journalist",
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "Newsroom",
@@ -113,7 +112,7 @@ export default function AuthorPage({
         {/* Breadcrumbs */}
         <Breadcrumbs
           items={[
-            { name: "Authors", href: "/author" },
+            { name: "Authors", href: "/authors" },
             { name: authorName, href: `/author/${authorSlugStr}` },
           ]}
         />
@@ -134,12 +133,12 @@ export default function AuthorPage({
                 {authorName}
               </h1>
               <p className="text-gray-500 text-sm mb-4">
-                Journalist at {SITE_NAME}
+                Published contributor at {SITE_NAME}
               </p>
               <p className="text-gray-600 text-sm leading-relaxed max-w-2xl mb-4">
-                {authorName} reports for Dalimss News with a focus on verified
-                public-interest updates, source transparency, corrections and
-                local context for readers in India.
+                This page collects stories published under the {authorName}
+                byline. Article pages identify their available reporting basis,
+                primary material and update history.
               </p>
 
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm">

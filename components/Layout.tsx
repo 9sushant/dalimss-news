@@ -13,7 +13,7 @@ const Layout = ({ children }: LayoutProps) => (
   <div className="bg-white min-h-screen text-gray-900 font-sans">
     <Head>
       <title>Dalimss News | Varanasi News in Hindi | वाराणसी समाचार</title>
-      <meta name="description" content="Dalimss News - Varanasi's fastest growing digital news platform. वाराणसी, पूर्वांचल और उत्तर प्रदेश की ताज़ा खबरें। Local news, politics, education & more." />
+      <meta name="description" content="Dalimss News is a Varanasi-based digital publication covering Varanasi, Purvanchal and public-interest issues in Uttar Pradesh. वाराणसी और पूर्वांचल की ताज़ा खबरें।" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <meta name="theme-color" content="#E21B22" />
       <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />

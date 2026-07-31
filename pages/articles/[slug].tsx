@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { GetStaticProps, GetStaticPaths } from "next";
 import { useSession } from "next-auth/react";
 import prisma from "../../lib/prisma";
@@ -40,6 +40,8 @@ interface Article {
   customAuthor?: string | null;
   category?: string | null;
   sourceUrl?: string | null;
+  reportingBasis?: string | null;
+  language?: string | null;
   metaTitle?: string | null;
   metaDescription?: string | null;
   tags?: string | null;
@@ -63,19 +65,12 @@ import {
   authorSlug,
   canonicalArticleSlug,
   ARTICLE_SLUG_REDIRECTS,
+  toISOWithTZ,
 } from "@/lib/seo";
 import { getCategoryByDbValue, getCategorySlug } from "@/lib/categories";
 
 const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
   const { data: session } = useSession();
-  const [formattedDate, setFormattedDate] = useState<string>('');
-
-  // Format date on client-side only to prevent hydration mismatch
-  useEffect(() => {
-    if (article) {
-      setFormattedDate(new Date(article.createdAt).toLocaleDateString());
-    }
-  }, [article]);
   
   if (!article) {
     return (
@@ -100,7 +95,10 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
 
   // Author URL
   const authorName = article.customAuthor || "Dalimss News Desk";
-  const authorUrl = `${SITE_URL}/author/${authorSlug(authorName)}`;
+  const authorPath = article.customAuthor
+    ? `/author/${authorSlug(authorName)}`
+    : "/authors";
+  const authorUrl = `${SITE_URL}${authorPath}`;
 
   const articleSlug = canonicalArticleSlug(article.slug);
   const canonicalUrl = `${SITE_URL}/articles/${articleSlug}`;
@@ -127,11 +125,11 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content={article.metaTitle || article.title} />
-        <meta property="og:locale" content="en_IN" />
+        <meta property="og:locale" content={article.language === "hi" ? "hi_IN" : "en_IN"} />
         
         {/* Article specific Meta tags */}
-        <meta property="article:published_time" content={new Date(article.createdAt).toISOString()} />
-        <meta property="article:modified_time" content={new Date(article.updatedAt || article.createdAt).toISOString()} />
+        <meta property="article:published_time" content={toISOWithTZ(article.createdAt)} />
+        <meta property="article:modified_time" content={toISOWithTZ(article.updatedAt || article.createdAt)} />
         {article.customAuthor && <meta property="article:author" content={article.customAuthor} />}
         {article.category && <meta property="article:section" content={article.category} />}
         {article.tags && article.tags.split(",").map((t: string, i: number) => (
@@ -210,20 +208,28 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
         <h1 className="text-4xl font-bold mb-3 text-gray-900">{article.title}</h1>
         <div className="text-sm text-gray-600 flex flex-wrap items-center gap-2">
           <a
-            href={`/author/${authorSlug(authorName)}`}
+            href={authorPath}
             className="hover:text-red-600 transition-colors"
           >
             By {authorName}
           </a>
           <span>•</span>
-          <time dateTime={article.createdAt} suppressHydrationWarning>
-            {formattedDate || new Date(article.createdAt).toLocaleDateString("en-IN")}
+          <time dateTime={toISOWithTZ(article.createdAt)} suppressHydrationWarning>
+            {new Date(article.createdAt).toLocaleString("en-IN", {
+              dateStyle: "long",
+              timeStyle: "short",
+              timeZone: "Asia/Kolkata",
+            })}{" "}IST
           </time>
           {article.updatedAt && new Date(article.updatedAt).getTime() - new Date(article.createdAt).getTime() > 60000 && (
             <>
               <span>•</span>
-              <time dateTime={article.updatedAt} className="text-gray-500 italic" suppressHydrationWarning>
-                Updated: {new Date(article.updatedAt).toLocaleDateString("en-IN")}
+              <time dateTime={toISOWithTZ(article.updatedAt)} className="text-gray-500 italic" suppressHydrationWarning>
+                Updated: {new Date(article.updatedAt).toLocaleString("en-IN", {
+                  dateStyle: "long",
+                  timeStyle: "short",
+                  timeZone: "Asia/Kolkata",
+                })} IST
               </time>
             </>
           )}
@@ -424,15 +430,13 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
         )}
       </div>
 
-      <section className="mt-8 pt-5 border-t border-gray-200 text-sm text-gray-600">
-        <h2 className="text-base font-bold text-gray-900 mb-2">
-          Reporting basis
-        </h2>
-        <p>
-          This report is based on Dalimss News editorial review, available
-          source material and updates verified by the newsroom.
-        </p>
-        {article.sourceUrl && (
+      {(article.reportingBasis || article.sourceUrl) && (
+        <section className="mt-8 pt-5 border-t border-gray-200 text-sm text-gray-600">
+          <h2 className="text-base font-bold text-gray-900 mb-2">
+            Reporting basis
+          </h2>
+          {article.reportingBasis && <p>{article.reportingBasis}</p>}
+          {article.sourceUrl && (
           <p className="mt-2">
             Primary source:{" "}
             <a
@@ -444,8 +448,9 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
               Original document or statement
             </a>
           </p>
-        )}
-      </section>
+          )}
+        </section>
+      )}
 
       {/* RELATED ARTICLES */}
       <RelatedArticles articles={relatedArticles} />

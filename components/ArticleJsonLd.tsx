@@ -6,6 +6,7 @@ import {
   SITE_NAME,
   absoluteImageUrl,
   canonicalArticleSlug,
+  toISOWithTZ,
 } from "@/lib/seo";
 
 interface ArticleJsonLdProps {
@@ -23,6 +24,7 @@ interface ArticleJsonLdProps {
     metaTitle?: string | null;
     metaDescription?: string | null;
     tags?: string | null;
+    language?: string | null;
   };
   authorUrl?: string;
 }
@@ -30,6 +32,8 @@ interface ArticleJsonLdProps {
 export function ArticleJsonLd({ article, authorUrl }: ArticleJsonLdProps) {
   const url = `${SITE_URL}/articles/${canonicalArticleSlug(article.slug)}`;
   const imageUrl = absoluteImageUrl(article.mediaUrl);
+  const authorName = article.customAuthor || "Dalimss News Desk";
+  const isNewsroomByline = authorName === "Dalimss News Desk";
 
   // Build description
   const description =
@@ -50,11 +54,9 @@ export function ArticleJsonLd({ article, authorUrl }: ArticleJsonLdProps) {
     headline: article.metaTitle || article.title,
     description,
     image: imageUrl ? [imageUrl] : [],
-    datePublished: new Date(article.createdAt).toISOString(),
-    dateModified: new Date(
-      article.updatedAt || article.createdAt
-    ).toISOString(),
-    inLanguage: "en-IN",
+    datePublished: toISOWithTZ(article.createdAt),
+    dateModified: toISOWithTZ(article.updatedAt || article.createdAt),
+    inLanguage: article.language === "hi" ? "hi-IN" : "en-IN",
     articleSection: article.category || "News",
     isAccessibleForFree: true,
     keywords: article.tags
@@ -62,8 +64,8 @@ export function ArticleJsonLd({ article, authorUrl }: ArticleJsonLdProps) {
       : undefined,
     citation: article.sourceUrl || undefined,
     author: {
-      "@type": "Person",
-      name: article.customAuthor || "Dalimss News Desk",
+      "@type": isNewsroomByline ? "Organization" : "Person",
+      name: authorName,
       ...(authorUrl ? { url: authorUrl } : {}),
     },
     isPartOf: {

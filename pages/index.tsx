@@ -157,7 +157,10 @@ export default function HomePage({ articles, stories }: Props) {
       "@type": "ImageObject",
       url: `${siteUrl}/logo.png`,
     },
-    sameAs: [],
+    sameAs: [
+      "https://www.instagram.com/dalimss.news.banaras/",
+      "https://x.com/dalimss_news",
+    ],
     address: {
       "@type": "PostalAddress",
       addressLocality: "Varanasi",
@@ -183,9 +186,9 @@ export default function HomePage({ articles, stories }: Props) {
   return (
     <>
     <Head>
-      <title>Dalimss News — Latest India News, Uttar Pradesh, Varanasi, Education, Business & Reviews</title>
-      <meta name="description" content="Get the latest national news, Uttar Pradesh stories, Varanasi local updates, education exam alerts, business insights, and technology reviews from Dalimss News." />
-      <meta name="keywords" content="Varanasi news, वाराणसी समाचार, India news today, national news, uttar pradesh news, education news, business news, tech reviews, banaras news, dalimss news" />
+      <title>Dalimss News — Varanasi and Purvanchal Local News</title>
+      <meta name="description" content="Original local reporting from Varanasi and Purvanchal on civic affairs, public safety, BHU and education, traffic, infrastructure, culture and public-interest issues." />
+      <meta name="keywords" content="Varanasi news, वाराणसी समाचार, Purvanchal news, Banaras news, Varanasi civic news, BHU news, Dalimss News" />
       <link rel="canonical" href={siteUrl} />
 
       {/* Geo Targeting */}
@@ -199,8 +202,8 @@ export default function HomePage({ articles, stories }: Props) {
       {/* Open Graph */}
       <meta property="og:type" content="website" />
       <meta property="og:site_name" content="Dalimss News" />
-      <meta property="og:title" content="Dalimss News — Latest India News, Uttar Pradesh, Varanasi, Education, Business & Reviews" />
-      <meta property="og:description" content="Get the latest national news, Uttar Pradesh stories, Varanasi local updates, education exam alerts, business insights, and technology reviews from Dalimss News." />
+      <meta property="og:title" content="Dalimss News — Varanasi and Purvanchal Local News" />
+      <meta property="og:description" content="Original local reporting from Varanasi and Purvanchal on civic affairs, education, infrastructure, culture and public-interest issues." />
       <meta property="og:url" content={siteUrl} />
       <meta property="og:image" content={heroOgImage} />
       <meta property="og:image:width" content="1200" />
@@ -211,8 +214,8 @@ export default function HomePage({ articles, stories }: Props) {
       {/* Twitter Card */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:site" content="@dalimss_news" />
-      <meta name="twitter:title" content="Dalimss News — Latest India News, Uttar Pradesh, Varanasi, Education, Business & Reviews" />
-      <meta name="twitter:description" content="Get the latest national news, Uttar Pradesh stories, Varanasi local updates, education exam alerts, business insights, and technology reviews." />
+      <meta name="twitter:title" content="Dalimss News — Varanasi and Purvanchal Local News" />
+      <meta name="twitter:description" content="Original local reporting from Varanasi and Purvanchal." />
       <meta name="twitter:image" content={heroOgImage} />
 
       {/* JSON-LD Structured Data */}
