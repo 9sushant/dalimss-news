@@ -13,12 +13,12 @@ const Footer = () => {
             </h3>
             <p className="text-gray-300 text-sm leading-relaxed max-w-sm">
               Dalimss News is a digital news publication covering Varanasi,
-              Gurugram, Delhi-NCR and major stories from across India, including
-              crime, civic affairs, education, business, culture and lifestyle.
+              Eastern Uttar Pradesh, Gurugram, Delhi-NCR and major developments
+              from across India.
             </p>
             <p className="text-gray-400 text-xs leading-relaxed max-w-sm flex items-center gap-1.5 font-medium">
               <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block"></span>
-              Committed to ethical journalism, verified reporting, and public trust.
+              Original reporting. Clear attribution. Journalism in the public interest.
             </p>
           </div>
 

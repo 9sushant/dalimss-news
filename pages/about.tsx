@@ -19,18 +19,28 @@ const facts = [
     icon: CalendarDaysIcon,
   },
   {
-    label: "Newsroom base",
-    value: "Varanasi, Uttar Pradesh",
+    label: "Editorial bases",
+    value: "Varanasi and Gurugram",
     icon: MapPinIcon,
   },
   {
-    label: "Primary coverage",
-    value: "Varanasi and Purvanchal",
+    label: "Core coverage",
+    value: "Varanasi, Eastern Uttar Pradesh, Gurugram and Delhi-NCR",
     icon: NewspaperIcon,
   },
   {
-    label: "Publication",
-    value: SITE_NAME,
+    label: "Wider coverage",
+    value: "India, education, business, technology, health, culture and sport",
+    icon: NewspaperIcon,
+  },
+  {
+    label: "Publication type",
+    value: "Digital news publication",
+    icon: BuildingOffice2Icon,
+  },
+  {
+    label: "Publisher",
+    value: "PAMF DIGIMEDIA PRIVATE LIMITED",
     icon: BuildingOffice2Icon,
   },
 ];
@@ -41,8 +51,11 @@ export default function AboutPage() {
     "@context": "https://schema.org",
     "@type": "NewsMediaOrganization",
     name: SITE_NAME,
+    legalName: "PAMF DIGIMEDIA PRIVATE LIMITED",
     url: SITE_URL,
     foundingDate: "2024-01",
+    description:
+      "Dalimss News is a digital news publication reporting from Varanasi, Eastern Uttar Pradesh, Gurugram and Delhi-NCR, with coverage of major developments across India.",
     logo: {
       "@type": "ImageObject",
       url: `${SITE_URL}/logo-square.png`,
@@ -50,20 +63,43 @@ export default function AboutPage() {
       height: 512,
     },
     email: "dalimssnews@gmail.com",
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: "Varanasi",
-      addressRegion: "Uttar Pradesh",
-      postalCode: "221001",
-      addressCountry: "IN",
-    },
-    areaServed: ["Varanasi", "Purvanchal", "Uttar Pradesh"],
+    address: [
+      {
+        "@type": "PostalAddress",
+        addressLocality: "Varanasi",
+        addressRegion: "Uttar Pradesh",
+        addressCountry: "IN",
+      },
+      {
+        "@type": "PostalAddress",
+        addressLocality: "Gurugram",
+        addressRegion: "Haryana",
+        addressCountry: "IN",
+      },
+    ],
+    areaServed: [
+      "Varanasi",
+      "Eastern Uttar Pradesh",
+      "Gurugram",
+      "Delhi-NCR",
+      "India",
+    ],
     sameAs: [
       "https://www.instagram.com/dalimss.news.banaras/",
       "https://x.com/dalimss_news",
     ],
     ethicsPolicy: `${SITE_URL}/editorial-policy`,
     correctionsPolicy: `${SITE_URL}/corrections-policy`,
+    publishingPrinciples: `${SITE_URL}/editorial-policy`,
+    employee: {
+      "@type": "Person",
+      name: "Saurav Yadav",
+      jobTitle: "Editor-in-Chief",
+    },
+    parentOrganization: {
+      "@type": "Organization",
+      name: "PAMF DIGIMEDIA PRIVATE LIMITED",
+    },
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "Newsroom",
@@ -76,16 +112,19 @@ export default function AboutPage() {
   return (
     <>
       <Head>
-        <title>About Dalimss News | Varanasi and Purvanchal Newsroom</title>
+        <title>About Dalimss News | Varanasi, Gurugram &amp; India News</title>
         <meta
           name="description"
-          content="Dalimss News is a Varanasi-based digital publication founded in January 2024, focused on original public-interest reporting from Varanasi and Purvanchal."
+          content="Learn about Dalimss News, a digital news publication reporting from Varanasi, Eastern Uttar Pradesh, Gurugram and Delhi-NCR, with coverage of major developments across India."
         />
         <link rel="canonical" href={canonicalUrl} />
-        <meta property="og:title" content={`About ${SITE_NAME}`} />
+        <meta
+          property="og:title"
+          content="About Dalimss News | Varanasi, Gurugram & India News"
+        />
         <meta
           property="og:description"
-          content="Publication facts, coverage focus, newsroom standards and contact information for Dalimss News."
+          content="Learn about Dalimss News, a digital news publication reporting from Varanasi, Eastern Uttar Pradesh, Gurugram and Delhi-NCR, with coverage of major developments across India."
         />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="website" />
@@ -101,15 +140,27 @@ export default function AboutPage() {
             About {SITE_NAME}
           </p>
           <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-            Local reporting, rooted in Varanasi
+            Local reporting. Wider perspective.
           </h1>
-          <p className="text-lg md:text-xl text-gray-300 leading-relaxed max-w-3xl">
-            Founded in January 2024, Dalimss News is a digital news publication
-            based in Varanasi. Our primary focus is original, useful reporting
-            on Varanasi and Purvanchal, including civic administration, public
-            safety, education, infrastructure, local business, culture,
-            tourism and public-interest issues.
-          </p>
+          <div className="space-y-4 text-lg md:text-xl text-gray-300 leading-relaxed max-w-3xl">
+            <p>
+              Founded in January 2024, Dalimss News is a digital news publication
+              with editorial operations in Varanasi and Gurugram.
+            </p>
+            <p>
+              We publish original reporting from Varanasi, Eastern Uttar Pradesh,
+              Gurugram and Delhi-NCR, alongside coverage of significant
+              developments from across India. Our journalism covers civic
+              administration, public safety, education, infrastructure, business,
+              technology, health, culture, tourism, sport and other matters of
+              public interest.
+            </p>
+            <p>
+              Our aim is straightforward: to produce timely, credible and
+              accessible journalism that keeps readers informed about the places
+              in which they live, work and participate.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -119,7 +170,7 @@ export default function AboutPage() {
             <h2 className="text-3xl font-bold text-gray-900 mb-8">
               Publication facts
             </h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {facts.map(({ label, value, icon: Icon }) => (
                 <div key={label} className="border border-gray-200 rounded-xl p-5">
                   <Icon className="h-7 w-7 text-red-600 mb-4" />
@@ -128,10 +179,6 @@ export default function AboutPage() {
                 </div>
               ))}
             </div>
-            <p className="mt-6 text-sm text-gray-500">
-              We publish quantitative or recognition claims only when they can
-              be supported by current, public evidence.
-            </p>
           </div>
         </section>
 
@@ -142,18 +189,35 @@ export default function AboutPage() {
               <h2 className="text-2xl font-bold text-gray-900 mb-3">
                 How we work
               </h2>
-              <p className="text-gray-600 leading-relaxed mb-5">
-                We aim to identify authors, distinguish publication and update
-                times, link primary material when it is available, explain the
-                reporting basis, seek responses from affected parties, and
-                correct factual errors transparently.
-              </p>
+              <div className="space-y-4 text-gray-600 leading-relaxed mb-5">
+                <p>
+                  Dalimss News prioritises accuracy, attribution, fairness and
+                  public interest. Our articles carry identifiable bylines and
+                  clear publication or update dates.
+                </p>
+                <p>
+                  Where appropriate, we explain the basis of our reporting,
+                  consult documentary or primary material, seek responses from
+                  individuals and organisations named in a story, and distinguish
+                  clearly between news, analysis, opinion and sponsored content.
+                </p>
+                <p>
+                  Material factual errors are corrected transparently in
+                  accordance with our corrections policy.
+                </p>
+              </div>
               <div className="flex flex-wrap gap-4">
                 <Link className="text-red-700 font-semibold hover:underline" href="/editorial-policy">
                   Editorial policy
                 </Link>
                 <Link className="text-red-700 font-semibold hover:underline" href="/corrections-policy">
                   Corrections policy
+                </Link>
+                <Link className="text-red-700 font-semibold hover:underline" href="/authors">
+                  Newsroom and contributors
+                </Link>
+                <Link className="text-red-700 font-semibold hover:underline" href="/contact">
+                  Contact us
                 </Link>
               </div>
             </div>
@@ -175,13 +239,43 @@ export default function AboutPage() {
           </div>
         </section>
 
+        <section className="py-14 bg-white">
+          <div className="container mx-auto px-4 max-w-5xl">
+            <h2 className="text-3xl font-bold text-gray-900 mb-8">
+              Ownership and leadership
+            </h2>
+            <div className="grid md:grid-cols-2 gap-6 mb-7">
+              <div className="border border-gray-200 rounded-xl p-6">
+                <p className="text-sm text-gray-500 mb-1">Publisher</p>
+                <p className="font-semibold text-gray-900">
+                  PAMF DIGIMEDIA PRIVATE LIMITED
+                </p>
+              </div>
+              <div className="border border-gray-200 rounded-xl p-6">
+                <p className="text-sm text-gray-500 mb-1">
+                  Editor-in-Chief
+                </p>
+                <p className="font-semibold text-gray-900">Saurav Yadav</p>
+              </div>
+            </div>
+            <p className="text-gray-600 leading-relaxed max-w-4xl">
+              Editorial decisions are taken by the Dalimss News editorial team.
+              Advertising, partnerships and sponsored material are identified
+              separately and do not determine the conclusions of independent
+              news reports.
+            </p>
+          </div>
+        </section>
+
         <section className="py-14 bg-gray-900 text-white">
           <div className="container mx-auto px-4 max-w-5xl">
             <h2 className="text-3xl font-bold mb-8">Contact the newsroom</h2>
-            <div className="grid md:grid-cols-3 gap-6 text-gray-300">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 text-gray-300">
               <div>
                 <EnvelopeIcon className="h-6 w-6 text-red-500 mb-3" />
-                <h3 className="text-white font-semibold mb-1">Email</h3>
+                <h3 className="text-white font-semibold mb-1">
+                  News tips and editorial enquiries
+                </h3>
                 <a className="hover:text-white" href="mailto:dalimssnews@gmail.com">
                   dalimssnews@gmail.com
                 </a>
@@ -195,8 +289,17 @@ export default function AboutPage() {
               </div>
               <div>
                 <MapPinIcon className="h-6 w-6 text-red-500 mb-3" />
-                <h3 className="text-white font-semibold mb-1">Location</h3>
-                <p>Varanasi, Uttar Pradesh, India – 221001</p>
+                <h3 className="text-white font-semibold mb-1">
+                  Varanasi newsroom
+                </h3>
+                <p>Varanasi, Uttar Pradesh, India</p>
+              </div>
+              <div>
+                <MapPinIcon className="h-6 w-6 text-red-500 mb-3" />
+                <h3 className="text-white font-semibold mb-1">
+                  Gurugram editorial office
+                </h3>
+                <p>Gurugram, Haryana, India</p>
               </div>
             </div>
           </div>
