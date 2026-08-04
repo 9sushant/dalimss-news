@@ -186,8 +186,8 @@ export default function HomePage({ articles, stories }: Props) {
   return (
     <>
     <Head>
-      <title>Dalimss News — Varanasi and Purvanchal Local News</title>
-      <meta name="description" content="Original local reporting from Varanasi and Purvanchal on civic affairs, public safety, BHU and education, traffic, infrastructure, culture and public-interest issues." />
+      <title>Dalimss News — Varanasi, Gurugram &amp; India News</title>
+      <meta name="description" content="Dalimss News is a digital news publication covering Varanasi, Gurugram, Delhi-NCR and major stories from across India, including crime, civic affairs, education, business, culture and lifestyle." />
       <meta name="keywords" content="Varanasi news, वाराणसी समाचार, Purvanchal news, Banaras news, Varanasi civic news, BHU news, Dalimss News" />
       <link rel="canonical" href={siteUrl} />
 
@@ -202,8 +202,8 @@ export default function HomePage({ articles, stories }: Props) {
       {/* Open Graph */}
       <meta property="og:type" content="website" />
       <meta property="og:site_name" content="Dalimss News" />
-      <meta property="og:title" content="Dalimss News — Varanasi and Purvanchal Local News" />
-      <meta property="og:description" content="Original local reporting from Varanasi and Purvanchal on civic affairs, education, infrastructure, culture and public-interest issues." />
+      <meta property="og:title" content="Dalimss News — Varanasi, Gurugram & India News" />
+      <meta property="og:description" content="Dalimss News is a digital news publication covering Varanasi, Gurugram, Delhi-NCR and major stories from across India, including crime, civic affairs, education, business, culture and lifestyle." />
       <meta property="og:url" content={siteUrl} />
       <meta property="og:image" content={heroOgImage} />
       <meta property="og:image:width" content="1200" />
@@ -214,8 +214,8 @@ export default function HomePage({ articles, stories }: Props) {
       {/* Twitter Card */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:site" content="@dalimss_news" />
-      <meta name="twitter:title" content="Dalimss News — Varanasi and Purvanchal Local News" />
-      <meta name="twitter:description" content="Original local reporting from Varanasi and Purvanchal." />
+      <meta name="twitter:title" content="Dalimss News — Varanasi, Gurugram & India News" />
+      <meta name="twitter:description" content="Dalimss News is a digital news publication covering Varanasi, Gurugram, Delhi-NCR and major stories from across India, including crime, civic affairs, education, business, culture and lifestyle." />
       <meta name="twitter:image" content={heroOgImage} />
 
       {/* JSON-LD Structured Data */}
