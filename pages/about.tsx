@@ -62,7 +62,7 @@ export default function AboutPage() {
       width: 512,
       height: 512,
     },
-    email: "dalimssnews@gmail.com",
+    email: "info@dalimss.news",
     address: [
       {
         "@type": "PostalAddress",
@@ -100,13 +100,21 @@ export default function AboutPage() {
       "@type": "Organization",
       name: "PAMF DIGIMEDIA PRIVATE LIMITED",
     },
-    contactPoint: {
-      "@type": "ContactPoint",
-      contactType: "Newsroom",
-      telephone: "+91-63927-52976",
-      email: "dalimssnews@gmail.com",
-      availableLanguage: ["English", "Hindi"],
-    },
+    contactPoint: [
+      {
+        "@type": "ContactPoint",
+        contactType: "Editorial enquiries",
+        telephone: "+91-63927-52976",
+        email: "editor@dalimss.news",
+        availableLanguage: ["English", "Hindi"],
+      },
+      {
+        "@type": "ContactPoint",
+        contactType: "General enquiries",
+        email: "info@dalimss.news",
+        availableLanguage: ["English", "Hindi"],
+      },
+    ],
   };
 
   return (
@@ -273,12 +281,25 @@ export default function AboutPage() {
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 text-gray-300">
               <div>
                 <EnvelopeIcon className="h-6 w-6 text-red-500 mb-3" />
-                <h3 className="text-white font-semibold mb-1">
-                  News tips and editorial enquiries
-                </h3>
-                <a className="hover:text-white" href="mailto:dalimssnews@gmail.com">
-                  dalimssnews@gmail.com
-                </a>
+                <h3 className="text-white font-semibold mb-2">Email</h3>
+                <div className="space-y-2">
+                  <p>
+                    <span className="block text-sm text-gray-400">
+                      News tips and editorial enquiries
+                    </span>
+                    <a className="hover:text-white" href="mailto:editor@dalimss.news">
+                      editor@dalimss.news
+                    </a>
+                  </p>
+                  <p>
+                    <span className="block text-sm text-gray-400">
+                      General enquiries
+                    </span>
+                    <a className="hover:text-white" href="mailto:info@dalimss.news">
+                      info@dalimss.news
+                    </a>
+                  </p>
+                </div>
               </div>
               <div>
                 <PhoneIcon className="h-6 w-6 text-red-500 mb-3" />
