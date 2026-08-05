@@ -85,6 +85,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const normalizedSources = normalizeArticleSources(sourceUrls);
       if (
         Array.isArray(sourceUrls) &&
+        sourceUrls.length > 0 &&
         normalizedSources.length !== sourceUrls.length
       ) {
         return res.status(400).json({

@@ -206,13 +206,14 @@ const EditArticle: React.FC<Props> = ({ article }) => {
       alert("Please provide descriptive alt text for the lead image.");
       return;
     }
-    const parsedSources = editorTextToSources(sourceLinks);
     const sourceLineCount = sourceLinks
       .split("\n")
       .filter((line) => line.trim()).length;
+    const parsedSources = editorTextToSources(sourceLinks);
     if (
-      parsedSources.length !== sourceLineCount ||
-      normalizeArticleSources(parsedSources).length !== parsedSources.length
+      sourceLineCount > 0 &&
+      (parsedSources.length !== sourceLineCount ||
+        normalizeArticleSources(parsedSources).length !== parsedSources.length)
     ) {
       alert(
         "Each additional source must use: descriptive label | complete HTTP(S) URL."
@@ -358,7 +359,7 @@ const EditArticle: React.FC<Props> = ({ article }) => {
 
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">
-            Additional source links
+            Additional source links (Optional)
           </label>
           <textarea
             className="w-full min-h-28 p-3 rounded bg-white border border-gray-300 text-gray-900"
