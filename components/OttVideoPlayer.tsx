@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Hls from "hls.js";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import type { OttVideoSource } from "@/lib/ottVideoSources";
 
 interface OttVideoPlayerProps {
   src: string;
+  sources?: OttVideoSource[];
   poster: string;
   title: string;
 }
@@ -14,8 +16,24 @@ interface VideoLevel {
   bitrate: number;
 }
 
+function getAutomaticTargetHeight() {
+  const connection = (
+    navigator as Navigator & {
+      connection?: { effectiveType?: string; saveData?: boolean };
+    }
+  ).connection;
+  const dataSaver =
+    connection?.saveData ||
+    connection?.effectiveType === "slow-2g" ||
+    connection?.effectiveType === "2g";
+
+  if (dataSaver) return 480;
+  return window.innerWidth >= 1100 ? 1080 : 720;
+}
+
 export default function OttVideoPlayer({
   src,
+  sources,
   poster,
   title,
 }: OttVideoPlayerProps) {
@@ -25,6 +43,10 @@ export default function OttVideoPlayer({
   const [selectedLevel, setSelectedLevel] = useState(-1);
   const [activeHeight, setActiveHeight] = useState<number | null>(null);
   const [qualityMenuOpen, setQualityMenuOpen] = useState(false);
+  const progressiveSources = useMemo(
+    () => [...(sources || [])].sort((a, b) => b.height - a.height),
+    [sources]
+  );
 
   const isAdaptiveStream = useMemo(
     () => /\.m3u8(?:$|[?#])/i.test(src),
@@ -75,7 +97,26 @@ export default function OttVideoPlayer({
       };
     }
 
-    video.src = src;
+    const chooseAutomaticSource = () => {
+      if (progressiveSources.length === 0) return src;
+      const targetHeight = getAutomaticTargetHeight();
+      return (
+        [...progressiveSources]
+          .sort(
+            (a, b) =>
+              Math.abs(a.height - targetHeight) -
+              Math.abs(b.height - targetHeight)
+          )
+          .at(0)?.url || src
+      );
+    };
+
+    const automaticSource = chooseAutomaticSource();
+    video.src = automaticSource;
+    setActiveHeight(
+      progressiveSources.find((source) => source.url === automaticSource)
+        ?.height || null
+    );
     video.addEventListener("canplay", startPlayback, { once: true });
     video.load();
 
@@ -84,12 +125,37 @@ export default function OttVideoPlayer({
       video.removeAttribute("src");
       video.load();
     };
-  }, [isAdaptiveStream, src]);
+  }, [isAdaptiveStream, progressiveSources, src]);
 
   const chooseQuality = (level: number) => {
     setSelectedLevel(level);
     setQualityMenuOpen(false);
-    if (hlsRef.current) hlsRef.current.currentLevel = level;
+    if (hlsRef.current) {
+      hlsRef.current.currentLevel = level;
+      return;
+    }
+
+    const video = videoRef.current;
+    if (!video || progressiveSources.length === 0) return;
+    const currentTime = video.currentTime;
+    const wasPlaying = !video.paused;
+    const targetHeight =
+      level === -1 ? getAutomaticTargetHeight() : level;
+    const nextSource =
+      progressiveSources.find((source) => source.height === targetHeight) ||
+      progressiveSources[0];
+
+    video.src = nextSource.url;
+    setActiveHeight(nextSource.height);
+    video.addEventListener(
+      "loadedmetadata",
+      () => {
+        video.currentTime = currentTime;
+        if (wasPlaying) void video.play();
+      },
+      { once: true }
+    );
+    video.load();
   };
 
   const qualityLabel =
@@ -97,7 +163,20 @@ export default function OttVideoPlayer({
       ? activeHeight
         ? `Auto · ${activeHeight}p`
         : "Auto"
-      : `${levels.find((level) => level.index === selectedLevel)?.height || ""}p`;
+      : `${
+          hlsRef.current
+            ? levels.find((level) => level.index === selectedLevel)?.height || ""
+            : selectedLevel
+        }p`;
+
+  const displayedLevels =
+    progressiveSources.length > 0
+      ? progressiveSources.map((source) => ({
+          index: source.height,
+          height: source.height,
+          bitrate: 0,
+        }))
+      : levels;
 
   return (
     <div className="group relative overflow-hidden rounded-xl bg-black sm:rounded-[1.3rem]">
@@ -145,7 +224,7 @@ export default function OttVideoPlayer({
               {selectedLevel === -1 && <span className="text-emerald-400">✓</span>}
             </button>
 
-            {levels.map((level) => (
+            {displayedLevels.map((level) => (
               <button
                 key={`${level.height}-${level.bitrate}`}
                 type="button"
@@ -161,7 +240,7 @@ export default function OttVideoPlayer({
               </button>
             ))}
 
-            {levels.length === 0 && (
+            {displayedLevels.length === 0 && (
               <div className="border-t border-white/10 px-3 py-2 text-white/50">
                 Original source
               </div>

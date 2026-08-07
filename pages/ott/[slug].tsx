@@ -20,6 +20,7 @@ import PodcastPlayer from "@/components/PodcastPlayer";
 import PodcastCard from "@/components/PodcastCard";
 import ShareButton from "@/components/ShareButton";
 import OttVideoPlayer from "@/components/OttVideoPlayer";
+import { getOttVideoSources } from "@/lib/ottVideoSources";
 
 interface PodcastEpisodeProps {
   episode: PodcastEpisodeData;
@@ -244,6 +245,7 @@ export default function PodcastEpisodePage({
                   {episode.videoUrl ? (
                     <OttVideoPlayer
                       src={episode.videoUrl}
+                      sources={getOttVideoSources(episode.slug)}
                       poster={episode.coverImage}
                       title={episode.title}
                     />
