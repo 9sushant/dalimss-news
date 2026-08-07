@@ -278,7 +278,7 @@ export default function NewPodcastEpisode() {
 
       setProgress(100);
       setStatusMessage("Episode published");
-      await router.push(`/podcasts/${data.slug}`);
+      await router.push(`/ott/${data.slug}`);
     } catch (publishError) {
       console.error("Podcast publish failed:", publishError);
       setError(
@@ -303,7 +303,7 @@ export default function NewPodcastEpisode() {
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
           <button
             type="button"
-            onClick={() => router.push("/podcasts")}
+            onClick={() => router.push("/ott")}
             className="inline-flex items-center gap-2 text-sm font-semibold text-white/50 transition hover:text-white"
           >
             <ArrowLeftIcon className="h-4 w-4" />

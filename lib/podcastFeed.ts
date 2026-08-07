@@ -13,7 +13,7 @@ export async function buildPodcastFeed() {
   const items = episodes
     .filter((episode) => episode.audioUrl || episode.videoUrl)
     .map((episode) => {
-      const episodeUrl = `${SITE_URL}/podcasts/${episode.slug}`;
+      const episodeUrl = `${SITE_URL}/ott/${episode.slug}`;
       const mediaUrl = episode.audioUrl || episode.videoUrl || "";
       const mediaType =
         episode.mediaMimeType ||
@@ -60,12 +60,12 @@ export async function buildPodcastFeed() {
   xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
   <channel>
     <title>Dalimss News Podcasts</title>
-    <link>${SITE_URL}/podcasts</link>
+    <link>${SITE_URL}/ott</link>
     <description>Original interviews, explainers and on-ground stories from ${SITE_NAME}.</description>
     <language>hi-IN</language>
     <copyright>© ${new Date().getFullYear()} ${SITE_NAME}</copyright>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
-    <atom:link href="${SITE_URL}/podcasts/feed.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="${SITE_URL}/ott/feed.xml" rel="self" type="application/rss+xml" />
     <itunes:author>${SITE_NAME}</itunes:author>
     <itunes:summary>Original conversations, explainers and stories from Varanasi and beyond.</itunes:summary>
     <itunes:type>episodic</itunes:type>

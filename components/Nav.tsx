@@ -240,7 +240,7 @@ const Nav: React.FC = () => {
                         Write article
                       </Link>
                       <Link
-                        href="/podcasts/new"
+                        href="/ott/new"
                         onClick={closeDropdowns}
                         className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-slate-700 transition hover:bg-red-50 hover:text-[#E21B22]"
                       >
@@ -320,10 +320,10 @@ const Nav: React.FC = () => {
           <ul className="flex shrink-0 items-stretch gap-4 xl:gap-6">
             <li className="flex items-stretch">
               <Link
-                href="/podcasts"
+                href="/ott"
                 onClick={closeDropdowns}
                 className={`${desktopLinkClass(
-                  "/podcasts"
+                  "/ott"
                 )} flex items-center gap-1.5`}
               >
                 <span className="relative flex h-2 w-2">
@@ -428,7 +428,7 @@ const Nav: React.FC = () => {
                 </Link>
               ))}
               <Link
-                href="/podcasts"
+                href="/ott"
                 onClick={closeDropdowns}
                 className="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2.5 text-sm font-bold text-[#E21B22]"
               >
@@ -466,7 +466,7 @@ const Nav: React.FC = () => {
                     Write article
                   </Link>
                   <Link
-                    href="/podcasts/new"
+                    href="/ott/new"
                     onClick={closeDropdowns}
                     className="flex items-center justify-center gap-2 rounded-xl bg-[#E21B22] px-3 py-3 text-xs font-bold transition hover:bg-red-600"
                   >

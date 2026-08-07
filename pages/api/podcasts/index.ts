@@ -147,7 +147,7 @@ export default async function handler(
       },
     });
 
-    await submitIndexNow([`${SITE_URL}/podcasts/${episode.slug}`]);
+    await submitIndexNow([`${SITE_URL}/ott/${episode.slug}`]);
 
     return res.status(201).json(episode);
   } catch (error) {

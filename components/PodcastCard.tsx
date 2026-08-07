@@ -13,7 +13,7 @@ interface PodcastCardProps {
 export default function PodcastCard({ episode }: PodcastCardProps) {
   return (
     <Link
-      href={`/podcasts/${episode.slug}`}
+      href={`/ott/${episode.slug}`}
       className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-slate-200/80 bg-white shadow-[0_18px_50px_rgba(15,23,42,0.06)] transition duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-[0_24px_70px_rgba(15,23,42,0.12)]"
     >
       <div className="relative aspect-square overflow-hidden bg-slate-900">

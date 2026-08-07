@@ -29,7 +29,7 @@ const Footer = () => {
             </h4>
             <div className="grid grid-cols-2 gap-2 text-sm text-left">
               <Link
-                href="/podcasts"
+                href="/ott"
                 className="font-semibold text-red-400 transition-colors hover:text-white"
               >
                 OTT & Podcasts
@@ -67,7 +67,7 @@ const Footer = () => {
               <Link href="/contact" className="text-gray-400 hover:text-white transition-colors">
                 Contact Us
               </Link>
-              <Link href="/podcasts/feed.xml" className="text-gray-400 hover:text-white transition-colors">
+              <Link href="/ott/feed.xml" className="text-gray-400 hover:text-white transition-colors">
                 Podcast RSS Feed
               </Link>
               <Link href="/privacy-policy" className="text-gray-400 hover:text-white transition-colors">

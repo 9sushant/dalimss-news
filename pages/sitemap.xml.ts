@@ -66,8 +66,8 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   const staticPages = [
     { path: "", priority: "1.0", freq: "hourly" },
     { path: "/articles", priority: "0.9", freq: "hourly" },
-    { path: "/podcasts", priority: "0.9", freq: "daily" },
-    { path: "/podcasts/feed.xml", priority: "0.5", freq: "hourly" },
+    { path: "/ott", priority: "0.9", freq: "daily" },
+    { path: "/ott/feed.xml", priority: "0.5", freq: "hourly" },
     { path: "/about", priority: "0.5", freq: "monthly" },
     { path: "/contact", priority: "0.5", freq: "monthly" },
     { path: "/privacy-policy", priority: "0.3", freq: "monthly" },
@@ -138,7 +138,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
         .map(
           (episode) => `
       <url>
-        <loc>${baseUrl}/podcasts/${episode.slug}</loc>
+        <loc>${baseUrl}/ott/${episode.slug}</loc>
         <lastmod>${new Date(episode.updatedAt).toISOString()}</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>

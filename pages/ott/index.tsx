@@ -57,12 +57,12 @@ export default function PodcastIndex({ episodes }: PodcastIndexProps) {
           name="description"
           content="Listen to premium Dalimss News podcasts, original interviews, explainers and on-ground stories from Varanasi and beyond."
         />
-        <link rel="canonical" href={`${SITE_URL}/podcasts`} />
+        <link rel="canonical" href={`${SITE_URL}/ott`} />
         <link
           rel="alternate"
           type="application/rss+xml"
           title="Dalimss News Podcasts"
-          href={`${SITE_URL}/podcasts/feed.xml`}
+          href={`${SITE_URL}/ott/feed.xml`}
         />
         <meta property="og:type" content="website" />
         <meta
@@ -84,10 +84,10 @@ export default function PodcastIndex({ episodes }: PodcastIndexProps) {
               "@context": "https://schema.org",
               "@type": "PodcastSeries",
               name: "Dalimss News Podcasts",
-              url: `${SITE_URL}/podcasts`,
+              url: `${SITE_URL}/ott`,
               description:
                 "Original news conversations, interviews and explainers from Dalimss News.",
-              webFeed: `${SITE_URL}/podcasts/feed.xml`,
+              webFeed: `${SITE_URL}/ott/feed.xml`,
             }),
           }}
         />
@@ -112,7 +112,7 @@ export default function PodcastIndex({ episodes }: PodcastIndexProps) {
             </div>
             {isEditor && (
               <Link
-                href="/podcasts/new"
+                href="/ott/new"
                 className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-[#ff5a4c] hover:text-white"
               >
                 <PlusIcon className="h-4 w-4" />
@@ -124,7 +124,7 @@ export default function PodcastIndex({ episodes }: PodcastIndexProps) {
           {featuredEpisode ? (
             <div className="grid items-center gap-8 lg:grid-cols-[0.82fr_1.18fr] lg:gap-14">
               <Link
-                href={`/podcasts/${featuredEpisode.slug}`}
+                href={`/ott/${featuredEpisode.slug}`}
                 className="group relative mx-auto aspect-square w-full max-w-[520px] overflow-hidden rounded-[2rem] border border-white/10 bg-slate-900 shadow-[0_30px_90px_rgba(0,0,0,.45)]"
               >
                 <img
@@ -186,7 +186,7 @@ export default function PodcastIndex({ episodes }: PodcastIndexProps) {
                     />
                   ) : (
                     <Link
-                      href={`/podcasts/${featuredEpisode.slug}`}
+                      href={`/ott/${featuredEpisode.slug}`}
                       className="inline-flex items-center gap-3 rounded-full bg-[#ff4d3d] px-6 py-3.5 text-sm font-bold text-white shadow-[0_14px_40px_rgba(255,77,61,.28)] transition hover:-translate-y-0.5 hover:bg-[#ff6254]"
                     >
                       <PlayIcon className="h-5 w-5" />
@@ -208,7 +208,7 @@ export default function PodcastIndex({ episodes }: PodcastIndexProps) {
               </p>
               {isEditor && (
                 <Link
-                  href="/podcasts/new"
+                  href="/ott/new"
                   className="mt-7 inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-bold text-slate-950"
                 >
                   <PlusIcon className="h-4 w-4" />
@@ -232,7 +232,7 @@ export default function PodcastIndex({ episodes }: PodcastIndexProps) {
               </h2>
             </div>
             <Link
-              href="/podcasts/feed.xml"
+              href="/ott/feed.xml"
               className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-[#df3d31]"
             >
               Follow via RSS

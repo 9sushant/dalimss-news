@@ -40,7 +40,7 @@ export default function PodcastEpisodePage({
     session?.user?.role === "admin" ||
     session?.user?.role === "editor" ||
     EDITOR_EMAILS.has(session?.user?.email || "");
-  const canonicalUrl = `${SITE_URL}/podcasts/${episode.slug}`;
+  const canonicalUrl = `${SITE_URL}/ott/${episode.slug}`;
   const publishedDate = new Date(episode.publishedAt).toLocaleDateString(
     "en-IN",
     { day: "numeric", month: "long", year: "numeric" }
@@ -68,7 +68,7 @@ export default function PodcastEpisodePage({
     partOfSeries: {
       "@type": "PodcastSeries",
       name: episode.showName,
-      url: `${SITE_URL}/podcasts`,
+      url: `${SITE_URL}/ott`,
     },
     actor: {
       "@type": "Person",
@@ -82,7 +82,7 @@ export default function PodcastEpisodePage({
       method: "DELETE",
     });
     if (response.ok) {
-      window.location.href = "/podcasts";
+      window.location.href = "/ott";
       return;
     }
     const data = await response.json();
@@ -126,7 +126,7 @@ export default function PodcastEpisodePage({
           <div className="relative mx-auto max-w-7xl px-4 pb-14 pt-8 sm:px-6 sm:pb-20 lg:px-8">
             <div className="mb-9 flex items-center justify-between gap-4">
               <Link
-                href="/podcasts"
+                href="/ott"
                 className="inline-flex items-center gap-2 text-sm font-semibold text-white/55 transition hover:text-white"
               >
                 <ArrowLeftIcon className="h-4 w-4" />
@@ -134,7 +134,7 @@ export default function PodcastEpisodePage({
               </Link>
               <div className="flex items-center gap-2">
                 <ShareButton
-                  url={`/podcasts/${episode.slug}`}
+                  url={`/ott/${episode.slug}`}
                   title={episode.title}
                   variant="full"
                 />

@@ -34,6 +34,11 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: "/podcasts/:path*",
+        destination: "/ott/:path*",
+        permanent: true,
+      },
+      {
         source: "/authors/:slug",
         destination: "/author/:slug",
         permanent: true,
@@ -118,7 +123,7 @@ const nextConfig = {
         ]
       },
       {
-        source: '/podcasts/new',
+        source: '/ott/new',
         headers: [
           {
             key: 'X-Robots-Tag',
