@@ -7,7 +7,6 @@ import {
   CalendarDaysIcon,
   MicrophoneIcon,
   PencilSquareIcon,
-  PlayIcon,
 } from "@heroicons/react/24/outline";
 import prisma from "@/lib/prisma";
 import { SITE_URL } from "@/lib/seo";
@@ -117,17 +116,17 @@ export default function PodcastEpisodePage({
       </Head>
 
       <article className="bg-[#05070b] text-white">
-        <section className="relative min-h-[700px] overflow-hidden sm:min-h-[760px] lg:min-h-[calc(100vh-4rem)]">
+        <section className="relative min-h-[700px] overflow-hidden lg:min-h-[calc(100vh-4rem)]">
           <img
             src={episode.coverImage}
             alt=""
-            className="absolute inset-0 h-full w-full scale-[1.03] object-cover object-center opacity-65 lg:object-[72%_center]"
+            className="absolute inset-0 h-full w-full scale-[1.03] object-cover object-center opacity-35 lg:object-[72%_center]"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#05070b] via-[#05070b]/90 to-[#05070b]/15" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#05070b] via-[#05070b]/20 to-[#05070b]/45" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#05070b] via-[#05070b]/85 to-[#05070b]/45" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#05070b] via-[#05070b]/15 to-[#05070b]/50" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_35%,transparent_0%,rgba(5,7,11,.18)_38%,rgba(5,7,11,.75)_100%)]" />
 
-          <div className="relative mx-auto flex min-h-[700px] max-w-7xl flex-col px-4 pb-14 pt-7 sm:min-h-[760px] sm:px-6 sm:pb-20 lg:min-h-[calc(100vh-4rem)] lg:px-8">
+          <div className="relative mx-auto flex min-h-[700px] max-w-[1480px] flex-col px-4 py-7 sm:px-6 lg:min-h-[calc(100vh-4rem)] lg:px-8">
             <div className="flex items-center justify-between gap-4">
               <Link
                 href="/ott"
@@ -157,121 +156,108 @@ export default function PodcastEpisodePage({
               )}
             </div>
 
-            <div className="mt-auto max-w-3xl">
-              <div className="mb-5 flex flex-wrap items-center gap-2.5 text-[11px] font-extrabold uppercase tracking-[0.18em]">
-                <span className="rounded-md bg-[#f04438] px-2.5 py-1 text-white">
-                  Dalimss Original
-                </span>
-                <span className="text-white/75">
-                  {formatEpisodeLabel(
-                    episode.seasonNumber,
-                    episode.episodeNumber
+            <div className="grid flex-1 items-center gap-10 py-10 lg:grid-cols-[0.86fr_1.14fr] lg:gap-12 xl:gap-16">
+              <div className="max-w-2xl">
+                <div className="mb-5 flex flex-wrap items-center gap-2.5 text-[11px] font-extrabold uppercase tracking-[0.18em]">
+                  <span className="rounded-md bg-[#f04438] px-2.5 py-1 text-white">
+                    Dalimss Original
+                  </span>
+                  <span className="text-white/75">
+                    {formatEpisodeLabel(
+                      episode.seasonNumber,
+                      episode.episodeNumber
+                    )}
+                  </span>
+                </div>
+
+                <h1 className="text-4xl font-black leading-[1.02] tracking-[-0.04em] text-white drop-shadow-2xl sm:text-5xl xl:text-6xl">
+                  {episode.title}
+                </h1>
+
+                <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm font-semibold text-white/70">
+                  <span className="text-emerald-400">New</span>
+                  <span>{new Date(episode.publishedAt).getFullYear()}</span>
+                  <span>{formatDuration(episode.duration)}</span>
+                  <span className="rounded border border-white/35 px-1.5 py-0.5 text-[10px] uppercase tracking-wider">
+                    {episode.language}
+                  </span>
+                  {episode.category && <span>{episode.category}</span>}
+                  {episode.explicit && (
+                    <span className="rounded border border-white/30 px-1.5 py-0.5 text-[10px] uppercase tracking-wider">
+                      Explicit
+                    </span>
                   )}
-                </span>
-              </div>
+                </div>
 
-              <h1 className="max-w-3xl text-4xl font-black leading-[0.98] tracking-[-0.045em] text-white drop-shadow-2xl sm:text-6xl lg:text-7xl">
-                {episode.title}
-              </h1>
+                <p className="mt-5 line-clamp-3 text-base leading-7 text-white/75 drop-shadow-lg">
+                  {episode.description}
+                </p>
 
-              <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm font-semibold text-white/70">
-                <span className="text-emerald-400">New</span>
-                <span>{new Date(episode.publishedAt).getFullYear()}</span>
-                <span>{formatDuration(episode.duration)}</span>
-                <span className="rounded border border-white/35 px-1.5 py-0.5 text-[10px] uppercase tracking-wider">
-                  {episode.language}
-                </span>
-                {episode.category && <span>{episode.category}</span>}
-                {episode.explicit && (
-                  <span className="rounded border border-white/30 px-1.5 py-0.5 text-[10px] uppercase tracking-wider">
-                    Explicit
-                  </span>
-                )}
-              </div>
-
-              <p className="mt-5 line-clamp-3 max-w-2xl text-base leading-7 text-white/75 drop-shadow-lg sm:text-lg">
-                {episode.description}
-              </p>
-
-              <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/60">
-                <span>
-                  <span className="text-white/35">Hosted by</span>{" "}
-                  <span className="font-semibold text-white/85">
-                    {episode.hostName}
-                  </span>
-                </span>
-                {episode.guestNames && (
+                <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/60">
                   <span>
-                    <span className="text-white/35">Featuring</span>{" "}
+                    <span className="text-white/35">Hosted by</span>{" "}
                     <span className="font-semibold text-white/85">
-                      {episode.guestNames}
+                      {episode.hostName}
                     </span>
                   </span>
-                )}
+                  {episode.guestNames && (
+                    <span>
+                      <span className="text-white/35">Featuring</span>{" "}
+                      <span className="font-semibold text-white/85">
+                        {episode.guestNames}
+                      </span>
+                    </span>
+                  )}
+                </div>
+
+                <div className="mt-7">
+                  <ShareButton
+                    url={`/ott/${episode.slug}`}
+                    title={episode.title}
+                    variant="full"
+                    className="[&_button]:!rounded-lg [&_button]:!bg-white/15 [&_button]:!px-5 [&_button]:!py-3 [&_button]:!font-bold [&_button]:!text-white [&_button]:!backdrop-blur-xl hover:[&_button]:!bg-white/25"
+                  />
+                </div>
               </div>
 
-              <div className="mt-8 flex flex-wrap items-center gap-3">
-                <a
-                  href="#watch"
-                  className="inline-flex items-center gap-2.5 rounded-lg bg-white px-6 py-3.5 text-sm font-extrabold text-slate-950 shadow-xl transition hover:scale-[1.02] hover:bg-white/90"
-                >
-                  <PlayIcon className="h-5 w-5 fill-current" />
-                  {episode.mediaType === "video" ? "Watch now" : "Listen now"}
-                </a>
-                <ShareButton
-                  url={`/ott/${episode.slug}`}
-                  title={episode.title}
-                  variant="full"
-                  className="[&_button]:!rounded-lg [&_button]:!bg-white/15 [&_button]:!px-5 [&_button]:!py-3.5 [&_button]:!font-bold [&_button]:!text-white [&_button]:!backdrop-blur-xl hover:[&_button]:!bg-white/25"
-                />
+              <div className="min-w-0">
+                <div className="overflow-hidden rounded-2xl border border-white/15 bg-black/80 p-1.5 shadow-[0_35px_120px_rgba(0,0,0,.65)] ring-1 ring-white/[0.04] backdrop-blur-xl sm:rounded-[1.75rem] sm:p-2">
+                  {episode.videoUrl ? (
+                    <video
+                      src={episode.videoUrl}
+                      poster={episode.coverImage}
+                      controls
+                      playsInline
+                      preload="metadata"
+                      className="aspect-video w-full rounded-xl bg-black sm:rounded-[1.3rem]"
+                    >
+                      Your browser does not support video playback.
+                    </video>
+                  ) : episode.audioUrl ? (
+                    <div className="grid items-center gap-5 rounded-xl bg-white/[0.04] p-5 sm:rounded-[1.3rem] md:grid-cols-[150px_1fr]">
+                      <img
+                        src={episode.coverImage}
+                        alt={`${episode.title} cover`}
+                        className="aspect-square w-full max-w-[150px] rounded-xl object-cover shadow-2xl"
+                      />
+                      <PodcastPlayer
+                        src={episode.audioUrl}
+                        title={episode.title}
+                      />
+                    </div>
+                  ) : null}
+                </div>
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-3 px-1 text-xs text-white/45">
+                  <span className="font-bold uppercase tracking-[0.18em] text-[#ff6254]">
+                    {episode.mediaType === "video" ? "Watch now" : "Listen now"}
+                  </span>
+                  <span className="inline-flex items-center gap-2">
+                    <CalendarDaysIcon className="h-4 w-4" />
+                    {publishedDate}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        </section>
-
-        <section
-          id="watch"
-          className="scroll-mt-20 border-t border-white/[0.07] bg-[#080b11] py-12 sm:py-16"
-        >
-          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-            <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <p className="text-[10px] font-extrabold uppercase tracking-[0.24em] text-[#ff6254]">
-                  Now playing
-                </p>
-                <h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
-                  {episode.title}
-                </h2>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-white/40">
-                <CalendarDaysIcon className="h-4 w-4" />
-                {publishedDate}
-              </div>
-            </div>
-
-            {episode.videoUrl ? (
-              <div className="overflow-hidden rounded-2xl border border-white/10 bg-black shadow-[0_30px_100px_rgba(0,0,0,.55)] sm:rounded-3xl">
-                <video
-                  src={episode.videoUrl}
-                  poster={episode.coverImage}
-                  controls
-                  playsInline
-                  preload="metadata"
-                  className="aspect-video w-full bg-black"
-                >
-                  Your browser does not support video playback.
-                </video>
-              </div>
-            ) : episode.audioUrl ? (
-              <div className="grid items-center gap-7 rounded-3xl border border-white/10 bg-white/[0.04] p-5 shadow-[0_30px_100px_rgba(0,0,0,.35)] sm:p-7 md:grid-cols-[180px_1fr]">
-                <img
-                  src={episode.coverImage}
-                  alt={`${episode.title} cover`}
-                  className="aspect-square w-full max-w-[180px] rounded-2xl object-cover shadow-2xl"
-                />
-                <PodcastPlayer src={episode.audioUrl} title={episode.title} />
-              </div>
-            ) : null}
           </div>
         </section>
 
