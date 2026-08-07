@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useSession, signIn } from "next-auth/react";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { upload as uploadBlob } from "@vercel/blob/client";
 import {
   ArrowLeftIcon,
@@ -13,7 +13,11 @@ import {
   PhotoIcon,
   SparklesIcon,
 } from "@heroicons/react/24/outline";
-import { PODCAST_CATEGORIES, PODCAST_LANGUAGES } from "@/lib/podcasts";
+import {
+  PODCAST_CATEGORIES,
+  PODCAST_LANGUAGES,
+  PodcastEpisodeData,
+} from "@/lib/podcasts";
 import { compressImage } from "@/utils/compressImage";
 
 const EDITOR_EMAILS = new Set([
@@ -57,6 +61,9 @@ function getMediaDuration(file: File): Promise<number> {
 export default function NewPodcastEpisode() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const isEditing = router.pathname === "/ott/[slug]/edit";
+  const editSlug =
+    typeof router.query.slug === "string" ? router.query.slug : "";
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [showName, setShowName] = useState("Dalimss News Podcasts");
@@ -69,7 +76,15 @@ export default function NewPodcastEpisode() {
   const [mediaType, setMediaType] = useState<MediaType>("audio");
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState("");
+  const [existingCoverImage, setExistingCoverImage] = useState("");
   const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [existingMediaUrl, setExistingMediaUrl] = useState("");
+  const [existingMediaBytes, setExistingMediaBytes] = useState<string | null>(
+    null
+  );
+  const [existingMediaMimeType, setExistingMediaMimeType] = useState<
+    string | null
+  >(null);
   const [duration, setDuration] = useState(0);
   const [featured, setFeatured] = useState(false);
   const [explicit, setExplicit] = useState(false);
@@ -77,11 +92,70 @@ export default function NewPodcastEpisode() {
   const [progress, setProgress] = useState(0);
   const [statusMessage, setStatusMessage] = useState("");
   const [error, setError] = useState("");
+  const [loadingEpisode, setLoadingEpisode] = useState(isEditing);
 
   const isEditor =
     session?.user?.role === "admin" ||
     session?.user?.role === "editor" ||
     EDITOR_EMAILS.has(session?.user?.email || "");
+
+  useEffect(() => {
+    if (!isEditing || !editSlug || !isEditor) return;
+
+    let cancelled = false;
+    setLoadingEpisode(true);
+    fetch(`/api/podcasts/${editSlug}`)
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || "Unable to load this episode");
+        }
+        return data as PodcastEpisodeData;
+      })
+      .then((episode) => {
+        if (cancelled) return;
+        const episodeMediaType: MediaType =
+          episode.mediaType === "video" ? "video" : "audio";
+        setTitle(episode.title);
+        setDescription(episode.description);
+        setShowName(episode.showName);
+        setHostName(episode.hostName);
+        setGuestNames(episode.guestNames || "");
+        setCategory(episode.category || "News & Politics");
+        setLanguage(episode.language);
+        setSeasonNumber(episode.seasonNumber?.toString() || "");
+        setEpisodeNumber(episode.episodeNumber?.toString() || "");
+        setMediaType(episodeMediaType);
+        setCoverPreview(episode.coverImage);
+        setExistingCoverImage(episode.coverImage);
+        setExistingMediaUrl(
+          episodeMediaType === "video"
+            ? episode.videoUrl || ""
+            : episode.audioUrl || ""
+        );
+        setExistingMediaBytes(episode.mediaBytes);
+        setExistingMediaMimeType(episode.mediaMimeType);
+        setDuration(episode.duration || 0);
+        setFeatured(episode.featured);
+        setExplicit(episode.explicit);
+      })
+      .catch((loadError) => {
+        if (!cancelled) {
+          setError(
+            loadError instanceof Error
+              ? loadError.message
+              : "Unable to load this episode"
+          );
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingEpisode(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [editSlug, isEditing, isEditor]);
 
   const descriptionCount = description.trim().length;
   const canPublish = useMemo(
@@ -89,9 +163,17 @@ export default function NewPodcastEpisode() {
       title.trim().length >= 3 &&
       descriptionCount >= 30 &&
       hostName.trim().length >= 2 &&
-      Boolean(coverFile) &&
-      Boolean(mediaFile),
-    [coverFile, descriptionCount, hostName, mediaFile, title]
+      Boolean(coverFile || existingCoverImage) &&
+      Boolean(mediaFile || existingMediaUrl),
+    [
+      coverFile,
+      descriptionCount,
+      existingCoverImage,
+      existingMediaUrl,
+      hostName,
+      mediaFile,
+      title,
+    ]
   );
 
   if (status === "loading") {
@@ -133,6 +215,14 @@ export default function NewPodcastEpisode() {
             Only Dalimss editors can publish podcast episodes.
           </p>
         </div>
+      </div>
+    );
+  }
+
+  if (loadingEpisode) {
+    return (
+      <div className="grid min-h-[70vh] place-items-center bg-[#080c15] text-white">
+        Loading episode…
       </div>
     );
   }
@@ -193,12 +283,15 @@ export default function NewPodcastEpisode() {
     if (publishing || nextType === mediaType) return;
     setMediaType(nextType);
     setMediaFile(null);
+    setExistingMediaUrl("");
+    setExistingMediaBytes(null);
+    setExistingMediaMimeType(null);
     setDuration(0);
   };
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!canPublish || !coverFile || !mediaFile) {
+    if (!canPublish) {
       setError(
         "Add the title, description, host, cover artwork and episode file."
       );
@@ -209,82 +302,104 @@ export default function NewPodcastEpisode() {
     setError("");
 
     try {
-      setStatusMessage("Uploading cover artwork…");
-      const coverBlob = await uploadBlob(
-        `dalimss-podcasts/covers/${Date.now()}-${safeFilename(
-          coverFile.name
-        )}`,
-        coverFile,
-        {
-          access: "public",
-          handleUploadUrl: "/api/podcasts/upload",
-          clientPayload: JSON.stringify({ kind: "cover" }),
-          contentType: coverFile.type,
-          onUploadProgress: ({ percentage }) =>
-            setProgress(Math.round(percentage * 0.15)),
-        }
-      );
+      let coverImage = existingCoverImage;
+      if (coverFile) {
+        setStatusMessage("Uploading cover artwork…");
+        const coverBlob = await uploadBlob(
+          `dalimss-podcasts/covers/${Date.now()}-${safeFilename(
+            coverFile.name
+          )}`,
+          coverFile,
+          {
+            access: "public",
+            handleUploadUrl: "/api/podcasts/upload",
+            clientPayload: JSON.stringify({ kind: "cover" }),
+            contentType: coverFile.type,
+            onUploadProgress: ({ percentage }) =>
+              setProgress(Math.round(percentage * 0.15)),
+          }
+        );
+        coverImage = coverBlob.url;
+      }
 
-      setStatusMessage(
-        `Uploading ${mediaType}… You can keep this tab open in the background.`
-      );
-      const mediaBlob = await uploadBlob(
-        `dalimss-podcasts/episodes/${Date.now()}-${safeFilename(
-          mediaFile.name
-        )}`,
-        mediaFile,
-        {
-          access: "public",
-          handleUploadUrl: "/api/podcasts/upload",
-          clientPayload: JSON.stringify({ kind: "episode" }),
-          contentType: mediaFile.type,
-          multipart: true,
-          onUploadProgress: ({ percentage }) =>
-            setProgress(15 + Math.round(percentage * 0.8)),
-        }
-      );
+      let mediaUrl = existingMediaUrl;
+      let mediaBytes: number | string | null = existingMediaBytes;
+      let mediaMimeType = existingMediaMimeType;
+      if (mediaFile) {
+        setStatusMessage(
+          `Uploading ${mediaType}… You can keep this tab open in the background.`
+        );
+        const mediaBlob = await uploadBlob(
+          `dalimss-podcasts/episodes/${Date.now()}-${safeFilename(
+            mediaFile.name
+          )}`,
+          mediaFile,
+          {
+            access: "public",
+            handleUploadUrl: "/api/podcasts/upload",
+            clientPayload: JSON.stringify({ kind: "episode" }),
+            contentType: mediaFile.type,
+            multipart: true,
+            onUploadProgress: ({ percentage }) =>
+              setProgress(15 + Math.round(percentage * 0.8)),
+          }
+        );
+        mediaUrl = mediaBlob.url;
+        mediaBytes = mediaFile.size;
+        mediaMimeType = mediaFile.type;
+      }
 
-      setStatusMessage("Publishing episode…");
+      setStatusMessage(isEditing ? "Saving changes…" : "Publishing episode…");
       setProgress(97);
-      const response = await fetch("/api/podcasts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title,
-          description,
-          showName,
-          hostName,
-          guestNames,
-          category,
-          language,
-          seasonNumber,
-          episodeNumber,
-          duration,
-          coverImage: coverBlob.url,
-          audioUrl: mediaType === "audio" ? mediaBlob.url : null,
-          videoUrl: mediaType === "video" ? mediaBlob.url : null,
-          mediaBytes: mediaFile.size,
-          mediaMimeType: mediaFile.type,
-          mediaType,
-          explicit,
-          featured,
-        }),
-      });
+      const response = await fetch(
+        isEditing ? `/api/podcasts/${editSlug}` : "/api/podcasts",
+        {
+          method: isEditing ? "PUT" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title,
+            description,
+            showName,
+            hostName,
+            guestNames,
+            category,
+            language,
+            seasonNumber,
+            episodeNumber,
+            duration,
+            coverImage,
+            audioUrl: mediaType === "audio" ? mediaUrl : null,
+            videoUrl: mediaType === "video" ? mediaUrl : null,
+            mediaBytes,
+            mediaMimeType,
+            mediaType,
+            explicit,
+            featured,
+          }),
+        }
+      );
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || "Unable to publish this episode");
+        throw new Error(
+          data.error ||
+            (isEditing
+              ? "Unable to save this episode"
+              : "Unable to publish this episode")
+        );
       }
 
       setProgress(100);
-      setStatusMessage("Episode published");
+      setStatusMessage(isEditing ? "Changes saved" : "Episode published");
       await router.push(`/ott/${data.slug}`);
     } catch (publishError) {
-      console.error("Podcast publish failed:", publishError);
+      console.error("Podcast save failed:", publishError);
       setError(
         publishError instanceof Error
           ? publishError.message
-          : "Unable to publish this episode"
+          : isEditing
+            ? "Unable to save this episode"
+            : "Unable to publish this episode"
       );
       setStatusMessage("");
     } finally {
@@ -295,7 +410,9 @@ export default function NewPodcastEpisode() {
   return (
     <>
       <Head>
-        <title>Podcast Studio | Dalimss News</title>
+        <title>
+          {isEditing ? "Edit episode" : "Podcast Studio"} | Dalimss News
+        </title>
         <meta name="robots" content="noindex, nofollow" />
       </Head>
 
@@ -303,7 +420,9 @@ export default function NewPodcastEpisode() {
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
           <button
             type="button"
-            onClick={() => router.push("/ott")}
+            onClick={() =>
+              router.push(isEditing ? `/ott/${editSlug}` : "/ott")
+            }
             className="inline-flex items-center gap-2 text-sm font-semibold text-white/50 transition hover:text-white"
           >
             <ArrowLeftIcon className="h-4 w-4" />
@@ -318,11 +437,12 @@ export default function NewPodcastEpisode() {
                   Dalimss creator studio
                 </div>
                 <h1 className="mt-4 font-serif text-4xl font-semibold tracking-tight sm:text-5xl">
-                  Publish a new episode
+                  {isEditing ? "Edit episode" : "Publish a new episode"}
                 </h1>
                 <p className="mt-3 max-w-2xl text-white/50">
-                  Upload audio or video, add the editorial details, and the
-                  episode will be ready across the website and podcast feed.
+                  {isEditing
+                    ? "Update the editorial details or replace the artwork and media file."
+                    : "Upload audio or video, add the editorial details, and the episode will be ready across the website and podcast feed."}
                 </p>
               </div>
 
@@ -524,6 +644,19 @@ export default function NewPodcastEpisode() {
                               Choose a different file
                             </span>
                           </>
+                        ) : existingMediaUrl ? (
+                          <>
+                            <CheckCircleIcon className="h-9 w-9 text-emerald-400" />
+                            <p className="mt-3 text-sm font-bold">
+                              Current {mediaType} file
+                            </p>
+                            <p className="mt-1 text-xs text-white/40">
+                              Keep this file or choose a replacement
+                            </p>
+                            <span className="mt-4 text-xs font-bold text-[#ff776c]">
+                              Replace file
+                            </span>
+                          </>
                         ) : (
                           <>
                             <CloudArrowUpIcon className="h-9 w-9 text-[#ff5a4c]" />
@@ -659,7 +792,11 @@ export default function NewPodcastEpisode() {
                   disabled={!canPublish || publishing}
                   className="w-full rounded-2xl bg-[#ff4d3d] px-6 py-4 text-sm font-extrabold text-white shadow-[0_16px_50px_rgba(255,77,61,.25)] transition hover:-translate-y-0.5 hover:bg-[#ff6254] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
                 >
-                  {publishing ? statusMessage : "Publish episode"}
+                  {publishing
+                    ? statusMessage
+                    : isEditing
+                      ? "Save changes"
+                      : "Publish episode"}
                 </button>
               </form>
             </main>

@@ -132,6 +132,15 @@ const nextConfig = {
         ]
       },
       {
+        source: '/ott/:slug/edit',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow, noarchive'
+          }
+        ]
+      },
+      {
         source: '/:path*',
         headers: [
           {
