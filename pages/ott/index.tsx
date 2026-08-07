@@ -15,6 +15,7 @@ import { SITE_URL } from "@/lib/seo";
 import {
   PODCAST_CATEGORIES,
   PodcastEpisodeData,
+  formatContentType,
   formatDuration,
   formatEpisodeLabel,
 } from "@/lib/podcasts";
@@ -116,7 +117,7 @@ export default function PodcastIndex({ episodes }: PodcastIndexProps) {
                 className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-[#ff5a4c] hover:text-white"
               >
                 <PlusIcon className="h-4 w-4" />
-                Publish episode
+                Publish OTT
               </Link>
             )}
           </div>
@@ -138,7 +139,7 @@ export default function PodcastIndex({ episodes }: PodcastIndexProps) {
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#ff5a4c] opacity-75" />
                     <span className="relative inline-flex h-2 w-2 rounded-full bg-[#ff5a4c]" />
                   </span>
-                  Featured episode
+                  Featured {formatContentType(featuredEpisode.contentType).toLowerCase()}
                 </div>
               </Link>
 
@@ -147,7 +148,8 @@ export default function PodcastIndex({ episodes }: PodcastIndexProps) {
                   <span>
                     {formatEpisodeLabel(
                       featuredEpisode.seasonNumber,
-                      featuredEpisode.episodeNumber
+                      featuredEpisode.episodeNumber,
+                      featuredEpisode.contentType
                     )}
                   </span>
                   <span className="h-1 w-1 rounded-full bg-white/30" />
@@ -190,7 +192,7 @@ export default function PodcastIndex({ episodes }: PodcastIndexProps) {
                       className="inline-flex items-center gap-3 rounded-full bg-[#ff4d3d] px-6 py-3.5 text-sm font-bold text-white shadow-[0_14px_40px_rgba(255,77,61,.28)] transition hover:-translate-y-0.5 hover:bg-[#ff6254]"
                     >
                       <PlayIcon className="h-5 w-5" />
-                      Watch this episode
+                      Watch {formatContentType(featuredEpisode.contentType).toLowerCase()}
                     </Link>
                   )}
                 </div>
@@ -203,8 +205,8 @@ export default function PodcastIndex({ episodes }: PodcastIndexProps) {
                 The studio is ready.
               </h2>
               <p className="mx-auto mt-3 max-w-lg text-white/55">
-                Your first original episode will appear here with a premium
-                player and artwork.
+                Your first OTT release will appear here with a premium player
+                and artwork.
               </p>
               {isEditor && (
                 <Link
@@ -212,7 +214,7 @@ export default function PodcastIndex({ episodes }: PodcastIndexProps) {
                   className="mt-7 inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-bold text-slate-950"
                 >
                   <PlusIcon className="h-4 w-4" />
-                  Publish the first episode
+                  Publish the first release
                 </Link>
               )}
             </div>
@@ -228,7 +230,7 @@ export default function PodcastIndex({ episodes }: PodcastIndexProps) {
                 The latest
               </p>
               <h2 className="mt-2 font-serif text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
-                Browse every episode
+                Browse all OTT releases
               </h2>
             </div>
             <Link
@@ -267,7 +269,7 @@ export default function PodcastIndex({ episodes }: PodcastIndexProps) {
             </div>
           ) : (
             <div className="mt-10 rounded-3xl border border-dashed border-slate-300 bg-white/50 px-6 py-12 text-center text-sm text-slate-500">
-              No episodes in this category yet.
+              No OTT releases in this category yet.
             </div>
           )}
         </div>

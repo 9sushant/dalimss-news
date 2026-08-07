@@ -16,7 +16,10 @@ import {
 import {
   PODCAST_CATEGORIES,
   PODCAST_LANGUAGES,
+  OTT_CONTENT_TYPES,
   PodcastEpisodeData,
+  formatContentType,
+  normalizeOttContentType,
 } from "@/lib/podcasts";
 import { compressImage } from "@/utils/compressImage";
 
@@ -74,6 +77,7 @@ export default function NewPodcastEpisode() {
   const [seasonNumber, setSeasonNumber] = useState("");
   const [episodeNumber, setEpisodeNumber] = useState("");
   const [mediaType, setMediaType] = useState<MediaType>("audio");
+  const [contentType, setContentType] = useState("episode");
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState("");
   const [existingCoverImage, setExistingCoverImage] = useState("");
@@ -108,7 +112,7 @@ export default function NewPodcastEpisode() {
       .then(async (response) => {
         const data = await response.json();
         if (!response.ok) {
-          throw new Error(data.error || "Unable to load this episode");
+          throw new Error(data.error || "Unable to load this OTT release");
         }
         return data as PodcastEpisodeData;
       })
@@ -126,6 +130,7 @@ export default function NewPodcastEpisode() {
         setSeasonNumber(episode.seasonNumber?.toString() || "");
         setEpisodeNumber(episode.episodeNumber?.toString() || "");
         setMediaType(episodeMediaType);
+        setContentType(normalizeOttContentType(episode.contentType));
         setCoverPreview(episode.coverImage);
         setExistingCoverImage(episode.coverImage);
         setExistingMediaUrl(
@@ -144,7 +149,7 @@ export default function NewPodcastEpisode() {
           setError(
             loadError instanceof Error
               ? loadError.message
-              : "Unable to load this episode"
+              : "Unable to load this OTT release"
           );
         }
       })
@@ -222,7 +227,7 @@ export default function NewPodcastEpisode() {
   if (loadingEpisode) {
     return (
       <div className="grid min-h-[70vh] place-items-center bg-[#080c15] text-white">
-        Loading episode…
+        Loading OTT release…
       </div>
     );
   }
@@ -269,7 +274,7 @@ export default function NewPodcastEpisode() {
       return;
     }
     if (file.size > 2 * 1024 * 1024 * 1024) {
-      setError("Episode files must be under 2 GB.");
+      setError("OTT media files must be under 2 GB.");
       event.target.value = "";
       return;
     }
@@ -293,7 +298,7 @@ export default function NewPodcastEpisode() {
     event.preventDefault();
     if (!canPublish) {
       setError(
-        "Add the title, description, host, cover artwork and episode file."
+        "Add the title, description, host, cover artwork and media file."
       );
       return;
     }
@@ -349,7 +354,7 @@ export default function NewPodcastEpisode() {
         mediaMimeType = mediaFile.type;
       }
 
-      setStatusMessage(isEditing ? "Saving changes…" : "Publishing episode…");
+      setStatusMessage(isEditing ? "Saving changes…" : "Publishing OTT release…");
       setProgress(97);
       const response = await fetch(
         isEditing ? `/api/podcasts/${editSlug}` : "/api/podcasts",
@@ -372,7 +377,8 @@ export default function NewPodcastEpisode() {
             videoUrl: mediaType === "video" ? mediaUrl : null,
             mediaBytes,
             mediaMimeType,
-            mediaType,
+          mediaType,
+          contentType,
             explicit,
             featured,
           }),
@@ -384,13 +390,13 @@ export default function NewPodcastEpisode() {
         throw new Error(
           data.error ||
             (isEditing
-              ? "Unable to save this episode"
-              : "Unable to publish this episode")
+              ? "Unable to save this OTT release"
+              : "Unable to publish this OTT release")
         );
       }
 
       setProgress(100);
-      setStatusMessage(isEditing ? "Changes saved" : "Episode published");
+      setStatusMessage(isEditing ? "Changes saved" : "OTT release published");
       await router.push(`/ott/${data.slug}`);
     } catch (publishError) {
       console.error("Podcast save failed:", publishError);
@@ -398,8 +404,8 @@ export default function NewPodcastEpisode() {
         publishError instanceof Error
           ? publishError.message
           : isEditing
-            ? "Unable to save this episode"
-            : "Unable to publish this episode"
+            ? "Unable to save this OTT release"
+            : "Unable to publish this OTT release"
       );
       setStatusMessage("");
     } finally {
@@ -411,7 +417,7 @@ export default function NewPodcastEpisode() {
     <>
       <Head>
         <title>
-          {isEditing ? "Edit episode" : "OTT Studio"} | Dalimss News
+          {isEditing ? "Edit OTT release" : "OTT Studio"} | Dalimss News
         </title>
         <meta name="robots" content="noindex, nofollow" />
       </Head>
@@ -437,7 +443,7 @@ export default function NewPodcastEpisode() {
                   Dalimss creator studio
                 </div>
                 <h1 className="mt-4 font-serif text-4xl font-semibold tracking-tight sm:text-5xl">
-                  {isEditing ? "Edit episode" : "Publish a new episode"}
+                  {isEditing ? "Edit OTT release" : "Publish a new OTT release"}
                 </h1>
                 <p className="mt-3 max-w-2xl text-white/50">
                   {isEditing
@@ -474,12 +480,12 @@ export default function NewPodcastEpisode() {
 
                 <section className="rounded-[1.75rem] border border-white/10 bg-white/[0.045] p-5 sm:p-7">
                   <h2 className="font-serif text-2xl font-semibold">
-                    Episode identity
+                    Release identity
                   </h2>
                   <div className="mt-6 space-y-5">
                     <label className="block">
                       <span className="text-sm font-semibold text-white/75">
-                        Episode title
+                        Title
                       </span>
                       <input
                         value={title}
@@ -693,6 +699,25 @@ export default function NewPodcastEpisode() {
                   <div className="mt-6 grid gap-5 sm:grid-cols-2">
                     <label>
                       <span className="text-sm font-semibold text-white/75">
+                        Content type
+                      </span>
+                      <select
+                        value={contentType}
+                        onChange={(event) => setContentType(event.target.value)}
+                        className="mt-2 w-full rounded-2xl border-white/10 bg-[#10151f] px-4 py-3 text-white focus:border-[#ff5a4c] focus:ring-[#ff5a4c]"
+                      >
+                        {OTT_CONTENT_TYPES.map((item) => (
+                          <option key={item} value={item}>
+                            {formatContentType(item)}
+                          </option>
+                        ))}
+                      </select>
+                      <span className="mt-2 block text-xs text-white/35">
+                        Choose how this release is labelled across OTT.
+                      </span>
+                    </label>
+                    <label>
+                      <span className="text-sm font-semibold text-white/75">
                         Category
                       </span>
                       <select
@@ -761,7 +786,7 @@ export default function NewPodcastEpisode() {
                       />
                       <span>
                         <span className="block text-sm font-bold">
-                          Feature this episode
+                          Feature this {formatContentType(contentType).toLowerCase()}
                         </span>
                         <span className="mt-0.5 block text-xs text-white/35">
                           Place it in the hero section
@@ -796,7 +821,7 @@ export default function NewPodcastEpisode() {
                     ? statusMessage
                     : isEditing
                       ? "Save changes"
-                      : "Publish episode"}
+                      : `Publish ${formatContentType(contentType).toLowerCase()}`}
                 </button>
               </form>
             </main>
@@ -823,11 +848,11 @@ export default function NewPodcastEpisode() {
                   {showName || "Dalimss News OTT"}
                 </p>
                 <h2 className="mt-2 font-serif text-2xl font-semibold leading-tight">
-                  {title || "Your episode title"}
+                  {title || `Your ${formatContentType(contentType).toLowerCase()} title`}
                 </h2>
                 <p className="mt-3 line-clamp-3 text-sm leading-6 text-white/45">
                   {description ||
-                    "The episode description will appear here as you write."}
+                    "The release description will appear here as you write."}
                 </p>
                 <div className="mt-5 flex items-center gap-2 text-xs text-white/40">
                   <MicrophoneIcon className="h-4 w-4 text-[#ff5a4c]" />

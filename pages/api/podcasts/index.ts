@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import prisma from "@/lib/prisma";
 import { createUniquePodcastSlug } from "@/lib/podcastSlugs";
+import { normalizeOttContentType } from "@/lib/podcasts";
 import { submitIndexNow } from "@/lib/indexnow";
 import { SITE_URL } from "@/lib/seo";
 import { authOptions } from "../auth/[...nextauth]";
@@ -64,12 +65,13 @@ export default async function handler(
     mediaBytes,
     mediaMimeType,
     mediaType,
+    contentType,
     explicit,
     featured,
   } = req.body;
 
   if (typeof title !== "string" || title.trim().length < 3) {
-    return res.status(400).json({ error: "A valid episode title is required" });
+    return res.status(400).json({ error: "A valid OTT title is required" });
   }
   if (
     typeof description !== "string" ||
@@ -77,7 +79,7 @@ export default async function handler(
   ) {
     return res
       .status(400)
-      .json({ error: "Add an episode description of at least 30 characters" });
+      .json({ error: "Add a description of at least 30 characters" });
   }
   if (typeof hostName !== "string" || hostName.trim().length < 2) {
     return res.status(400).json({ error: "Host name is required" });
@@ -90,7 +92,7 @@ export default async function handler(
   if (!isValidPublicUrl(selectedMediaUrl)) {
     return res
       .status(400)
-      .json({ error: "A valid uploaded episode file is required" });
+      .json({ error: "A valid uploaded media file is required" });
   }
 
   try {
@@ -141,6 +143,7 @@ export default async function handler(
             ? mediaMimeType
             : null,
         mediaType: mediaType === "video" ? "video" : "audio",
+        contentType: normalizeOttContentType(contentType),
         explicit: Boolean(explicit),
         featured: Boolean(featured),
         authorId: session.user.id || null,
@@ -152,6 +155,6 @@ export default async function handler(
     return res.status(201).json(episode);
   } catch (error) {
     console.error("Podcast create failed:", error);
-    return res.status(500).json({ error: "Unable to publish this episode" });
+    return res.status(500).json({ error: "Unable to publish this OTT release" });
   }
 }

@@ -143,6 +143,7 @@ model PodcastEpisode {
   mediaBytes    String?
   mediaMimeType String?
   mediaType     String   @default("audio")
+  contentType   String   @default("episode")
   explicit      Boolean  @default(false)
   featured      Boolean  @default(false)
   published     Boolean  @default(true)

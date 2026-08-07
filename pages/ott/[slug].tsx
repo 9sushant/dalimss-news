@@ -14,6 +14,7 @@ import prisma from "@/lib/prisma";
 import { SITE_URL } from "@/lib/seo";
 import {
   PodcastEpisodeData,
+  formatContentType,
   formatDuration,
   formatEpisodeLabel,
 } from "@/lib/podcasts";
@@ -52,6 +53,7 @@ export default function PodcastEpisodePage({
     episode.showName === "Dalimss News Podcasts"
       ? "Dalimss News OTT"
       : episode.showName;
+  const contentTypeLabel = formatContentType(episode.contentType);
 
   const schema = {
     "@context": "https://schema.org",
@@ -84,7 +86,7 @@ export default function PodcastEpisodePage({
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("Delete this OTT episode permanently?")) return;
+    if (!window.confirm(`Delete this OTT ${contentTypeLabel.toLowerCase()} permanently?`)) return;
     const response = await fetch(`/api/podcasts/${episode.slug}`, {
       method: "DELETE",
     });
@@ -93,7 +95,7 @@ export default function PodcastEpisodePage({
       return;
     }
     const data = await response.json();
-    window.alert(data.error || "Unable to delete this episode");
+    window.alert(data.error || "Unable to delete this OTT release");
   };
 
   const handleStartVideo = async () => {
@@ -186,7 +188,8 @@ export default function PodcastEpisodePage({
                   <span className="text-white/75">
                     {formatEpisodeLabel(
                       episode.seasonNumber,
-                      episode.episodeNumber
+                      episode.episodeNumber,
+                      episode.contentType
                     )}
                   </span>
                 </div>
@@ -277,7 +280,7 @@ export default function PodcastEpisodePage({
                           className="absolute inset-0 flex items-center justify-center bg-gradient-to-t from-black/50 via-black/5 to-black/20 transition duration-500 hover:bg-black/10"
                         >
                           <span className="absolute left-5 top-5 rounded-full border border-white/20 bg-black/35 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-white/80 backdrop-blur-xl">
-                            Dalimss Original
+                            {contentTypeLabel}
                           </span>
                           <span className="grid h-20 w-20 place-items-center rounded-full border border-white/35 bg-white/20 text-white shadow-[0_18px_60px_rgba(0,0,0,.45)] backdrop-blur-xl transition duration-300 group-hover:scale-110 group-hover:bg-white group-hover:text-slate-950 sm:h-24 sm:w-24">
                             <PlayIcon className="ml-1 h-9 w-9 sm:h-11 sm:w-11" />
@@ -310,7 +313,9 @@ export default function PodcastEpisodePage({
                 </div>
                 <div className="mt-4 flex flex-wrap items-center justify-between gap-3 px-1 text-xs text-white/45">
                   <span className="font-bold uppercase tracking-[0.18em] text-[#ff6254]">
-                    {episode.mediaType === "video" ? "Watch now" : "Listen now"}
+                    {episode.mediaType === "video"
+                      ? `Watch ${contentTypeLabel.toLowerCase()}`
+                      : `Listen to ${contentTypeLabel.toLowerCase()}`}
                   </span>
                   <span className="inline-flex items-center gap-2">
                     <CalendarDaysIcon className="h-4 w-4" />
@@ -326,7 +331,7 @@ export default function PodcastEpisodePage({
           <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_300px] lg:px-8">
             <div>
               <p className="text-[10px] font-extrabold uppercase tracking-[0.24em] text-[#ff6254]">
-                About this episode
+                About this {contentTypeLabel.toLowerCase()}
               </p>
               <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
                 The story behind the screen

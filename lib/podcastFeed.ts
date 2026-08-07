@@ -38,7 +38,11 @@ export async function buildPodcastFeed() {
         episode.duration ? formatDuration(episode.duration) : "0:00"
       }</itunes:duration>
       <itunes:explicit>${episode.explicit ? "true" : "false"}</itunes:explicit>
-      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:episodeType>${
+        episode.contentType === "trailer" || episode.contentType === "teaser"
+          ? "trailer"
+          : "full"
+      }</itunes:episodeType>
       ${
         episode.episodeNumber
           ? `<itunes:episode>${episode.episodeNumber}</itunes:episode>`

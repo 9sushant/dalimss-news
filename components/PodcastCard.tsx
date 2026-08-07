@@ -37,7 +37,8 @@ export default function PodcastCard({ episode }: PodcastCardProps) {
           <span>
             {formatEpisodeLabel(
               episode.seasonNumber,
-              episode.episodeNumber
+              episode.episodeNumber,
+              episode.contentType
             )}
           </span>
           <span className="h-1 w-1 rounded-full bg-slate-300" />
