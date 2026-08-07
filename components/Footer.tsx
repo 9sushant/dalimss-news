@@ -32,7 +32,7 @@ const Footer = () => {
                 href="/ott"
                 className="font-semibold text-red-400 transition-colors hover:text-white"
               >
-                OTT & Podcasts
+                OTT
               </Link>
               {NAV_CATEGORIES.slice(0, 10).map((cat) => (
                 <Link
@@ -68,7 +68,7 @@ const Footer = () => {
                 Contact Us
               </Link>
               <Link href="/ott/feed.xml" className="text-gray-400 hover:text-white transition-colors">
-                Podcast RSS Feed
+                OTT RSS Feed
               </Link>
               <Link href="/privacy-policy" className="text-gray-400 hover:text-white transition-colors">
                 Privacy Policy

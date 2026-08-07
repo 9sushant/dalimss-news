@@ -18,13 +18,13 @@ The site also publishes:
 - `https://dalimss.news/education/feed.xml`
 - `https://dalimss.news/technology/feed.xml`
 
-## OTT And Podcasts
+## OTT
 
 Editors can publish audio or video episodes from `/ott/new`. Episode media
 uses direct multipart Vercel Blob uploads, so `BLOB_READ_WRITE_TOKEN` must be
 available in the production and preview environments.
 
-Public podcast endpoints:
+Public OTT endpoints:
 
 - `https://dalimss.news/ott`
 - `https://dalimss.news/ott/feed.xml`

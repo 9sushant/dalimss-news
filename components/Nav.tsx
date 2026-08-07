@@ -247,7 +247,7 @@ const Nav: React.FC = () => {
                         <span className="grid h-9 w-9 place-items-center rounded-full bg-red-50 text-[#E21B22]">
                           <MicrophoneIcon className="h-5 w-5" />
                         </span>
-                        Upload podcast
+                        Upload OTT episode
                       </Link>
                     </div>
                   )}
@@ -330,7 +330,7 @@ const Nav: React.FC = () => {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#E21B22] opacity-40" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-[#E21B22]" />
                 </span>
-                OTT / Podcasts
+                OTT
               </Link>
             </li>
             <li className="flex items-stretch">
@@ -433,7 +433,7 @@ const Nav: React.FC = () => {
                 className="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2.5 text-sm font-bold text-[#E21B22]"
               >
                 <MicrophoneIcon className="h-4 w-4" />
-                OTT / Podcasts
+                OTT
               </Link>
               <Link
                 href="/courses"
@@ -471,7 +471,7 @@ const Nav: React.FC = () => {
                     className="flex items-center justify-center gap-2 rounded-xl bg-[#E21B22] px-3 py-3 text-xs font-bold transition hover:bg-red-600"
                   >
                     <MicrophoneIcon className="h-4 w-4" />
-                    Upload podcast
+                    Upload OTT episode
                   </Link>
                 </div>
               </div>

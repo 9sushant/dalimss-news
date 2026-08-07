@@ -66,7 +66,7 @@ export default function NewPodcastEpisode() {
     typeof router.query.slug === "string" ? router.query.slug : "";
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [showName, setShowName] = useState("Dalimss News Podcasts");
+  const [showName, setShowName] = useState("Dalimss News OTT");
   const [hostName, setHostName] = useState("");
   const [guestNames, setGuestNames] = useState("");
   const [category, setCategory] = useState("News & Politics");
@@ -212,7 +212,7 @@ export default function NewPodcastEpisode() {
             Editorial access required
           </h1>
           <p className="mt-3 text-white/55">
-            Only Dalimss editors can publish podcast episodes.
+            Only Dalimss editors can publish OTT episodes.
           </p>
         </div>
       </div>
@@ -411,7 +411,7 @@ export default function NewPodcastEpisode() {
     <>
       <Head>
         <title>
-          {isEditing ? "Edit episode" : "Podcast Studio"} | Dalimss News
+          {isEditing ? "Edit episode" : "OTT Studio"} | Dalimss News
         </title>
         <meta name="robots" content="noindex, nofollow" />
       </Head>
@@ -426,7 +426,7 @@ export default function NewPodcastEpisode() {
             className="inline-flex items-center gap-2 text-sm font-semibold text-white/50 transition hover:text-white"
           >
             <ArrowLeftIcon className="h-4 w-4" />
-            Back to podcasts
+            Back to OTT
           </button>
 
           <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_360px]">
@@ -442,7 +442,7 @@ export default function NewPodcastEpisode() {
                 <p className="mt-3 max-w-2xl text-white/50">
                   {isEditing
                     ? "Update the editorial details or replace the artwork and media file."
-                    : "Upload audio or video, add the editorial details, and the episode will be ready across the website and podcast feed."}
+                    : "Upload video or audio, add the editorial details, and the episode will be ready across the website and OTT feed."}
                 </p>
               </div>
 
@@ -571,7 +571,7 @@ export default function NewPodcastEpisode() {
                         <>
                           <img
                             src={coverPreview}
-                            alt="Podcast cover preview"
+                            alt="OTT cover preview"
                             className="absolute inset-0 h-full w-full object-cover"
                           />
                           <div className="absolute inset-0 bg-black/35 opacity-0 transition group-hover:opacity-100" />
@@ -820,7 +820,7 @@ export default function NewPodcastEpisode() {
                   )}
                 </div>
                 <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#ff6b5e]">
-                  {showName || "Dalimss News Podcasts"}
+                  {showName || "Dalimss News OTT"}
                 </p>
                 <h2 className="mt-2 font-serif text-2xl font-semibold leading-tight">
                   {title || "Your episode title"}

@@ -129,7 +129,7 @@ model PodcastEpisode {
   slug          String   @unique
   title         String
   description   String
-  showName      String   @default("Dalimss News Podcasts")
+  showName      String   @default("Dalimss News OTT")
   hostName      String
   guestNames    String?
   category      String?

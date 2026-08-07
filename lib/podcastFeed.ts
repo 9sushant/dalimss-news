@@ -59,7 +59,7 @@ export async function buildPodcastFeed() {
   xmlns:content="http://purl.org/rss/1.0/modules/content/"
   xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
   <channel>
-    <title>Dalimss News Podcasts</title>
+    <title>Dalimss News OTT</title>
     <link>${SITE_URL}/ott</link>
     <description>Original interviews, explainers and on-ground stories from ${SITE_NAME}.</description>
     <language>hi-IN</language>

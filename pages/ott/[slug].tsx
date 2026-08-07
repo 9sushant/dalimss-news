@@ -48,6 +48,10 @@ export default function PodcastEpisodePage({
     "en-IN",
     { day: "numeric", month: "long", year: "numeric" }
   );
+  const displayShowName =
+    episode.showName === "Dalimss News Podcasts"
+      ? "Dalimss News OTT"
+      : episode.showName;
 
   const schema = {
     "@context": "https://schema.org",
@@ -70,7 +74,7 @@ export default function PodcastEpisodePage({
     },
     partOfSeries: {
       "@type": "PodcastSeries",
-      name: episode.showName,
+      name: displayShowName,
       url: `${SITE_URL}/ott`,
     },
     actor: {
@@ -80,7 +84,7 @@ export default function PodcastEpisodePage({
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("Delete this podcast episode permanently?")) return;
+    if (!window.confirm("Delete this OTT episode permanently?")) return;
     const response = await fetch(`/api/podcasts/${episode.slug}`, {
       method: "DELETE",
     });
@@ -103,7 +107,7 @@ export default function PodcastEpisodePage({
   return (
     <>
       <Head>
-        <title>{episode.title} | Dalimss Podcasts</title>
+        <title>{episode.title} | Dalimss OTT</title>
         <meta name="description" content={episode.description.slice(0, 160)} />
         <link rel="canonical" href={canonicalUrl} />
         <meta property="og:type" content="music.song" />
@@ -339,7 +343,7 @@ export default function PodcastEpisodePage({
                     Series
                   </dt>
                   <dd className="mt-1.5 font-semibold text-white">
-                    {episode.showName}
+                    {displayShowName}
                   </dd>
                 </div>
                 <div className="grid grid-cols-2 gap-5 border-t border-white/10 pt-5">

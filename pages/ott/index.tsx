@@ -52,22 +52,22 @@ export default function PodcastIndex({ episodes }: PodcastIndexProps) {
   return (
     <>
       <Head>
-        <title>Dalimss OTT & Podcasts | Stories worth hearing</title>
+        <title>Dalimss OTT | Stories worth watching</title>
         <meta
           name="description"
-          content="Listen to premium Dalimss News podcasts, original interviews, explainers and on-ground stories from Varanasi and beyond."
+          content="Watch premium Dalimss News originals, interviews, explainers and on-ground stories from Varanasi and beyond."
         />
         <link rel="canonical" href={`${SITE_URL}/ott`} />
         <link
           rel="alternate"
           type="application/rss+xml"
-          title="Dalimss News Podcasts"
+          title="Dalimss News OTT"
           href={`${SITE_URL}/ott/feed.xml`}
         />
         <meta property="og:type" content="website" />
         <meta
           property="og:title"
-          content="Dalimss OTT & Podcasts | Stories worth hearing"
+          content="Dalimss OTT | Stories worth watching"
         />
         <meta
           property="og:description"
@@ -83,7 +83,7 @@ export default function PodcastIndex({ episodes }: PodcastIndexProps) {
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "PodcastSeries",
-              name: "Dalimss News Podcasts",
+              name: "Dalimss News OTT",
               url: `${SITE_URL}/ott`,
               description:
                 "Original news conversations, interviews and explainers from Dalimss News.",

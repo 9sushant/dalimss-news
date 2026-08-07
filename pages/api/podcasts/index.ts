@@ -103,7 +103,7 @@ export default async function handler(
         showName:
           typeof showName === "string" && showName.trim()
             ? showName.trim()
-            : "Dalimss News Podcasts",
+            : "Dalimss News OTT",
         hostName: hostName.trim(),
         guestNames:
           typeof guestNames === "string" && guestNames.trim()
