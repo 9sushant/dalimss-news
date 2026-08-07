@@ -8,7 +8,6 @@ import {
   MicrophoneIcon,
   PencilSquareIcon,
   PlayIcon,
-  UserGroupIcon,
 } from "@heroicons/react/24/outline";
 import prisma from "@/lib/prisma";
 import { SITE_URL } from "@/lib/seo";
@@ -117,180 +116,230 @@ export default function PodcastEpisodePage({
         />
       </Head>
 
-      <article className="bg-[#080c15] text-white">
-        <section className="relative overflow-hidden">
-          <div
-            className="absolute inset-0 scale-110 bg-cover bg-center opacity-20 blur-3xl"
-            style={{ backgroundImage: `url("${episode.coverImage}")` }}
+      <article className="bg-[#05070b] text-white">
+        <section className="relative min-h-[700px] overflow-hidden sm:min-h-[760px] lg:min-h-[calc(100vh-4rem)]">
+          <img
+            src={episode.coverImage}
+            alt=""
+            className="absolute inset-0 h-full w-full scale-[1.03] object-cover object-center opacity-65 lg:object-[72%_center]"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#080c15]/65 via-[#080c15]/90 to-[#080c15]" />
-          <div className="relative mx-auto max-w-7xl px-4 pb-14 pt-8 sm:px-6 sm:pb-20 lg:px-8">
-            <div className="mb-9 flex items-center justify-between gap-4">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#05070b] via-[#05070b]/90 to-[#05070b]/15" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#05070b] via-[#05070b]/20 to-[#05070b]/45" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_35%,transparent_0%,rgba(5,7,11,.18)_38%,rgba(5,7,11,.75)_100%)]" />
+
+          <div className="relative mx-auto flex min-h-[700px] max-w-7xl flex-col px-4 pb-14 pt-7 sm:min-h-[760px] sm:px-6 sm:pb-20 lg:min-h-[calc(100vh-4rem)] lg:px-8">
+            <div className="flex items-center justify-between gap-4">
               <Link
                 href="/ott"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-white/55 transition hover:text-white"
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/25 px-4 py-2 text-xs font-semibold text-white/75 backdrop-blur-xl transition hover:border-white/25 hover:text-white"
               >
                 <ArrowLeftIcon className="h-4 w-4" />
-                All podcasts
+                All episodes
               </Link>
-              <div className="flex items-center gap-2">
+
+              {isEditor && (
+                <div className="flex items-center gap-2">
+                  <Link
+                    href={`/ott/${episode.slug}/edit`}
+                    className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/25 px-4 py-2 text-xs font-bold text-white/80 backdrop-blur-xl transition hover:bg-white hover:text-slate-950"
+                  >
+                    <PencilSquareIcon className="h-4 w-4" />
+                    Edit
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={handleDelete}
+                    className="rounded-full border border-red-400/25 bg-black/25 px-4 py-2 text-xs font-bold text-red-200 backdrop-blur-xl transition hover:bg-red-500 hover:text-white"
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-auto max-w-3xl">
+              <div className="mb-5 flex flex-wrap items-center gap-2.5 text-[11px] font-extrabold uppercase tracking-[0.18em]">
+                <span className="rounded-md bg-[#f04438] px-2.5 py-1 text-white">
+                  Dalimss Original
+                </span>
+                <span className="text-white/75">
+                  {formatEpisodeLabel(
+                    episode.seasonNumber,
+                    episode.episodeNumber
+                  )}
+                </span>
+              </div>
+
+              <h1 className="max-w-3xl text-4xl font-black leading-[0.98] tracking-[-0.045em] text-white drop-shadow-2xl sm:text-6xl lg:text-7xl">
+                {episode.title}
+              </h1>
+
+              <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm font-semibold text-white/70">
+                <span className="text-emerald-400">New</span>
+                <span>{new Date(episode.publishedAt).getFullYear()}</span>
+                <span>{formatDuration(episode.duration)}</span>
+                <span className="rounded border border-white/35 px-1.5 py-0.5 text-[10px] uppercase tracking-wider">
+                  {episode.language}
+                </span>
+                {episode.category && <span>{episode.category}</span>}
+                {episode.explicit && (
+                  <span className="rounded border border-white/30 px-1.5 py-0.5 text-[10px] uppercase tracking-wider">
+                    Explicit
+                  </span>
+                )}
+              </div>
+
+              <p className="mt-5 line-clamp-3 max-w-2xl text-base leading-7 text-white/75 drop-shadow-lg sm:text-lg">
+                {episode.description}
+              </p>
+
+              <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/60">
+                <span>
+                  <span className="text-white/35">Hosted by</span>{" "}
+                  <span className="font-semibold text-white/85">
+                    {episode.hostName}
+                  </span>
+                </span>
+                {episode.guestNames && (
+                  <span>
+                    <span className="text-white/35">Featuring</span>{" "}
+                    <span className="font-semibold text-white/85">
+                      {episode.guestNames}
+                    </span>
+                  </span>
+                )}
+              </div>
+
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <a
+                  href="#watch"
+                  className="inline-flex items-center gap-2.5 rounded-lg bg-white px-6 py-3.5 text-sm font-extrabold text-slate-950 shadow-xl transition hover:scale-[1.02] hover:bg-white/90"
+                >
+                  <PlayIcon className="h-5 w-5 fill-current" />
+                  {episode.mediaType === "video" ? "Watch now" : "Listen now"}
+                </a>
                 <ShareButton
                   url={`/ott/${episode.slug}`}
                   title={episode.title}
                   variant="full"
+                  className="[&_button]:!rounded-lg [&_button]:!bg-white/15 [&_button]:!px-5 [&_button]:!py-3.5 [&_button]:!font-bold [&_button]:!text-white [&_button]:!backdrop-blur-xl hover:[&_button]:!bg-white/25"
                 />
-                {isEditor && (
-                  <>
-                    <Link
-                      href={`/ott/${episode.slug}/edit`}
-                      className="inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-xs font-bold text-white/80 transition hover:bg-white hover:text-slate-950"
-                    >
-                      <PencilSquareIcon className="h-4 w-4" />
-                      Edit
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={handleDelete}
-                      className="rounded-full border border-red-400/30 px-4 py-2 text-xs font-bold text-red-300 transition hover:bg-red-500 hover:text-white"
-                    >
-                      Delete
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-
-            <div className="grid items-center gap-9 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
-              <div className="mx-auto w-full max-w-[520px]">
-                <div className="relative aspect-square overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_35px_100px_rgba(0,0,0,.5)]">
-                  <img
-                    src={episode.coverImage}
-                    alt={`${episode.title} cover`}
-                    className="h-full w-full object-cover"
-                  />
-                  <div className="absolute inset-0 ring-1 ring-inset ring-white/10" />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#ff675b]">
-                  <span>
-                    {formatEpisodeLabel(
-                      episode.seasonNumber,
-                      episode.episodeNumber
-                    )}
-                  </span>
-                  {episode.category && (
-                    <>
-                      <span className="h-1 w-1 rounded-full bg-white/25" />
-                      <span className="text-white/45">{episode.category}</span>
-                    </>
-                  )}
-                  <span className="h-1 w-1 rounded-full bg-white/25" />
-                  <span className="text-white/45">{episode.language}</span>
-                </div>
-                <h1 className="mt-5 max-w-3xl font-serif text-4xl font-semibold leading-[1.08] tracking-[-0.03em] sm:text-5xl lg:text-6xl">
-                  {episode.title}
-                </h1>
-                <p className="mt-5 max-w-2xl text-base leading-7 text-white/58 sm:text-lg">
-                  {episode.description}
-                </p>
-
-                <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm text-white/55">
-                  <span className="inline-flex items-center gap-2">
-                    <MicrophoneIcon className="h-4 w-4 text-[#ff675b]" />
-                    {episode.hostName}
-                  </span>
-                  {episode.guestNames && (
-                    <span className="inline-flex items-center gap-2">
-                      <UserGroupIcon className="h-4 w-4 text-[#ff675b]" />
-                      {episode.guestNames}
-                    </span>
-                  )}
-                  <span className="inline-flex items-center gap-2">
-                    <CalendarDaysIcon className="h-4 w-4 text-[#ff675b]" />
-                    {publishedDate}
-                  </span>
-                </div>
-
-                <div className="mt-8">
-                  {episode.audioUrl ? (
-                    <PodcastPlayer
-                      src={episode.audioUrl}
-                      title={episode.title}
-                    />
-                  ) : episode.videoUrl ? (
-                    <div className="overflow-hidden rounded-3xl border border-white/10 bg-black shadow-2xl">
-                      <video
-                        src={episode.videoUrl}
-                        poster={episode.coverImage}
-                        controls
-                        playsInline
-                        preload="metadata"
-                        className="aspect-video w-full"
-                      >
-                        Your browser does not support video playback.
-                      </video>
-                    </div>
-                  ) : null}
-                </div>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="bg-[#f7f6f2] py-14 text-slate-900 sm:py-20">
-          <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_280px] lg:px-8">
+        <section
+          id="watch"
+          className="scroll-mt-20 border-t border-white/[0.07] bg-[#080b11] py-12 sm:py-16"
+        >
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-extrabold uppercase tracking-[0.24em] text-[#ff6254]">
+                  Now playing
+                </p>
+                <h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
+                  {episode.title}
+                </h2>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-white/40">
+                <CalendarDaysIcon className="h-4 w-4" />
+                {publishedDate}
+              </div>
+            </div>
+
+            {episode.videoUrl ? (
+              <div className="overflow-hidden rounded-2xl border border-white/10 bg-black shadow-[0_30px_100px_rgba(0,0,0,.55)] sm:rounded-3xl">
+                <video
+                  src={episode.videoUrl}
+                  poster={episode.coverImage}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="aspect-video w-full bg-black"
+                >
+                  Your browser does not support video playback.
+                </video>
+              </div>
+            ) : episode.audioUrl ? (
+              <div className="grid items-center gap-7 rounded-3xl border border-white/10 bg-white/[0.04] p-5 shadow-[0_30px_100px_rgba(0,0,0,.35)] sm:p-7 md:grid-cols-[180px_1fr]">
+                <img
+                  src={episode.coverImage}
+                  alt={`${episode.title} cover`}
+                  className="aspect-square w-full max-w-[180px] rounded-2xl object-cover shadow-2xl"
+                />
+                <PodcastPlayer src={episode.audioUrl} title={episode.title} />
+              </div>
+            ) : null}
+          </div>
+        </section>
+
+        <section className="border-t border-white/[0.07] bg-[#0b0e14] py-14 sm:py-20">
+          <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_300px] lg:px-8">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#df3d31]">
-                Episode notes
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.24em] text-[#ff6254]">
+                About this episode
               </p>
-              <h2 className="mt-2 font-serif text-3xl font-semibold">
-                About this conversation
+              <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
+                The story behind the screen
               </h2>
-              <div className="mt-6 whitespace-pre-line font-serif text-lg leading-8 text-slate-700">
+              <div className="mt-6 max-w-3xl whitespace-pre-line text-base leading-8 text-white/65 sm:text-lg">
                 {episode.description}
               </div>
             </div>
 
-            <aside className="h-fit rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="grid gap-5 text-sm">
+            <aside className="h-fit rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur">
+              <dl className="grid gap-6 text-sm">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                    Show
-                  </p>
-                  <p className="mt-1 font-semibold text-slate-900">
+                  <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/35">
+                    Series
+                  </dt>
+                  <dd className="mt-1.5 font-semibold text-white">
                     {episode.showName}
-                  </p>
+                  </dd>
                 </div>
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                    Runtime
-                  </p>
-                  <p className="mt-1 font-semibold text-slate-900">
-                    {formatDuration(episode.duration)}
-                  </p>
+                <div className="grid grid-cols-2 gap-5 border-t border-white/10 pt-5">
+                  <div>
+                    <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/35">
+                      Runtime
+                    </dt>
+                    <dd className="mt-1.5 font-semibold text-white">
+                      {formatDuration(episode.duration)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/35">
+                      Format
+                    </dt>
+                    <dd className="mt-1.5 font-semibold capitalize text-white">
+                      {episode.mediaType}
+                    </dd>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                    Format
-                  </p>
-                  <p className="mt-1 inline-flex items-center gap-2 font-semibold capitalize text-slate-900">
-                    <PlayIcon className="h-4 w-4 text-[#df3d31]" />
-                    {episode.mediaType} original
-                  </p>
+                <div className="border-t border-white/10 pt-5">
+                  <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/35">
+                    Host
+                  </dt>
+                  <dd className="mt-1.5 inline-flex items-center gap-2 font-semibold text-white">
+                    <MicrophoneIcon className="h-4 w-4 text-[#ff6254]" />
+                    {episode.hostName}
+                  </dd>
                 </div>
-              </div>
+              </dl>
             </aside>
           </div>
         </section>
       </article>
 
       {relatedEpisodes.length > 0 && (
-        <section className="bg-white py-14 sm:py-20">
+        <section className="bg-[#f4f3ef] py-14 sm:py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="font-serif text-3xl font-semibold text-slate-950">
-              Continue listening
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.24em] text-[#df3d31]">
+              More from Dalimss
+            </p>
+            <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">
+              Up next
             </h2>
             <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {relatedEpisodes.map((relatedEpisode) => (
