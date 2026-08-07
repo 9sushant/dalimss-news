@@ -1,6 +1,7 @@
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
+import { useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import {
   ArrowLeftIcon,
@@ -8,6 +9,7 @@ import {
   MicrophoneIcon,
   PencilSquareIcon,
 } from "@heroicons/react/24/outline";
+import { PlayIcon } from "@heroicons/react/24/solid";
 import prisma from "@/lib/prisma";
 import { SITE_URL } from "@/lib/seo";
 import {
@@ -35,6 +37,8 @@ export default function PodcastEpisodePage({
   relatedEpisodes,
 }: PodcastEpisodeProps) {
   const { data: session } = useSession();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [hasStarted, setHasStarted] = useState(false);
   const isEditor =
     session?.user?.role === "admin" ||
     session?.user?.role === "editor" ||
@@ -88,6 +92,14 @@ export default function PodcastEpisodePage({
     window.alert(data.error || "Unable to delete this episode");
   };
 
+  const handleStartVideo = async () => {
+    try {
+      await videoRef.current?.play();
+    } catch (playError) {
+      console.warn("Video playback could not start:", playError);
+    }
+  };
+
   return (
     <>
       <Head>
@@ -120,11 +132,16 @@ export default function PodcastEpisodePage({
           <img
             src={episode.coverImage}
             alt=""
-            className="absolute inset-0 h-full w-full scale-[1.03] object-cover object-center opacity-35 lg:object-[72%_center]"
+            className="absolute inset-[-8%] h-[116%] w-[116%] scale-110 object-cover object-center opacity-60 blur-[52px] saturate-[1.45]"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#05070b] via-[#05070b]/85 to-[#05070b]/45" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#05070b] via-[#05070b]/15 to-[#05070b]/50" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_35%,transparent_0%,rgba(5,7,11,.18)_38%,rgba(5,7,11,.75)_100%)]" />
+          <img
+            src={episode.coverImage}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover object-center opacity-30 saturate-125 lg:object-[68%_center]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#05070b]/95 via-[#05070b]/68 to-[#05070b]/48" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#05070b]/90 via-transparent to-[#05070b]/55" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_42%,transparent_0%,rgba(5,7,11,.08)_34%,rgba(5,7,11,.72)_100%)]" />
 
           <div className="relative mx-auto flex min-h-[700px] max-w-[1480px] flex-col px-4 py-7 sm:px-6 lg:min-h-[calc(100vh-4rem)] lg:px-8">
             <div className="flex items-center justify-between gap-4">
@@ -221,18 +238,57 @@ export default function PodcastEpisodePage({
               </div>
 
               <div className="min-w-0">
-                <div className="overflow-hidden rounded-2xl border border-white/15 bg-black/80 p-1.5 shadow-[0_35px_120px_rgba(0,0,0,.65)] ring-1 ring-white/[0.04] backdrop-blur-xl sm:rounded-[1.75rem] sm:p-2">
+                <div className="relative">
+                  <img
+                    src={episode.coverImage}
+                    alt=""
+                    className="pointer-events-none absolute -inset-8 h-[calc(100%+4rem)] w-[calc(100%+4rem)] scale-105 object-cover opacity-55 blur-[48px] saturate-[1.6]"
+                  />
+                  <div className="relative overflow-hidden rounded-2xl border border-white/20 bg-black/80 p-1.5 shadow-[0_35px_120px_rgba(0,0,0,.7)] ring-1 ring-white/[0.06] backdrop-blur-xl sm:rounded-[1.75rem] sm:p-2">
                   {episode.videoUrl ? (
-                    <video
-                      src={episode.videoUrl}
-                      poster={episode.coverImage}
-                      controls
-                      playsInline
-                      preload="metadata"
-                      className="aspect-video w-full rounded-xl bg-black sm:rounded-[1.3rem]"
-                    >
-                      Your browser does not support video playback.
-                    </video>
+                    <div className="group relative overflow-hidden rounded-xl bg-black sm:rounded-[1.3rem]">
+                      <video
+                        ref={videoRef}
+                        src={episode.videoUrl}
+                        poster={episode.coverImage}
+                        controls={hasStarted}
+                        playsInline
+                        preload="metadata"
+                        onPlay={() => setHasStarted(true)}
+                        onEnded={(event) => {
+                          event.currentTarget.currentTime = 0;
+                          event.currentTarget.load();
+                          setHasStarted(false);
+                        }}
+                        className="aspect-video w-full bg-black"
+                      >
+                        Your browser does not support video playback.
+                      </video>
+
+                      {!hasStarted && (
+                        <button
+                          type="button"
+                          onClick={handleStartVideo}
+                          aria-label={`Play ${episode.title}`}
+                          className="absolute inset-0 flex items-center justify-center bg-gradient-to-t from-black/50 via-black/5 to-black/20 transition duration-500 hover:bg-black/10"
+                        >
+                          <span className="absolute left-5 top-5 rounded-full border border-white/20 bg-black/35 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-white/80 backdrop-blur-xl">
+                            Dalimss Original
+                          </span>
+                          <span className="grid h-20 w-20 place-items-center rounded-full border border-white/35 bg-white/20 text-white shadow-[0_18px_60px_rgba(0,0,0,.45)] backdrop-blur-xl transition duration-300 group-hover:scale-110 group-hover:bg-white group-hover:text-slate-950 sm:h-24 sm:w-24">
+                            <PlayIcon className="ml-1 h-9 w-9 sm:h-11 sm:w-11" />
+                          </span>
+                          <span className="absolute bottom-5 left-5 text-left">
+                            <span className="block text-[10px] font-extrabold uppercase tracking-[0.22em] text-white/55">
+                              Press play
+                            </span>
+                            <span className="mt-1 block text-sm font-bold text-white sm:text-base">
+                              {episode.title}
+                            </span>
+                          </span>
+                        </button>
+                      )}
+                    </div>
                   ) : episode.audioUrl ? (
                     <div className="grid items-center gap-5 rounded-xl bg-white/[0.04] p-5 sm:rounded-[1.3rem] md:grid-cols-[150px_1fr]">
                       <img
@@ -246,6 +302,7 @@ export default function PodcastEpisodePage({
                       />
                     </div>
                   ) : null}
+                  </div>
                 </div>
                 <div className="mt-4 flex flex-wrap items-center justify-between gap-3 px-1 text-xs text-white/45">
                   <span className="font-bold uppercase tracking-[0.18em] text-[#ff6254]">
