@@ -1,7 +1,6 @@
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import {
   ArrowLeftIcon,
@@ -9,7 +8,6 @@ import {
   MicrophoneIcon,
   PencilSquareIcon,
 } from "@heroicons/react/24/outline";
-import { PlayIcon } from "@heroicons/react/24/solid";
 import prisma from "@/lib/prisma";
 import { SITE_URL } from "@/lib/seo";
 import {
@@ -21,6 +19,7 @@ import {
 import PodcastPlayer from "@/components/PodcastPlayer";
 import PodcastCard from "@/components/PodcastCard";
 import ShareButton from "@/components/ShareButton";
+import OttVideoPlayer from "@/components/OttVideoPlayer";
 
 interface PodcastEpisodeProps {
   episode: PodcastEpisodeData;
@@ -38,8 +37,6 @@ export default function PodcastEpisodePage({
   relatedEpisodes,
 }: PodcastEpisodeProps) {
   const { data: session } = useSession();
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [hasStarted, setHasStarted] = useState(false);
   const isEditor =
     session?.user?.role === "admin" ||
     session?.user?.role === "editor" ||
@@ -96,14 +93,6 @@ export default function PodcastEpisodePage({
     }
     const data = await response.json();
     window.alert(data.error || "Unable to delete this OTT release");
-  };
-
-  const handleStartVideo = async () => {
-    try {
-      await videoRef.current?.play();
-    } catch (playError) {
-      console.warn("Video playback could not start:", playError);
-    }
   };
 
   return (
@@ -253,49 +242,11 @@ export default function PodcastEpisodePage({
                   />
                   <div className="relative overflow-hidden rounded-2xl border border-white/20 bg-black/80 p-1.5 shadow-[0_35px_120px_rgba(0,0,0,.7)] ring-1 ring-white/[0.06] backdrop-blur-xl sm:rounded-[1.75rem] sm:p-2">
                   {episode.videoUrl ? (
-                    <div className="group relative overflow-hidden rounded-xl bg-black sm:rounded-[1.3rem]">
-                      <video
-                        ref={videoRef}
-                        src={episode.videoUrl}
-                        poster={episode.coverImage}
-                        controls={hasStarted}
-                        playsInline
-                        preload="metadata"
-                        onPlay={() => setHasStarted(true)}
-                        onEnded={(event) => {
-                          event.currentTarget.currentTime = 0;
-                          event.currentTarget.load();
-                          setHasStarted(false);
-                        }}
-                        className="aspect-video w-full bg-black"
-                      >
-                        Your browser does not support video playback.
-                      </video>
-
-                      {!hasStarted && (
-                        <button
-                          type="button"
-                          onClick={handleStartVideo}
-                          aria-label={`Play ${episode.title}`}
-                          className="absolute inset-0 flex items-center justify-center bg-gradient-to-t from-black/50 via-black/5 to-black/20 transition duration-500 hover:bg-black/10"
-                        >
-                          <span className="absolute left-5 top-5 rounded-full border border-white/20 bg-black/35 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-white/80 backdrop-blur-xl">
-                            {contentTypeLabel}
-                          </span>
-                          <span className="grid h-20 w-20 place-items-center rounded-full border border-white/35 bg-white/20 text-white shadow-[0_18px_60px_rgba(0,0,0,.45)] backdrop-blur-xl transition duration-300 group-hover:scale-110 group-hover:bg-white group-hover:text-slate-950 sm:h-24 sm:w-24">
-                            <PlayIcon className="ml-1 h-9 w-9 sm:h-11 sm:w-11" />
-                          </span>
-                          <span className="absolute bottom-5 left-5 text-left">
-                            <span className="block text-[10px] font-extrabold uppercase tracking-[0.22em] text-white/55">
-                              Press play
-                            </span>
-                            <span className="mt-1 block text-sm font-bold text-white sm:text-base">
-                              {episode.title}
-                            </span>
-                          </span>
-                        </button>
-                      )}
-                    </div>
+                    <OttVideoPlayer
+                      src={episode.videoUrl}
+                      poster={episode.coverImage}
+                      title={episode.title}
+                    />
                   ) : episode.audioUrl ? (
                     <div className="grid items-center gap-5 rounded-xl bg-white/[0.04] p-5 sm:rounded-[1.3rem] md:grid-cols-[150px_1fr]">
                       <img

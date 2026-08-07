@@ -27,6 +27,7 @@
     "bcryptjs": "^3.0.3",
     "firebase": "^12.5.0",
     "formidable": "^3.5.4",
+    "hls.js": "^1.6.17",
     "next": "14.2.3",
     "next-auth": "^4.24.13",
     "razorpay": "^2.9.6",
