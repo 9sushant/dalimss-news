@@ -39,6 +39,16 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: "/courses/:path*",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/my-courses",
+        destination: "/",
+        permanent: true,
+      },
+      {
         source: "/authors/:slug",
         destination: "/author/:slug",
         permanent: true,
@@ -106,15 +116,6 @@ const nextConfig = {
       },
       {
         source: '/profile',
-        headers: [
-          {
-            key: 'X-Robots-Tag',
-            value: 'noindex, nofollow, noarchive'
-          }
-        ]
-      },
-      {
-        source: '/my-courses',
         headers: [
           {
             key: 'X-Robots-Tag',

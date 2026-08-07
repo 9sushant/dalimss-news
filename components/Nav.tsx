@@ -334,11 +334,6 @@ const Nav: React.FC = () => {
               </Link>
             </li>
             <li className="flex items-stretch">
-              <Link href="/courses" onClick={closeDropdowns} className={desktopLinkClass("/courses")}>
-                Courses
-              </Link>
-            </li>
-            <li className="flex items-stretch">
               <Link href="/about" onClick={closeDropdowns} className={desktopLinkClass("/about")}>
                 About
               </Link>
@@ -434,13 +429,6 @@ const Nav: React.FC = () => {
               >
                 <MicrophoneIcon className="h-4 w-4" />
                 OTT
-              </Link>
-              <Link
-                href="/courses"
-                onClick={closeDropdowns}
-                className="rounded-xl px-3 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-slate-50 hover:text-[#E21B22]"
-              >
-                Courses
               </Link>
               <Link
                 href="/about"
