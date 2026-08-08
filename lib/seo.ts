@@ -11,6 +11,8 @@ export const ARTICLE_SLUG_REDIRECTS: Record<string, string> = {
 };
 
 const AUTHOR_NAME_CORRECTIONS: Record<string, string> = {
+  "dalimss news desk": "Dalimss News Desk",
+  "dalimss news desks": "Dalimss News Desk",
   "maahr madhok": "Maahir Madhok",
 };
 
