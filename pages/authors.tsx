@@ -13,6 +13,25 @@ interface AuthorsProps {
   authors: Author[];
 }
 
+const HIDDEN_AUTHOR_SLUGS = new Set([
+  "sushant",
+  "sushant-gaurav",
+  "sushant-gauarav",
+  "priyanka-kapoor",
+  "gaurav-singh",
+  "dalimss-editorial-team",
+  "siddhart-srivastava",
+  "siddharth-srivastava",
+  "sidharth-srivastava",
+  "aishwarya-jaiswal",
+  "pranav-rari",
+  "ajay-singh",
+  "sonal-sharma",
+  "sanya-kapoor-technology-correspondent-dalimss-news",
+  "saura-yadav",
+  "khushi-singh",
+]);
+
 export default function Authors({ authors }: AuthorsProps) {
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
@@ -88,10 +107,13 @@ export const getServerSideProps: GetServerSideProps = async () => {
     }
   });
 
-  const authorsList = Object.entries(authorCounts).map(([name, count]) => ({
-    name,
-    articleCount: count,
-  })).sort((a, b) => b.articleCount - a.articleCount);
+  const authorsList = Object.entries(authorCounts)
+    .filter(([name]) => !HIDDEN_AUTHOR_SLUGS.has(authorSlug(name)))
+    .map(([name, count]) => ({
+      name,
+      articleCount: count,
+    }))
+    .sort((a, b) => b.articleCount - a.articleCount);
 
   return {
     props: {
