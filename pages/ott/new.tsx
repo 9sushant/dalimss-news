@@ -26,6 +26,7 @@ import {
   MAX_OTT_MEDIA_SIZE_GB,
 } from "@/lib/ottUpload";
 import { compressImage } from "@/utils/compressImage";
+import { uploadVideoToMux, waitForMuxVideo } from "@/utils/uploadMuxVideo";
 
 const EDITOR_EMAILS = new Set([
   "admin@dalimss.com",
@@ -34,6 +35,9 @@ const EDITOR_EMAILS = new Set([
 ]);
 
 type MediaType = "audio" | "video";
+
+const MUX_VIDEO_FILE_EXTENSION =
+  /\.(3gp|avi|flv|gxf|lxf|m2ts|mkv|mov|mp4|mpeg|mpg|mts|mxf|ts|webm)$/i;
 
 function safeFilename(filename: string) {
   return filename
@@ -87,6 +91,9 @@ export default function NewPodcastEpisode() {
   const [existingCoverImage, setExistingCoverImage] = useState("");
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [existingMediaUrl, setExistingMediaUrl] = useState("");
+  const [existingMuxAssetId, setExistingMuxAssetId] = useState<string | null>(
+    null
+  );
   const [existingMediaBytes, setExistingMediaBytes] = useState<string | null>(
     null
   );
@@ -142,6 +149,7 @@ export default function NewPodcastEpisode() {
             ? episode.videoUrl || ""
             : episode.audioUrl || ""
         );
+        setExistingMuxAssetId(episode.muxAssetId);
         setExistingMediaBytes(episode.mediaBytes);
         setExistingMediaMimeType(episode.mediaMimeType);
         setDuration(episode.duration || 0);
@@ -271,8 +279,12 @@ export default function NewPodcastEpisode() {
     const file = event.target.files?.[0] || null;
     if (!file) return;
 
-    const expectedPrefix = mediaType === "audio" ? "audio/" : "video/";
-    if (!file.type.startsWith(expectedPrefix)) {
+    const isExpectedFile =
+      mediaType === "audio"
+        ? file.type.startsWith("audio/")
+        : file.type.startsWith("video/") ||
+          MUX_VIDEO_FILE_EXTENSION.test(file.name);
+    if (!isExpectedFile) {
       setError(`Please choose a valid ${mediaType} file.`);
       event.target.value = "";
       return;
@@ -295,6 +307,7 @@ export default function NewPodcastEpisode() {
     setMediaType(nextType);
     setMediaFile(null);
     setExistingMediaUrl("");
+    setExistingMuxAssetId(null);
     setExistingMediaBytes(null);
     setExistingMediaMimeType(null);
     setDuration(0);
@@ -334,30 +347,95 @@ export default function NewPodcastEpisode() {
       }
 
       let mediaUrl = existingMediaUrl;
+      let muxAssetId = existingMuxAssetId;
       let mediaBytes: number | string | null = existingMediaBytes;
       let mediaMimeType = existingMediaMimeType;
+      let mediaDuration = duration;
       if (mediaFile) {
-        setStatusMessage(
-          `Uploading ${mediaType}… You can keep this tab open in the background.`
-        );
-        const mediaBlob = await uploadBlob(
-          `dalimss-podcasts/episodes/${Date.now()}-${safeFilename(
-            mediaFile.name
-          )}`,
-          mediaFile,
-          {
-            access: "public",
-            handleUploadUrl: "/api/podcasts/upload",
-            clientPayload: JSON.stringify({ kind: "episode" }),
-            contentType: mediaFile.type,
-            multipart: true,
-            onUploadProgress: ({ percentage }) =>
-              setProgress(15 + Math.round(percentage * 0.8)),
+        if (mediaType === "video") {
+          setStatusMessage(
+            "Uploading video to the processing service… Keep this tab open."
+          );
+          const uploadResponse = await fetch("/api/podcasts/mux", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "upload" }),
+          });
+          const uploadData = await uploadResponse.json();
+          if (!uploadResponse.ok) {
+            throw new Error(uploadData.error || "Unable to start video upload");
           }
-        );
-        mediaUrl = mediaBlob.url;
+          await uploadVideoToMux(
+            uploadData.uploadUrl,
+            mediaFile,
+            (percentage) => setProgress(15 + Math.round(percentage * 0.7))
+          );
+          setProgress(88);
+          setStatusMessage(
+            "Converting video for reliable playback and multiple qualities…"
+          );
+          const muxVideo = await waitForMuxVideo(
+            { uploadId: uploadData.uploadId },
+            () => setProgress((current) => Math.min(95, current + 1))
+          );
+          mediaUrl = muxVideo.videoUrl;
+          muxAssetId = muxVideo.assetId;
+          mediaDuration = muxVideo.duration || duration;
+          mediaMimeType = "application/vnd.apple.mpegurl";
+        } else {
+          setStatusMessage(
+            "Uploading audio… You can keep this tab open in the background."
+          );
+          const mediaBlob = await uploadBlob(
+            `dalimss-podcasts/episodes/${Date.now()}-${safeFilename(
+              mediaFile.name
+            )}`,
+            mediaFile,
+            {
+              access: "public",
+              handleUploadUrl: "/api/podcasts/upload",
+              clientPayload: JSON.stringify({ kind: "episode" }),
+              contentType: mediaFile.type,
+              multipart: true,
+              onUploadProgress: ({ percentage }) =>
+                setProgress(15 + Math.round(percentage * 0.8)),
+            }
+          );
+          mediaUrl = mediaBlob.url;
+          muxAssetId = null;
+          mediaMimeType = mediaFile.type;
+        }
         mediaBytes = mediaFile.size;
-        mediaMimeType = mediaFile.type;
+      } else if (
+        mediaType === "video" &&
+        existingMediaUrl &&
+        !existingMuxAssetId &&
+        !existingMediaUrl.includes("stream.mux.com/")
+      ) {
+        setProgress(85);
+        setStatusMessage(
+          "Importing the existing video for reliable playback and multiple qualities…"
+        );
+        const importResponse = await fetch("/api/podcasts/mux", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "import",
+            sourceUrl: existingMediaUrl,
+          }),
+        });
+        const importData = await importResponse.json();
+        if (!importResponse.ok) {
+          throw new Error(importData.error || "Unable to import existing video");
+        }
+        const muxVideo = await waitForMuxVideo(
+          { assetId: importData.assetId },
+          () => setProgress((current) => Math.min(95, current + 1))
+        );
+        mediaUrl = muxVideo.videoUrl;
+        muxAssetId = muxVideo.assetId;
+        mediaDuration = muxVideo.duration || duration;
+        mediaMimeType = "application/vnd.apple.mpegurl";
       }
 
       setStatusMessage(isEditing ? "Saving changes…" : "Publishing OTT release…");
@@ -377,14 +455,15 @@ export default function NewPodcastEpisode() {
             language,
             seasonNumber,
             episodeNumber,
-            duration,
+            duration: mediaDuration,
             coverImage,
             audioUrl: mediaType === "audio" ? mediaUrl : null,
             videoUrl: mediaType === "video" ? mediaUrl : null,
+            muxAssetId: mediaType === "video" ? muxAssetId : null,
             mediaBytes,
             mediaMimeType,
-          mediaType,
-          contentType,
+            mediaType,
+            contentType,
             explicit,
             featured,
           }),
@@ -678,7 +757,7 @@ export default function NewPodcastEpisode() {
                             <p className="mt-1 text-xs text-white/35">
                               {mediaType === "audio"
                                 ? "MP3, M4A, WAV or OGG"
-                                : "MP4, MOV or WebM"}
+                                : "MP4, MOV, MKV, AVI, MXF, WebM and more"}
                             </p>
                           </>
                         )}
@@ -687,7 +766,7 @@ export default function NewPodcastEpisode() {
                           accept={
                             mediaType === "audio"
                               ? "audio/mpeg,audio/mp4,audio/x-m4a,audio/wav,audio/ogg"
-                              : "video/mp4,video/quicktime,video/webm"
+                              : "video/*,.mkv,.avi,.flv,.mxf,.lxf,.gxf,.3gp,.mpg,.mpeg,.ts,.mts,.m2ts"
                           }
                           onChange={handleMediaSelection}
                           className="sr-only"

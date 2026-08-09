@@ -140,6 +140,7 @@ model PodcastEpisode {
   coverImage    String
   audioUrl      String?
   videoUrl      String?
+  muxAssetId    String?
   mediaBytes    String?
   mediaMimeType String?
   mediaType     String   @default("audio")

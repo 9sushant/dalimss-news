@@ -62,6 +62,7 @@ export default async function handler(
     coverImage,
     audioUrl,
     videoUrl,
+    muxAssetId,
     mediaBytes,
     mediaMimeType,
     mediaType,
@@ -134,6 +135,10 @@ export default async function handler(
         coverImage,
         audioUrl: mediaType === "audio" ? audioUrl : null,
         videoUrl: mediaType === "video" ? videoUrl : null,
+        muxAssetId:
+          mediaType === "video" && typeof muxAssetId === "string"
+            ? muxAssetId
+            : null,
         mediaBytes:
           Number.isFinite(Number(mediaBytes)) && Number(mediaBytes) > 0
             ? String(Math.round(Number(mediaBytes)))

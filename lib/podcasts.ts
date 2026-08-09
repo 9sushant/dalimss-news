@@ -51,6 +51,7 @@ export interface PodcastEpisodeData {
   coverImage: string;
   audioUrl: string | null;
   videoUrl: string | null;
+  muxAssetId: string | null;
   mediaBytes: string | null;
   mediaMimeType: string | null;
   mediaType: string;

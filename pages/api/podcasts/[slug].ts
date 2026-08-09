@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma";
 import { submitIndexNow } from "@/lib/indexnow";
 import { SITE_URL } from "@/lib/seo";
 import { normalizeOttContentType } from "@/lib/podcasts";
+import { deleteMuxAsset } from "@/lib/mux";
 import { authOptions } from "../auth/[...nextauth]";
 
 const EDITOR_EMAILS = new Set([
@@ -17,6 +18,14 @@ function isValidPublicUrl(value: unknown) {
   if (typeof value !== "string") return false;
   try {
     return new URL(value).protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function isVercelBlobUrl(value: string) {
+  try {
+    return new URL(value).hostname.endsWith(".blob.vercel-storage.com");
   } catch {
     return false;
   }
@@ -67,6 +76,7 @@ export default async function handler(
       coverImage,
       audioUrl,
       videoUrl,
+      muxAssetId,
       mediaBytes,
       mediaMimeType,
       mediaType,
@@ -100,7 +110,12 @@ export default async function handler(
     try {
       const currentEpisode = await prisma.podcastEpisode.findUnique({
         where: { slug },
-        select: { coverImage: true, audioUrl: true, videoUrl: true },
+        select: {
+          coverImage: true,
+          audioUrl: true,
+          videoUrl: true,
+          muxAssetId: true,
+        },
       });
       if (!currentEpisode) {
         return res.status(404).json({ error: "OTT release not found" });
@@ -143,6 +158,10 @@ export default async function handler(
           coverImage,
           audioUrl: mediaType === "audio" ? audioUrl : null,
           videoUrl: mediaType === "video" ? videoUrl : null,
+          muxAssetId:
+            mediaType === "video" && typeof muxAssetId === "string"
+              ? muxAssetId
+              : null,
           mediaBytes:
             Number.isFinite(Number(mediaBytes)) && Number(mediaBytes) > 0
               ? String(Math.round(Number(mediaBytes)))
@@ -168,13 +187,27 @@ export default async function handler(
         currentEpisode.audioUrl,
         currentEpisode.videoUrl,
       ].filter(
-        (url): url is string => Boolean(url) && !retainedUrls.has(url)
+        (url): url is string =>
+          typeof url === "string" &&
+          !retainedUrls.has(url) &&
+          isVercelBlobUrl(url)
       );
       if (replacedUrls.length > 0) {
         try {
           await del(replacedUrls);
         } catch (blobError) {
           console.warn("Podcast updated but old Blob cleanup failed:", blobError);
+        }
+      }
+
+      if (
+        currentEpisode.muxAssetId &&
+        currentEpisode.muxAssetId !== episode.muxAssetId
+      ) {
+        try {
+          await deleteMuxAsset(currentEpisode.muxAssetId);
+        } catch (muxError) {
+          console.warn("Podcast updated but old Mux cleanup failed:", muxError);
         }
       }
 
@@ -189,7 +222,12 @@ export default async function handler(
   try {
     const episode = await prisma.podcastEpisode.findUnique({
       where: { slug },
-      select: { coverImage: true, audioUrl: true, videoUrl: true },
+      select: {
+        coverImage: true,
+        audioUrl: true,
+        videoUrl: true,
+        muxAssetId: true,
+      },
     });
     if (!episode) {
       return res.status(404).json({ error: "OTT release not found" });
@@ -200,11 +238,23 @@ export default async function handler(
       episode.coverImage,
       episode.audioUrl,
       episode.videoUrl,
-    ].filter((url): url is string => Boolean(url));
-    try {
-      await del(mediaUrls);
-    } catch (blobError) {
-      console.warn("Podcast deleted but Blob cleanup failed:", blobError);
+    ].filter(
+      (url): url is string =>
+        typeof url === "string" && isVercelBlobUrl(url)
+    );
+    if (mediaUrls.length > 0) {
+      try {
+        await del(mediaUrls);
+      } catch (blobError) {
+        console.warn("Podcast deleted but Blob cleanup failed:", blobError);
+      }
+    }
+    if (episode.muxAssetId) {
+      try {
+        await deleteMuxAsset(episode.muxAssetId);
+      } catch (muxError) {
+        console.warn("Podcast deleted but Mux cleanup failed:", muxError);
+      }
     }
     return res.status(200).json({ success: true });
   } catch (error) {

@@ -21,8 +21,13 @@ The site also publishes:
 ## OTT
 
 Editors can publish audio or video episodes from `/ott/new`. Episode media
-uses direct multipart Vercel Blob uploads, so `BLOB_READ_WRITE_TOKEN` must be
-available in the production and preview environments.
+uses direct Vercel Blob uploads for artwork and audio. Video uploads use Mux
+for resumable ingestion, transcoding and adaptive HLS playback. Set these in
+the production and preview environments:
+
+- `BLOB_READ_WRITE_TOKEN`
+- `MUX_TOKEN_ID`
+- `MUX_TOKEN_SECRET`
 
 Public OTT endpoints:
 

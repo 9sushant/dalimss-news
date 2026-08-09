@@ -169,8 +169,9 @@ export default function OttVideoPlayer({
             : selectedLevel
         }p`;
 
-  const displayedLevels =
-    progressiveSources.length > 0
+  const displayedLevels = isAdaptiveStream
+    ? levels
+    : progressiveSources.length > 0
       ? progressiveSources.map((source) => ({
           index: source.height,
           height: source.height,
