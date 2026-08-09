@@ -21,6 +21,10 @@ import {
   formatContentType,
   normalizeOttContentType,
 } from "@/lib/podcasts";
+import {
+  MAX_OTT_MEDIA_SIZE_BYTES,
+  MAX_OTT_MEDIA_SIZE_GB,
+} from "@/lib/ottUpload";
 import { compressImage } from "@/utils/compressImage";
 
 const EDITOR_EMAILS = new Set([
@@ -273,8 +277,10 @@ export default function NewPodcastEpisode() {
       event.target.value = "";
       return;
     }
-    if (file.size > 2 * 1024 * 1024 * 1024) {
-      setError("OTT media files must be under 2 GB.");
+    if (file.size > MAX_OTT_MEDIA_SIZE_BYTES) {
+      setError(
+        `OTT media files can be up to ${MAX_OTT_MEDIA_SIZE_GB} GB.`
+      );
       event.target.value = "";
       return;
     }
@@ -568,7 +574,7 @@ export default function NewPodcastEpisode() {
                   </h2>
                   <p className="mt-2 text-sm text-white/45">
                     Square artwork works best. Audio and video files can be up
-                    to 2 GB.
+                    to {MAX_OTT_MEDIA_SIZE_GB} GB.
                   </p>
 
                   <div className="mt-6 grid gap-6 md:grid-cols-2">

@@ -1,0 +1,4 @@
+export const MAX_OTT_MEDIA_SIZE_GB = 100;
+
+export const MAX_OTT_MEDIA_SIZE_BYTES =
+  MAX_OTT_MEDIA_SIZE_GB * 1024 * 1024 * 1024;

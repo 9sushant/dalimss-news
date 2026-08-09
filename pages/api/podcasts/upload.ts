@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { getServerSession } from "next-auth";
+import { MAX_OTT_MEDIA_SIZE_BYTES } from "@/lib/ottUpload";
 import { authOptions } from "../auth/[...nextauth]";
 
 const EDITOR_EMAILS = new Set([
@@ -56,7 +57,7 @@ export default async function handler(
               ],
           maximumSizeInBytes: isCover
             ? 10 * 1024 * 1024
-            : 2 * 1024 * 1024 * 1024,
+            : MAX_OTT_MEDIA_SIZE_BYTES,
           addRandomSuffix: true,
           cacheControlMaxAge: 31 * 24 * 60 * 60,
           tokenPayload: JSON.stringify({
