@@ -14,6 +14,7 @@ import {
   normalizeArticleSources,
   sourcesToEditorText,
 } from "@/lib/articleSources";
+import { uploadArticleMedia } from "@/lib/articleMediaUpload";
 
 interface MediaItem {
   url: string;
@@ -77,6 +78,7 @@ const EditArticle: React.FC<Props> = ({ article }) => {
   });
   const [loading, setLoading] = useState(false);
   const [uploadingMedia, setUploadingMedia] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [compressing, setCompressing] = useState(false);
 
   // Initialize media items from existing data
@@ -233,28 +235,20 @@ const EditArticle: React.FC<Props> = ({ article }) => {
 
       if (newFiles.length > 0) {
         setUploadingMedia(true);
-        for (const entry of newFiles) {
-          const uploadFormData = new FormData();
-          uploadFormData.append("file", entry.file);
-
-          const uploadResp = await fetch("/api/articles/upload", {
-            method: "POST",
-            body: uploadFormData,
-          });
-
-          if (!uploadResp.ok) {
-            const text = await uploadResp.text();
-            let errorMsg = "Upload failed";
-            try { errorMsg = JSON.parse(text).error || errorMsg; } catch {}
-            if (uploadResp.status === 413) errorMsg = "File is too large. Please compress or use a smaller image/video.";
-            throw new Error(errorMsg);
-          }
-
-          const uploadResult = await uploadResp.json();
-          uploadedNewItems.push({ url: uploadResult.url, type: entry.type });
-          console.log("✅ Media uploaded:", uploadResult.url);
+        for (let index = 0; index < newFiles.length; index++) {
+          const entry = newFiles[index];
+          const url = await uploadArticleMedia(
+            entry.file,
+            entry.type,
+            (percentage) =>
+              setUploadProgress(
+                Math.round(((index + percentage / 100) / newFiles.length) * 100)
+              )
+          );
+          uploadedNewItems.push({ url, type: entry.type });
         }
         setUploadingMedia(false);
+        setUploadProgress(100);
       }
 
       // Combine existing + newly uploaded
@@ -302,6 +296,7 @@ const EditArticle: React.FC<Props> = ({ article }) => {
     } finally {
       setLoading(false);
       setUploadingMedia(false);
+      setUploadProgress(0);
     }
   };
 
@@ -541,7 +536,7 @@ const EditArticle: React.FC<Props> = ({ article }) => {
           {totalMedia === 0 && (
             <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center text-gray-400">
               <p className="text-lg mb-1">No media attached</p>
-              <p className="text-sm">Click &quot;+ Add Photos / Videos&quot; to upload</p>
+              <p className="text-sm">Select media here; it uploads when you update</p>
             </div>
           )}
         </div>
@@ -567,7 +562,7 @@ const EditArticle: React.FC<Props> = ({ article }) => {
           >
             {loading
               ? uploadingMedia
-                ? "Uploading media..."
+                ? `Uploading media... ${uploadProgress}%`
                 : "Updating..."
               : "Update Article"}
           </button>

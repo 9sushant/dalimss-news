@@ -12,6 +12,7 @@ import {
   editorTextToSources,
   normalizeArticleSources,
 } from "@/lib/articleSources";
+import { uploadArticleMedia } from "@/lib/articleMediaUpload";
 
 interface MediaEntry {
   file: File;
@@ -38,6 +39,7 @@ const NewArticle: React.FC = () => {
   const [seoData, setSeoData] = useState({ metaTitle: "", metaDescription: "", focusKeyword: "", tags: "", imageAltText: "", imageCaption: "" });
   const [loading, setLoading] = useState(false);
   const [uploadingMedia, setUploadingMedia] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [compressing, setCompressing] = useState(false);
 
   if (status === "loading") {
@@ -174,28 +176,20 @@ const NewArticle: React.FC = () => {
 
       if (mediaFiles.length > 0) {
         setUploadingMedia(true);
-        for (const entry of mediaFiles) {
-          const uploadFormData = new FormData();
-          uploadFormData.append("file", entry.file);
-
-          const uploadResp = await fetch("/api/articles/upload", {
-            method: "POST",
-            body: uploadFormData,
-          });
-
-          if (!uploadResp.ok) {
-            const text = await uploadResp.text();
-            let errorMsg = "Upload failed";
-            try { errorMsg = JSON.parse(text).error || errorMsg; } catch {}
-            if (uploadResp.status === 413) errorMsg = "File is too large. Please compress or use a smaller image/video.";
-            throw new Error(errorMsg);
-          }
-
-          const uploadResult = await uploadResp.json();
-          uploadedItems.push({ url: uploadResult.url, type: entry.type });
-          console.log("✅ Media uploaded:", uploadResult.url);
+        for (let index = 0; index < mediaFiles.length; index++) {
+          const entry = mediaFiles[index];
+          const url = await uploadArticleMedia(
+            entry.file,
+            entry.type,
+            (percentage) =>
+              setUploadProgress(
+                Math.round(((index + percentage / 100) / mediaFiles.length) * 100)
+              )
+          );
+          uploadedItems.push({ url, type: entry.type });
         }
         setUploadingMedia(false);
+        setUploadProgress(100);
       }
 
       // Primary media for backward compatibility
@@ -240,6 +234,7 @@ const NewArticle: React.FC = () => {
     } finally {
       setLoading(false);
       setUploadingMedia(false);
+      setUploadProgress(0);
     }
   };
 
@@ -459,7 +454,7 @@ const NewArticle: React.FC = () => {
           {mediaFiles.length === 0 && (
             <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center text-gray-400">
               <p className="text-lg mb-1">No media attached</p>
-              <p className="text-sm">Click &quot;+ Add Photos / Videos&quot; to upload</p>
+              <p className="text-sm">Select media here; it uploads when you publish</p>
             </div>
           )}
         </div>
@@ -477,7 +472,7 @@ const NewArticle: React.FC = () => {
         >
           {loading
             ? uploadingMedia
-              ? "Uploading media..."
+              ? `Uploading media... ${uploadProgress}%`
               : "Publishing..."
             : "Publish"}
         </button>
