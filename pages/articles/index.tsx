@@ -2,6 +2,7 @@ import { GetServerSideProps } from "next";
 import Head from "next/head";
 import Layout from "@/components/Layout";
 import ArticleCard from "@/components/ArticleCard";
+import ArticleMediaPreview from "@/components/ArticleMediaPreview";
 import { Article } from "@/types";
 import Link from "next/link";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
@@ -68,9 +69,11 @@ export default function AllArticlesPage({ articles }: Props) {
               <div className="h-full border border-gray-100 rounded-lg overflow-hidden group relative">
                 {heroArticle.mediaUrl && (
                   <div className="w-full h-64 md:h-96 overflow-hidden">
-                    <img 
-                      src={heroArticle.mediaUrl} 
+                    <ArticleMediaPreview
+                      src={heroArticle.mediaUrl}
+                      mediaType={heroArticle.mediaType}
                       alt={heroArticle.title}
+                      loading="eager"
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                   </div>

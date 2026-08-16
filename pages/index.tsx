@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Head from "next/head";
 import Layout from "@/components/Layout";
 import ArticleCard from "@/components/ArticleCard";
+import ArticleMediaPreview from "@/components/ArticleMediaPreview";
 import NewsShortsSidebar from "@/components/NewsShortsSidebar";
 import WebStoriesCarousel from "@/components/WebStoriesCarousel";
 import { Article } from "@/types";
@@ -247,13 +248,17 @@ export default function HomePage({ articles, stories }: Props) {
                 {heroArticle.mediaUrl && (
                   <div className="w-full h-64 md:h-[500px] bg-black overflow-hidden relative">
                     {/* Blurred Background for better aesthetics */}
-                    <div 
-                      className="absolute inset-0 bg-cover bg-center opacity-50 blur-xl scale-110"
-                      style={{ backgroundImage: `url(${heroArticle.mediaUrl})` }}
-                    />
-                    <img 
+                    {heroArticle.mediaType !== "video" && (
+                      <div
+                        className="absolute inset-0 bg-cover bg-center opacity-50 blur-xl scale-110"
+                        style={{ backgroundImage: `url(${heroArticle.mediaUrl})` }}
+                      />
+                    )}
+                    <ArticleMediaPreview
                       src={heroArticle.mediaUrl} 
+                      mediaType={heroArticle.mediaType}
                       alt={heroArticle.title}
+                      loading="eager"
                       className="relative z-10 w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
                     />
                   </div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Article } from '../types';
 import ShareButton from './ShareButton';
-import ImageWithFallback from './ImageWithFallback';
+import ArticleMediaPreview from './ArticleMediaPreview';
 import { canonicalArticleSlug } from '@/lib/seo';
 
 interface ArticleCardProps {
@@ -35,8 +35,9 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
       <div className="group flex gap-4 py-4 border-b border-gray-200">
         {article.mediaUrl && (
           <div className="flex-shrink-0 w-32 h-24 md:w-48 md:h-32 overflow-hidden rounded-md relative">
-             <ImageWithFallback 
+             <ArticleMediaPreview
                 src={article.mediaUrl} 
+                mediaType={article.mediaType}
                 alt={article.title}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 loading="lazy"
@@ -95,8 +96,9 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
     <div className="group flex flex-col h-full border border-gray-100 rounded-lg overflow-hidden bg-white hover:shadow-md transition-shadow">
       {article.mediaUrl && (
         <div className="w-full h-48 overflow-hidden relative">
-          <ImageWithFallback 
+          <ArticleMediaPreview
             src={article.mediaUrl} 
+            mediaType={article.mediaType}
             alt={article.title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"

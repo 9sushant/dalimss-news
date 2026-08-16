@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import ArticleCard from "@/components/ArticleCard";
+import ArticleMediaPreview from "@/components/ArticleMediaPreview";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Article } from "@/types";
 import {
@@ -183,15 +184,19 @@ export default function CategoryPage({ category, articles, totalCount }: Props) 
                     <div className="h-full border border-gray-100 rounded-lg overflow-hidden group bg-white hover:shadow-md transition-shadow">
                       {heroArticle.mediaUrl && (
                         <div className="w-full h-64 md:h-[450px] bg-black overflow-hidden relative">
-                          <div
-                            className="absolute inset-0 bg-cover bg-center opacity-50 blur-xl scale-110"
-                            style={{
-                              backgroundImage: `url(${heroArticle.mediaUrl})`,
-                            }}
-                          />
-                          <img
+                          {heroArticle.mediaType !== "video" && (
+                            <div
+                              className="absolute inset-0 bg-cover bg-center opacity-50 blur-xl scale-110"
+                              style={{
+                                backgroundImage: `url(${heroArticle.mediaUrl})`,
+                              }}
+                            />
+                          )}
+                          <ArticleMediaPreview
                             src={heroArticle.mediaUrl}
+                            mediaType={heroArticle.mediaType}
                             alt={heroArticle.title}
+                            loading="eager"
                             className="relative z-10 w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
                           />
                         </div>
