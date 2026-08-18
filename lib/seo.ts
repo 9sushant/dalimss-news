@@ -86,6 +86,24 @@ export function absoluteImageUrl(
   return `${SITE_URL}${url.startsWith("/") ? "" : "/"}${url}`;
 }
 
+/** Resolve a site-hosted asset without substituting an image fallback. */
+export function absoluteUrl(url: string | null | undefined): string | undefined {
+  if (!url) return undefined;
+  if (/^https?:\/\//i.test(url)) return url;
+  return `${SITE_URL}${url.startsWith("/") ? "" : "/"}${url}`;
+}
+
+/** Format a media duration in seconds as an ISO 8601 duration. */
+export function toISO8601Duration(
+  totalSeconds: number | null | undefined
+): string | undefined {
+  if (!Number.isFinite(totalSeconds) || Number(totalSeconds) <= 0) {
+    return undefined;
+  }
+
+  return `PT${Math.round(Number(totalSeconds))}S`;
+}
+
 /**
  * Format ISO date string with India timezone
  */

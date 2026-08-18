@@ -9,7 +9,14 @@ import {
   PencilSquareIcon,
 } from "@heroicons/react/24/outline";
 import prisma from "@/lib/prisma";
-import { SITE_URL } from "@/lib/seo";
+import {
+  SITE_NAME,
+  SITE_URL,
+  absoluteImageUrl,
+  absoluteUrl,
+  stripForMeta,
+  toISO8601Duration,
+} from "@/lib/seo";
 import {
   PodcastEpisodeData,
   formatContentType,
@@ -52,35 +59,71 @@ export default function PodcastEpisodePage({
       ? "Dalimss News OTT"
       : episode.showName;
   const contentTypeLabel = formatContentType(episode.contentType);
+  const description = stripForMeta(episode.description, 2048);
+  const thumbnailUrl = absoluteImageUrl(episode.coverImage);
+  const mediaUrl = absoluteUrl(episode.videoUrl || episode.audioUrl);
+  const languageCode =
+    episode.language === "Hindi"
+      ? "hi-IN"
+      : episode.language === "Hinglish"
+        ? "hi-Latn-IN"
+        : "en-IN";
+  const mediaId = `${canonicalUrl}#${episode.mediaType === "video" ? "video" : "audio"}`;
+  const mediaSchema = {
+    "@type": episode.mediaType === "video" ? "VideoObject" : "AudioObject",
+    "@id": mediaId,
+    name: episode.title,
+    description,
+    contentUrl: mediaUrl,
+    uploadDate: new Date(episode.publishedAt).toISOString(),
+    duration: toISO8601Duration(episode.duration),
+    inLanguage: languageCode,
+    ...(episode.mediaType === "video"
+      ? {
+          thumbnailUrl: [thumbnailUrl],
+          isFamilyFriendly: !episode.explicit,
+        }
+      : { thumbnailUrl }),
+  };
 
   const schema = {
     "@context": "https://schema.org",
-    "@type": "PodcastEpisode",
-    name: episode.title,
-    description: episode.description,
-    url: canonicalUrl,
-    datePublished: episode.publishedAt,
-    timeRequired: episode.duration
-      ? `PT${Math.round(episode.duration)}S`
-      : undefined,
-    episodeNumber: episode.episodeNumber || undefined,
-    seasonNumber: episode.seasonNumber || undefined,
-    image: episode.coverImage,
-    associatedMedia: {
-      "@type": episode.mediaType === "video" ? "VideoObject" : "AudioObject",
-      contentUrl: episode.videoUrl || episode.audioUrl,
-      name: episode.title,
-      uploadDate: episode.publishedAt,
-    },
-    partOfSeries: {
-      "@type": "PodcastSeries",
-      name: displayShowName,
-      url: `${SITE_URL}/ott`,
-    },
-    actor: {
-      "@type": "Person",
-      name: episode.hostName,
-    },
+    "@graph": [
+      mediaSchema,
+      {
+        "@type": "PodcastEpisode",
+        "@id": `${canonicalUrl}#episode`,
+        name: episode.title,
+        description,
+        url: canonicalUrl,
+        mainEntityOfPage: canonicalUrl,
+        datePublished: new Date(episode.publishedAt).toISOString(),
+        dateModified: new Date(episode.updatedAt).toISOString(),
+        timeRequired: toISO8601Duration(episode.duration),
+        episodeNumber: episode.episodeNumber || undefined,
+        seasonNumber: episode.seasonNumber || undefined,
+        image: thumbnailUrl,
+        associatedMedia: { "@id": mediaId },
+        partOfSeries: {
+          "@type": "PodcastSeries",
+          name: displayShowName,
+          url: `${SITE_URL}/ott`,
+        },
+        actor: {
+          "@type": "Person",
+          name: episode.hostName,
+        },
+        publisher: {
+          "@type": "NewsMediaOrganization",
+          name: SITE_NAME,
+          url: SITE_URL,
+          logo: {
+            "@type": "ImageObject",
+            url: `${SITE_URL}/logo-square.png`,
+          },
+        },
+      },
+    ],
   };
 
   const handleDelete = async () => {
@@ -100,23 +143,42 @@ export default function PodcastEpisodePage({
     <>
       <Head>
         <title>{episode.title} | Dalimss OTT</title>
-        <meta name="description" content={episode.description.slice(0, 160)} />
+        <meta name="description" content={description.slice(0, 160)} />
+        <meta
+          name="robots"
+          content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+        />
         <link rel="canonical" href={canonicalUrl} />
-        <meta property="og:type" content="music.song" />
+        <meta
+          property="og:type"
+          content={episode.mediaType === "video" ? "video.other" : "music.song"}
+        />
         <meta property="og:title" content={episode.title} />
         <meta
           property="og:description"
           content={episode.description.slice(0, 200)}
         />
         <meta property="og:url" content={canonicalUrl} />
-        <meta property="og:image" content={episode.coverImage} />
+        <meta property="og:image" content={thumbnailUrl} />
+        <meta property="og:image:alt" content={`${episode.title} thumbnail`} />
+        {episode.mediaType === "video" && mediaUrl && (
+          <>
+            <meta property="og:video" content={mediaUrl} />
+            <meta property="og:video:secure_url" content={mediaUrl} />
+            <meta
+              property="og:video:type"
+              content={episode.mediaMimeType || "application/vnd.apple.mpegurl"}
+            />
+            <meta property="og:video:image" content={thumbnailUrl} />
+          </>
+        )}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={episode.title} />
         <meta
           name="twitter:description"
           content={episode.description.slice(0, 200)}
         />
-        <meta name="twitter:image" content={episode.coverImage} />
+        <meta name="twitter:image" content={thumbnailUrl} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}

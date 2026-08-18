@@ -101,3 +101,4 @@ Disallow: /auth/
 
 Sitemap: https://dalimss.news/sitemap.xml
 Sitemap: https://dalimss.news/news-sitemap.xml
+Sitemap: https://dalimss.news/video-sitemap.xml

@@ -178,11 +178,13 @@ export default function OttVideoPlayer({
           bitrate: 0,
         }))
       : levels;
+  const initialSource = progressiveSources[0]?.url || src;
 
   return (
     <div className="group relative overflow-hidden rounded-xl bg-black sm:rounded-[1.3rem]">
       <video
         ref={videoRef}
+        src={initialSource}
         poster={poster}
         controls
         autoPlay
