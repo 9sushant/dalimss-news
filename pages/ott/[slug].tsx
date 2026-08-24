@@ -14,6 +14,7 @@ import {
   SITE_URL,
   absoluteImageUrl,
   absoluteUrl,
+  socialPreviewImageUrl,
   stripForMeta,
   toISO8601Duration,
 } from "@/lib/seo";
@@ -61,6 +62,7 @@ export default function PodcastEpisodePage({
   const contentTypeLabel = formatContentType(episode.contentType);
   const description = stripForMeta(episode.description, 2048);
   const thumbnailUrl = absoluteImageUrl(episode.coverImage);
+  const socialImageUrl = socialPreviewImageUrl(episode.coverImage);
   const mediaUrl = absoluteUrl(episode.videoUrl || episode.audioUrl);
   const languageCode =
     episode.language === "Hindi"
@@ -149,36 +151,27 @@ export default function PodcastEpisodePage({
           content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
         />
         <link rel="canonical" href={canonicalUrl} />
-        <meta
-          property="og:type"
-          content={episode.mediaType === "video" ? "video.other" : "music.song"}
-        />
+        <meta property="og:type" content="website" />
         <meta property="og:title" content={episode.title} />
         <meta
           property="og:description"
-          content={episode.description.slice(0, 200)}
+          content={description.slice(0, 200)}
         />
         <meta property="og:url" content={canonicalUrl} />
-        <meta property="og:image" content={thumbnailUrl} />
+        <meta property="og:image" content={socialImageUrl} />
+        <meta property="og:image:secure_url" content={socialImageUrl} />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="1200" />
         <meta property="og:image:alt" content={`${episode.title} thumbnail`} />
-        {episode.mediaType === "video" && mediaUrl && (
-          <>
-            <meta property="og:video" content={mediaUrl} />
-            <meta property="og:video:secure_url" content={mediaUrl} />
-            <meta
-              property="og:video:type"
-              content={episode.mediaMimeType || "application/vnd.apple.mpegurl"}
-            />
-            <meta property="og:video:image" content={thumbnailUrl} />
-          </>
-        )}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={episode.title} />
         <meta
           name="twitter:description"
-          content={episode.description.slice(0, 200)}
+          content={description.slice(0, 200)}
         />
-        <meta name="twitter:image" content={thumbnailUrl} />
+        <meta name="twitter:image" content={socialImageUrl} />
+        <meta name="twitter:image:alt" content={`${episode.title} thumbnail`} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}

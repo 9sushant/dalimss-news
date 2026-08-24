@@ -86,6 +86,24 @@ export function absoluteImageUrl(
   return `${SITE_URL}${url.startsWith("/") ? "" : "/"}${url}`;
 }
 
+/**
+ * Return a social-crawler-friendly version of an image.
+ *
+ * OTT artwork is stored efficiently as WebP, but some link-preview crawlers
+ * (notably WhatsApp) do not reliably render WebP Open Graph images. Next's
+ * image endpoint returns a widely supported PNG when the crawler does not
+ * advertise WebP/AVIF support, while keeping the original artwork unchanged.
+ */
+export function socialPreviewImageUrl(
+  url: string | null | undefined,
+  width = 1200
+): string {
+  const sourceUrl = absoluteImageUrl(url);
+  return `${SITE_URL}/_next/image?url=${encodeURIComponent(
+    sourceUrl
+  )}&w=${width}&q=85`;
+}
+
 /** Resolve a site-hosted asset without substituting an image fallback. */
 export function absoluteUrl(url: string | null | undefined): string | undefined {
   if (!url) return undefined;
