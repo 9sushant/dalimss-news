@@ -62,7 +62,10 @@ export default function PodcastEpisodePage({
   const contentTypeLabel = formatContentType(episode.contentType);
   const description = stripForMeta(episode.description, 2048);
   const thumbnailUrl = absoluteImageUrl(episode.coverImage);
-  const socialImageUrl = socialPreviewImageUrl(episode.coverImage);
+  const socialImageUrl = socialPreviewImageUrl(
+    episode.coverImage,
+    episode.updatedAt
+  );
   const mediaUrl = absoluteUrl(episode.videoUrl || episode.audioUrl);
   const languageCode =
     episode.language === "Hindi"
@@ -161,8 +164,8 @@ export default function PodcastEpisodePage({
         <meta property="og:image" content={socialImageUrl} />
         <meta property="og:image:secure_url" content={socialImageUrl} />
         <meta property="og:image:type" content="image/png" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="1200" />
+        <meta property="og:image:width" content="640" />
+        <meta property="og:image:height" content="640" />
         <meta property="og:image:alt" content={`${episode.title} thumbnail`} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={episode.title} />

@@ -96,12 +96,19 @@ export function absoluteImageUrl(
  */
 export function socialPreviewImageUrl(
   url: string | null | undefined,
-  width = 1200
+  version?: string | number | Date,
+  width = 640
 ): string {
-  const sourceUrl = absoluteImageUrl(url);
+  let sourceUrl = absoluteImageUrl(url);
+  if (version !== undefined) {
+    const separator = sourceUrl.includes("?") ? "&" : "?";
+    const versionValue =
+      version instanceof Date ? version.getTime() : String(version);
+    sourceUrl = `${sourceUrl}${separator}v=${encodeURIComponent(versionValue)}`;
+  }
   return `${SITE_URL}/_next/image?url=${encodeURIComponent(
     sourceUrl
-  )}&w=${width}&q=85`;
+  )}&w=${width}&q=75`;
 }
 
 /** Resolve a site-hosted asset without substituting an image fallback. */
