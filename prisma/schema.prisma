@@ -247,3 +247,72 @@ model UserProgress {
 
   @@unique([enrollmentId, lessonId]) // One progress record per lesson per enrollment
 }
+
+// Mobile readers are separate from editorial/admin users.
+model ReaderAccount {
+  id           String @id @default(cuid())
+  username     String @unique
+  displayName  String
+  email        String? @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  sessions     ReaderSession[]
+  likes        ReaderLike[]
+  comments     ReaderComment[]
+  reports      ReaderReport[]
+}
+model ReaderSession {
+  id        String @id @default(cuid())
+  tokenHash String @unique
+  readerId  String
+  reader    ReaderAccount @relation(fields: [readerId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  @@index([readerId])
+}
+model ReaderLike {
+  id       String @id @default(cuid())
+  target   String
+  readerId String
+  reader   ReaderAccount @relation(fields: [readerId], references: [id], onDelete: Cascade)
+  @@unique([readerId, target])
+  @@index([target])
+}
+model ReaderComment {
+  id        String @id @default(cuid())
+  target    String
+  text      String
+  approved  Boolean @default(false)
+  readerId  String
+  reader    ReaderAccount @relation(fields: [readerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  @@index([target, approved, createdAt])
+}
+model ReaderReport {
+  id        String @id @default(cuid())
+  target    String
+  reason    String
+  readerId  String
+  reader    ReaderAccount @relation(fields: [readerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  @@unique([readerId, target])
+}
+model MobileContent {
+  id          String @id @default(cuid())
+  kind        String // short (9:16 video), post (image), series (news series episode)
+  title       String
+  description String
+  category    String
+  imageUrl    String?
+  videoUrl    String?
+  captionUrl  String?
+  seriesName  String?
+  published   Boolean @default(false)
+  createdAt   DateTime @default(now())
+  @@index([kind, published, createdAt])
+}
+model MobileRateLimit {
+  key       String @id
+  count     Int @default(1)
+  expiresAt DateTime
+  @@index([expiresAt])
+}
