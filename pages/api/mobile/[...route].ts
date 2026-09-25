@@ -43,7 +43,7 @@ export default async function handler(req: NextApiRequest,res: NextApiResponse) 
       if(!await rateLimit(req,'login-ip',50)||!await rateLimit(req,'login-user',20,user)) return res.status(429).json({error:'Too many attempts. Try again later.'});
       if(typeof b.password!=='string'||b.password.length>128) return res.status(401).json({error:'Incorrect username or password.'});
       const reader=await prisma.readerAccount.findUnique({where:{username:user}});
-      if(!reader||!await verifyPassword(b.password,reader.passwordHash)) return res.status(401).json({error:'Incorrect username or password.'});
+      if(!reader||!reader.passwordHash||!await verifyPassword(b.password,reader.passwordHash)) return res.status(401).json({error:'Incorrect username or password.'});
       return res.json({reader:publicReader(reader),token:await createSession(reader.id)});
     }
     if(route.startsWith('admin/')) {
