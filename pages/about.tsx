@@ -15,7 +15,7 @@ import { SITE_NAME, SITE_URL } from "@/lib/seo";
 const facts = [
   {
     label: "Founded",
-    value: "January 2024",
+    value: "February 2024",
     icon: CalendarDaysIcon,
   },
   {
@@ -53,7 +53,7 @@ export default function AboutPage() {
     name: SITE_NAME,
     legalName: "PAMF DIGIMEDIA PRIVATE LIMITED",
     url: SITE_URL,
-    foundingDate: "2024-01",
+    foundingDate: "2024-02",
     description:
       "Dalimss News is a digital news publication reporting from Varanasi, Eastern Uttar Pradesh, Gurugram and Delhi-NCR, with coverage of major developments across India.",
     logo: {
@@ -148,11 +148,11 @@ export default function AboutPage() {
             About {SITE_NAME}
           </p>
           <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-            Local reporting. Wider perspective.
+            Digital news desk. Wider perspective.
           </h1>
           <div className="space-y-4 text-lg md:text-xl text-gray-300 leading-relaxed max-w-3xl">
             <p>
-              Founded in January 2024, Dalimss News is a digital news publication
+              Founded in February 2024, Dalimss News is a digital news publication
               with editorial operations in Varanasi and Gurugram.
             </p>
             <p>
@@ -272,6 +272,38 @@ export default function AboutPage() {
               separately and do not determine the conclusions of independent
               news reports.
             </p>
+          </div>
+        </section>
+
+        <section id="our-team" aria-labelledby="our-team-heading" className="py-14 bg-gray-50">
+          <div className="container mx-auto px-4 max-w-5xl">
+            <h2 id="our-team-heading" className="text-3xl font-bold text-gray-900 mb-8">
+              Our Team
+            </h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="bg-white border border-gray-200 rounded-xl p-7">
+                <div aria-hidden="true" className="flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-red-700 font-bold text-lg mb-5">
+                  SY
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  Saurav Yadav
+                </h3>
+                <p className="text-gray-600">Editor-in-Chief</p>
+              </div>
+              <div className="bg-white border border-gray-200 rounded-xl p-7">
+                <UserGroupIcon aria-hidden="true" className="h-9 w-9 text-red-600 mb-5" />
+                <h3 className="text-xl font-bold text-gray-900 mb-3">
+                  Newsroom &amp; Published Contributors
+                </h3>
+                <p className="text-gray-600 leading-relaxed mb-5">
+                  Meet the contributors behind our published reporting and
+                  explore their latest work.
+                </p>
+                <Link className="text-red-700 font-semibold hover:underline" href="/authors">
+                  View our contributors &rarr;
+                </Link>
+              </div>
+            </div>
           </div>
         </section>
 

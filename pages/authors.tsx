@@ -14,6 +14,11 @@ interface AuthorsProps {
 }
 
 const HIDDEN_AUTHOR_SLUGS = new Set([
+  "singham-singh",
+  "singham-sing",
+  "dalimss-news-desk",
+  "dalimss-new-desk",
+  "dalimss-news-education-desk",
   "sushant",
   "sushant-gaurav",
   "sushant-gauarav",
