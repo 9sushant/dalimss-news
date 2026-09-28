@@ -1,3 +1,4 @@
+import { activeStoryWhere } from "@/lib/storyLifetime";
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
@@ -12,8 +13,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   // GET single story
   if (req.method === "GET") {
-    const story = await (prisma as any).webStory.findUnique({
-      where: { slug },
+    res.setHeader("Cache-Control", "no-store");
+    const story = await (prisma as any).webStory.findFirst({
+      where: { slug, ...activeStoryWhere() },
       include: { pages: { orderBy: { order: "asc" } } },
     });
 

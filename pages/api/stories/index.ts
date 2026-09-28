@@ -1,3 +1,4 @@
+import { activeStoryWhere } from "@/lib/storyLifetime";
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
@@ -7,8 +8,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   
   // GET all stories
   if (req.method === "GET") {
+    res.setHeader("Cache-Control", "no-store");
     const stories = await (prisma as any).webStory.findMany({
-      where: { published: true },
+      where: activeStoryWhere(),
       include: { pages: { orderBy: { order: "asc" } } },
       orderBy: { createdAt: "desc" },
     });

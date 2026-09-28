@@ -1,3 +1,4 @@
+import { activeStoryWhere } from "@/lib/storyLifetime";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
@@ -166,10 +167,11 @@ export default function StoriesPage({ stories }: Props) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async ({ res }) => {
+  res.setHeader("Cache-Control", "no-store");
   try {
     const stories = await (prisma as any).webStory.findMany({
-      where: { published: true },
+      where: activeStoryWhere(),
       include: { pages: { orderBy: { order: "asc" } } },
       orderBy: { createdAt: "desc" },
     });

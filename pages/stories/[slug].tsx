@@ -1,3 +1,4 @@
+import { activeStoryWhere } from "@/lib/storyLifetime";
 import { GetServerSideProps } from "next";
 import prisma from "@/lib/prisma";
 
@@ -6,11 +7,12 @@ export default function WebStoryPage() {
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ params, res }) => {
+  res.setHeader("Cache-Control", "no-store");
   const slug = String(params?.slug || "");
 
   try {
-    const story = await (prisma as any).webStory.findUnique({
-      where: { slug },
+    const story = await (prisma as any).webStory.findFirst({
+      where: { slug, ...activeStoryWhere() },
       include: { pages: { orderBy: { order: "asc" } } },
     });
 

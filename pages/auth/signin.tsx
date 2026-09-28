@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { signIn, getProviders, getCsrfToken } from "next-auth/react";
 import { GetServerSideProps } from "next";
@@ -7,6 +8,8 @@ interface Props {
 }
 
 export default function SignInPage({ csrfToken }: Props) {
+  const router = useRouter();
+  const callbackUrl = router.query.callbackUrl === "/admin/newsroom" ? "/admin/newsroom" : "/";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -28,7 +31,7 @@ export default function SignInPage({ csrfToken }: Props) {
     if (result?.error) {
       setError("Invalid email or password");
     } else {
-      window.location.href = "/";
+      window.location.href = callbackUrl;
     }
   };
 
@@ -107,7 +110,7 @@ export default function SignInPage({ csrfToken }: Props) {
 
           {/* Google Login */}
           <button
-            onClick={() => signIn("google", { callbackUrl: "/" })}
+            onClick={() => signIn("google", { callbackUrl })}
             className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-3 rounded-lg transition-colors"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
