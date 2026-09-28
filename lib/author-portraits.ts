@@ -25,5 +25,6 @@ const AUTHOR_PORTRAITS: Record<string, string> = {
 
 export function getAuthorPortrait(name: string): string | null {
   const portrait = AUTHOR_PORTRAITS[authorSlug(name)];
-  return portrait ? `/authors/${portrait}.png` : null;
+  // /authors/:slug redirects to /author/:slug, including image filenames.
+  return portrait ? `/newsroom-portraits/${portrait}.png` : null;
 }
