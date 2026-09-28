@@ -13,6 +13,7 @@ import {
 } from "@/lib/seo";
 import { getCategoriesByDbValue } from "@/lib/categories";
 import prisma from "@/lib/prisma";
+import { getAuthorPortrait } from "@/lib/author-portraits";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
 
 interface Props {
@@ -52,6 +53,10 @@ export default function AuthorPage({
 }: Props) {
   const canonicalUrl = `${SITE_URL}/author/${authorSlugStr}`;
   const pageTitle = `Articles by ${authorName} | ${SITE_NAME}`;
+  const portraitUrl = getAuthorPortrait(authorName) || profile?.imageUrl;
+  const absolutePortraitUrl = portraitUrl
+    ? new URL(portraitUrl, SITE_URL).href
+    : `${SITE_URL}/logo.png`;
   const pageDescription =
     profile?.bio ||
     `Read all ${articles.length} article${
@@ -68,7 +73,7 @@ export default function AuthorPage({
       url: SITE_URL,
     },
     knowsAbout: beats,
-    ...(profile?.imageUrl ? { image: profile.imageUrl } : {}),
+    ...(portraitUrl ? { image: absolutePortraitUrl } : {}),
     ...(profile?.professionalUrl
       ? { sameAs: [profile.professionalUrl] }
       : {}),
@@ -110,7 +115,7 @@ export default function AuthorPage({
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
         <meta property="og:url" content={canonicalUrl} />
-        <meta property="og:image" content={profile?.imageUrl || `${SITE_URL}/logo.png`} />
+        <meta property="og:image" content={absolutePortraitUrl} />
         <meta property="og:locale" content="en_IN" />
 
         {/* Twitter Card */}
@@ -118,6 +123,7 @@ export default function AuthorPage({
         <meta name="twitter:site" content="@dalimss_news" />
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={pageDescription} />
+        <meta name="twitter:image" content={absolutePortraitUrl} />
 
         {/* JSON-LD */}
         <script
@@ -140,9 +146,9 @@ export default function AuthorPage({
           <div className="bg-gradient-to-r from-gray-50 to-white border border-gray-100 rounded-xl p-6 md:p-8 flex flex-col md:flex-row items-center md:items-start gap-6">
             {/* Avatar */}
             <div className="flex-shrink-0">
-              {profile?.imageUrl ? (
+              {portraitUrl ? (
                 <img
-                  src={profile.imageUrl}
+                  src={portraitUrl}
                   alt={`Portrait of ${authorName}`}
                   width={112}
                   height={112}
