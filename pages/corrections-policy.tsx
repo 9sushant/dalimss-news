@@ -59,7 +59,7 @@ const sections = [
       "We encourage our readers to alert us if they spot an error in our reporting. You can report an error through any of the following channels:",
     ],
     list: [
-      "Email: Send details to dalimssnews@gmail.com with the subject line \"Correction Request\".",
+      "Email: Send details to editor@dalimss.news with the subject line \"Correction Request\".",
       "Phone: Call us at +91 63927 52976 (Mon–Sat, 9 AM – 6 PM IST).",
       "Contact Form: Use the contact form on our website at dalimss.news/contact.",
     ],
@@ -244,7 +244,7 @@ const CorrectionsPolicyPage: React.FC = () => {
               <div className="bg-gray-800 rounded-xl px-6 py-4 hover:bg-gray-700 transition-colors">
                 <p className="text-sm text-gray-400 mb-1">Email</p>
                 <p className="font-semibold text-white">
-                  dalimssnews@gmail.com
+                  editor@dalimss.news
                 </p>
               </div>
               <div className="bg-gray-800 rounded-xl px-6 py-4 hover:bg-gray-700 transition-colors">

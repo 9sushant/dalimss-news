@@ -77,7 +77,7 @@ export async function buildPodcastFeed() {
     <itunes:image href="${SITE_URL}/logo-square.png" />
     <itunes:owner>
       <itunes:name>${SITE_NAME}</itunes:name>
-      <itunes:email>dalimssnews@gmail.com</itunes:email>
+      <itunes:email>editor@dalimss.news</itunes:email>
     </itunes:owner>
     <itunes:category text="News">
       <itunes:category text="Daily News" />

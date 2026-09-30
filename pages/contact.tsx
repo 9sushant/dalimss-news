@@ -16,8 +16,8 @@ const contactCards = [
     icon: EnvelopeIcon,
     title: "Email Us",
     description: "For general inquiries and feedback",
-    value: "dalimssnews@gmail.com",
-    href: "mailto:dalimssnews@gmail.com",
+    value: "editor@dalimss.news",
+    href: "mailto:editor@dalimss.news",
     action: "Send Email",
   },
   {
@@ -42,12 +42,12 @@ const faqItems = [
   {
     question: "How can I submit a news tip?",
     answer:
-      "You can send us news tips via email at dalimssnews@gmail.com or use the contact form below. Please include as many details as possible, including photos or videos if available.",
+      "You can send us news tips via email at editor@dalimss.news or use the contact form below. Please include as many details as possible, including photos or videos if available.",
   },
   {
     question: "How can I advertise on Dalimss News?",
     answer:
-      "For advertising inquiries, please email us at dalimssnews@gmail.com with the subject line 'Advertising Inquiry'. We offer banner ads, sponsored articles, and social media promotions.",
+      "For advertising inquiries, please email us at editor@dalimss.news with the subject line 'Advertising Inquiry'. We offer banner ads, sponsored articles, and social media promotions.",
   },
   {
     question: "How do I report incorrect information?",
@@ -57,7 +57,7 @@ const faqItems = [
   {
     question: "Can I write for Dalimss News?",
     answer:
-      "Yes! We welcome contributions from guest writers. Please send your article pitch or draft to dalimssnews@gmail.com. Our editorial team will review it and get back to you.",
+      "Yes! We welcome contributions from guest writers. Please send your article pitch or draft to editor@dalimss.news. Our editorial team will review it and get back to you.",
   },
 ];
 
@@ -85,7 +85,7 @@ const ContactPage: React.FC = () => {
     setStatus("sending");
 
     // Send via mailto as a fallback (no backend needed)
-    const mailtoLink = `mailto:dalimssnews@gmail.com?subject=${encodeURIComponent(
+    const mailtoLink = `mailto:editor@dalimss.news?subject=${encodeURIComponent(
       formData.subject || "Contact Form Submission"
     )}&body=${encodeURIComponent(
       `Name: ${formData.name}\nEmail: ${formData.email}\n\n${formData.message}`

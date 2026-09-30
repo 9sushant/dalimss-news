@@ -80,7 +80,7 @@ export default function AuthorPage({
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "Newsroom",
-      email: "dalimssnews@gmail.com",
+      email: "editor@dalimss.news",
     },
   };
 

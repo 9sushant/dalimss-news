@@ -67,7 +67,7 @@ const sections = [
       "If an entire article is found to be substantially inaccurate, we will retract it with an explanation.",
     ],
     afterList:
-      "To report an error, please email us at dalimssnews@gmail.com with the article URL and a description of the issue. We review all reports within 48 hours.",
+      "To report an error, please email us at editor@dalimss.news with the article URL and a description of the issue. We review all reports within 48 hours.",
   },
   {
     id: "ai-usage-policy",
@@ -92,7 +92,7 @@ const sections = [
       "We welcome feedback, story tips, and questions about our editorial practices. Reach out to our editorial team:",
     ],
     list: [
-      "Email: dalimssnews@gmail.com",
+      "Email: editor@dalimss.news",
       "Phone: +91 63927 52976 (Mon–Sat, 9 AM – 6 PM IST)",
       "Address: Varanasi, Uttar Pradesh, India – 221001",
     ],
@@ -261,7 +261,7 @@ const EditorialPolicyPage: React.FC = () => {
               <div className="bg-gray-800 rounded-xl px-6 py-4 hover:bg-gray-700 transition-colors">
                 <p className="text-sm text-gray-400 mb-1">Email</p>
                 <p className="font-semibold text-white">
-                  dalimssnews@gmail.com
+                  editor@dalimss.news
                 </p>
               </div>
               <div className="bg-gray-800 rounded-xl px-6 py-4 hover:bg-gray-700 transition-colors">
