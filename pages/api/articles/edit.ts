@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
 import prisma from "../../../lib/prisma";
-import { articleUrl, submitIndexNow } from "@/lib/indexnow";
+import { indexNowUrlsForArticle, notifyIndexNow } from "@/lib/indexnow";
 import { createUniqueArticleSlug } from "@/lib/articleSlugs";
 import { normalizeArticleSources } from "@/lib/articleSources";
 import { canonicalAuthorName, stripForMeta } from "@/lib/seo";
@@ -72,7 +72,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const article = await prisma.article.findUnique({
       where: { slug },
-      select: { authorId: true, slug: true },
+      select: { authorId: true, slug: true, category: true, customAuthor: true },
     });
 
     if (!article) {
@@ -122,7 +122,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
     });
 
-    await submitIndexNow([articleUrl(article.slug), articleUrl(updatedArticle.slug)]);
+    notifyIndexNow([
+      ...indexNowUrlsForArticle(article),
+      ...indexNowUrlsForArticle(updatedArticle),
+    ]);
 
     return res.status(200).json(updatedArticle);
   } catch (error) {

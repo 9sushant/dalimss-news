@@ -7,6 +7,7 @@ import {
   stripForMeta,
 } from "@/lib/seo";
 import { Prisma } from "@prisma/client";
+import { indexNowUrlsForArticle, notifyIndexNow } from "@/lib/indexnow";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // 1. Validations
@@ -128,6 +129,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         readTimeInMinutes: Math.max(1, Math.ceil(content.length / 500)),
       },
     });
+
+    notifyIndexNow(indexNowUrlsForArticle(article));
 
     return res.status(200).json({ success: true, article });
   } catch (error) {
