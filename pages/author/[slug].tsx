@@ -3,6 +3,7 @@ import Head from "next/head";
 import Link from "next/link";
 import ArticleCard from "@/components/ArticleCard";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { Pagination } from "@/components/Pagination";
 import { Article } from "@/types";
 import {
   SITE_URL,
@@ -15,6 +16,12 @@ import {
 import { getCategoriesByDbValue } from "@/lib/categories";
 import prisma from "@/lib/prisma";
 import { getAuthorPortrait } from "@/lib/author-portraits";
+import {
+  LISTING_PAGE_SIZE,
+  listingExcerpt,
+  listingPath,
+  parsePageParam,
+} from "@/lib/pagination";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
 
 interface Props {
@@ -23,6 +30,9 @@ interface Props {
   articles: Article[];
   firstPublished: string;
   beats: string[];
+  page: number;
+  totalPages: number;
+  totalCount: number;
   profile: {
     bio: string | null;
     beat: string | null;
@@ -51,23 +61,33 @@ export default function AuthorPage({
   firstPublished,
   beats,
   profile,
+  page,
+  totalPages,
+  totalCount,
 }: Props) {
-  const canonicalUrl = `${SITE_URL}/author/${authorSlugStr}`;
-  const pageTitle = `Articles by ${authorName} | ${SITE_NAME}`;
+  const profileUrl = `${SITE_URL}/author/${authorSlugStr}`;
+  const canonicalUrl = `${SITE_URL}${listingPath(
+    `/author/${authorSlugStr}`,
+    page
+  )}`;
+  const pageTitle =
+    page > 1
+      ? `Articles by ${authorName} | Page ${page} | ${SITE_NAME}`
+      : `Articles by ${authorName} | ${SITE_NAME}`;
   const portraitUrl = getAuthorPortrait(authorName) || profile?.imageUrl;
   const absolutePortraitUrl = portraitUrl
     ? new URL(portraitUrl, SITE_URL).href
     : `${SITE_URL}/logo.png`;
   const pageDescription =
     profile?.bio ||
-    `Read all ${articles.length} article${
-      articles.length !== 1 ? "s" : ""
+    `Read all ${totalCount} article${
+      totalCount !== 1 ? "s" : ""
     } by ${authorName} on ${SITE_NAME}.`;
 
   const personSchema = {
     "@type": "Person",
     name: authorName,
-    url: canonicalUrl,
+    url: profileUrl,
     worksFor: {
       "@id": ORGANIZATION_ID,
     },
@@ -110,6 +130,21 @@ export default function AuthorPage({
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
         <link rel="canonical" href={canonicalUrl} />
+        {page > 1 && (
+          <link
+            rel="prev"
+            href={`${SITE_URL}${listingPath(
+              `/author/${authorSlugStr}`,
+              page - 1
+            )}`}
+          />
+        )}
+        {page < totalPages && (
+          <link
+            rel="next"
+            href={`${SITE_URL}/author/${authorSlugStr}?page=${page + 1}`}
+          />
+        )}
 
         {/* Open Graph */}
         <meta property="og:type" content="profile" />
@@ -196,7 +231,7 @@ export default function AuthorPage({
 
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm">
                 <div className="bg-red-50 text-red-700 px-4 py-2 rounded-full font-semibold">
-                  {articles.length} Article{articles.length !== 1 ? "s" : ""}
+                  {totalCount} Article{totalCount !== 1 ? "s" : ""}
                 </div>
                 {firstPublished && (
                   <div className="bg-gray-100 text-gray-600 px-4 py-2 rounded-full">
@@ -291,6 +326,12 @@ export default function AuthorPage({
               </div>
             </div>
           )}
+
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            pathname={`/author/${authorSlugStr}`}
+          />
         </section>
       </div>
     </>
@@ -299,46 +340,45 @@ export default function AuthorPage({
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const slug = context.params?.slug as string;
+  const page = parsePageParam(context.query.page);
+  if (page === null) return { notFound: true };
+
   const authorName = canonicalAuthorName(slugToName(slug));
   const authorVariants = authorNameVariants(authorName);
+  const where = {
+    OR: authorVariants.map((name) => ({
+      customAuthor: {
+        equals: name,
+        mode: "insensitive" as const,
+      },
+    })),
+  };
 
   try {
-    const articles = await prisma.article.findMany({
-      where: {
-        OR: authorVariants.map((name) => ({
-          customAuthor: {
-            equals: name,
-            mode: "insensitive" as const,
-          },
-        })),
-      },
+    const totalCount = await prisma.article.count({ where });
+    if (totalCount === 0) return { notFound: true };
+
+    const totalPages = Math.ceil(totalCount / LISTING_PAGE_SIZE);
+    if (page > totalPages) return { notFound: true };
+
+    const displaySample = await prisma.article.findFirst({
+      where,
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-      select: {
-        id: true,
-        slug: true,
-        title: true,
-        content: true,
-        mediaUrl: true,
-        mediaType: true,
-        readTimeInMinutes: true,
-        category: true,
-        customAuthor: true,
-        createdAt: true,
-        metaTitle: true,
-        metaDescription: true,
-        focusKeyword: true,
-      },
+      select: { customAuthor: true },
     });
-
-    if (articles.length === 0) {
-      return { notFound: true };
-    }
-
-    // Use the actual casing from the first article's customAuthor
-    const displayName =
-      canonicalAuthorName(articles[0].customAuthor || authorName);
+    const displayName = canonicalAuthorName(
+      displaySample?.customAuthor || authorName
+    );
     const authorSlugStr = authorSlug(displayName);
     if (slug !== authorSlugStr) {
+      return {
+        redirect: {
+          destination: listingPath(`/author/${authorSlugStr}`, page),
+          permanent: true,
+        },
+      };
+    }
+    if (page === 1 && context.query.page !== undefined) {
       return {
         redirect: {
           destination: `/author/${authorSlugStr}`,
@@ -346,42 +386,68 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         },
       };
     }
-    const profile = await prisma.authorProfile.findUnique({
-      where: { slug: authorSlugStr },
-      select: {
-        bio: true,
-        beat: true,
-        experience: true,
-        imageUrl: true,
-        professionalUrl: true,
-        email: true,
-      },
-    });
 
-    // Find earliest publish date
-    const firstPublished = articles[articles.length - 1].createdAt.toISOString();
+    const [rows, earliest, categoryRows, profile] = await Promise.all([
+      prisma.article.findMany({
+        where,
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        skip: (page - 1) * LISTING_PAGE_SIZE,
+        take: LISTING_PAGE_SIZE,
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          content: true,
+          mediaUrl: true,
+          mediaType: true,
+          readTimeInMinutes: true,
+          category: true,
+          customAuthor: true,
+          createdAt: true,
+        },
+      }),
+      prisma.article.findFirst({
+        where,
+        orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+        select: { createdAt: true },
+      }),
+      prisma.article.findMany({
+        where,
+        select: { category: true },
+      }),
+      prisma.authorProfile.findUnique({
+        where: { slug: authorSlugStr },
+        select: {
+          bio: true,
+          beat: true,
+          experience: true,
+          imageUrl: true,
+          professionalUrl: true,
+          email: true,
+        },
+      }),
+    ]);
 
-    const serializedArticles: Article[] = articles.map((a) => ({
-      id: a.id,
-      slug: a.slug,
-      title: a.title,
-      content: a.content,
-      mediaUrl: a.mediaUrl,
-      mediaType: a.mediaType as Article["mediaType"],
-      createdAt: a.createdAt.toISOString(),
-      authorName: canonicalAuthorName(a.customAuthor || "Dalimss News Desk"),
+    const serializedArticles: Article[] = rows.map((article) => ({
+      id: article.id,
+      slug: article.slug,
+      title: article.title,
+      content: listingExcerpt(article.content),
+      mediaUrl: article.mediaUrl,
+      mediaType: article.mediaType as Article["mediaType"],
+      createdAt: article.createdAt.toISOString(),
+      authorName: canonicalAuthorName(
+        article.customAuthor || "Dalimss News Desk"
+      ),
       authorAvatarUrl: "",
-      readTimeInMinutes: a.readTimeInMinutes,
+      readTimeInMinutes: article.readTimeInMinutes,
       claps: 0,
       commentsCount: 0,
-      category: a.category,
-      metaTitle: a.metaTitle,
-      metaDescription: a.metaDescription,
-      focusKeyword: a.focusKeyword,
+      category: article.category,
     }));
     const beats = Array.from(
       new Map(
-        articles
+        categoryRows
           .flatMap((article) => getCategoriesByDbValue(article.category))
           .map((category) => [category.slug, category.name])
       ).values()
@@ -392,9 +458,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         authorName: displayName,
         authorSlugStr,
         articles: serializedArticles,
-        firstPublished,
+        firstPublished: earliest?.createdAt.toISOString() || "",
         beats,
         profile,
+        page,
+        totalPages,
+        totalCount,
       },
     };
   } catch (error) {
