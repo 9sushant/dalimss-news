@@ -14,7 +14,7 @@ import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
 const facts = [
   {
-    label: "Founded",
+    label: "Publishing since",
     value: "February 2024",
     icon: CalendarDaysIcon,
   },
@@ -152,8 +152,9 @@ export default function AboutPage() {
           </h1>
           <div className="space-y-4 text-lg md:text-xl text-gray-300 leading-relaxed max-w-3xl">
             <p>
-              Founded in February 2024, Dalimss News is a digital news publication
-              with editorial operations in Varanasi and Gurugram.
+              Dalimss News has been publishing since February 2024 and is a
+              digital news publication with editorial operations in Varanasi
+              and Gurugram.
             </p>
             <p>
               We publish original reporting from Varanasi, Eastern Uttar Pradesh,
