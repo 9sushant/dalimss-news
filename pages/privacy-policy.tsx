@@ -265,7 +265,7 @@ const PrivacyPolicyPage: React.FC = () => {
               <div className="bg-gray-800 rounded-xl px-6 py-4 hover:bg-gray-700 transition-colors">
                 <p className="text-sm text-gray-400 mb-1">Email</p>
                 <p className="font-semibold text-white">
-                  dalimssnews@gmail.com
+                  editor@dalimss.news
                 </p>
               </div>
               <div className="bg-gray-800 rounded-xl px-6 py-4 hover:bg-gray-700 transition-colors">
