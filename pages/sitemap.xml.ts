@@ -9,6 +9,7 @@ import {
   canonicalArticleSlug,
   canonicalAuthorName,
 } from "@/lib/seo";
+import { LISTING_PAGE_SIZE } from "@/lib/pagination";
 
 const Sitemap = () => {
   return null;
@@ -54,13 +55,15 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     },
   });
 
-  // Collect unique authors
-  const authorSet = new Set<string>();
+  // Collect unique authors and how many listing pages each byline needs
+  const authorCounts = new Map<string, number>();
   articles.forEach((a) => {
     if (a.customAuthor && a.customAuthor.trim()) {
-      authorSet.add(canonicalAuthorName(a.customAuthor));
+      const name = canonicalAuthorName(a.customAuthor);
+      authorCounts.set(name, (authorCounts.get(name) || 0) + 1);
     }
   });
+  const articleListPageCount = Math.ceil(articles.length / LISTING_PAGE_SIZE);
 
   // Static/trust pages
   const staticPages = [
@@ -112,16 +115,34 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
         <priority>${cat.priority}</priority>
       </url>`
       ).join("")}
-      ${Array.from(authorSet)
-        .map(
-          (name) => `
+      ${Array.from({ length: Math.max(0, articleListPageCount - 1) }, (_, index) => {
+        const page = index + 2;
+        return `
       <url>
-        <loc>${baseUrl}/author/${authorSlug(name)}</loc>
+        <loc>${baseUrl}/articles?page=${page}</loc>
+        <lastmod>${now}</lastmod>
+        <changefreq>hourly</changefreq>
+        <priority>0.5</priority>
+      </url>`;
+      }).join("")}
+      ${Array.from(authorCounts.entries())
+        .flatMap(([name, count]) => {
+          const pages = Math.ceil(count / LISTING_PAGE_SIZE);
+          return Array.from({ length: pages }, (_, index) => {
+            const page = index + 1;
+            const loc =
+              page === 1
+                ? `${baseUrl}/author/${authorSlug(name)}`
+                : `${baseUrl}/author/${authorSlug(name)}?page=${page}`;
+            return `
+      <url>
+        <loc>${loc}</loc>
         <lastmod>${now}</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.5</priority>
-      </url>`
-        )
+      </url>`;
+          });
+        })
         .join("")}
       ${stories
         .map(

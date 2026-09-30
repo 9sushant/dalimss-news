@@ -1,14 +1,24 @@
 import { GetServerSideProps } from "next";
 import Head from "next/head";
-import Layout from "@/components/Layout";
 import ArticleCard from "@/components/ArticleCard";
 import ArticleMediaPreview from "@/components/ArticleMediaPreview";
+import { Pagination } from "@/components/Pagination";
 import { Article } from "@/types";
 import Link from "next/link";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
+import prisma from "@/lib/prisma";
+import { canonicalAuthorName } from "@/lib/seo";
+import {
+  LISTING_PAGE_SIZE,
+  listingExcerpt,
+  listingPath,
+  parsePageParam,
+} from "@/lib/pagination";
 
 interface Props {
   articles: Article[];
+  page: number;
+  totalPages: number;
 }
 
 const SectionHeader = ({ title, href }: { title: string; href?: string }) => (
@@ -25,7 +35,11 @@ const SectionHeader = ({ title, href }: { title: string; href?: string }) => (
   </div>
 );
 
-export default function AllArticlesPage({ articles }: Props) {
+export default function AllArticlesPage({
+  articles,
+  page,
+  totalPages,
+}: Props) {
   // Fallback if no articles
   if (!articles || articles.length === 0) {
     return (
@@ -37,25 +51,43 @@ export default function AllArticlesPage({ articles }: Props) {
 
   const heroArticle = articles[0];
   const topStories = articles.slice(1, 5);
-  const latestNews = articles.slice(5, 12);
+  const latestNews = articles.slice(5);
   const sidebarNews = articles.slice(2, 8); // Just reusing for demo
 
   const siteUrl = "https://dalimss.news";
+  const canonicalUrl = `${siteUrl}${listingPath("/articles", page)}`;
+  const pageTitle =
+    page > 1
+      ? `All Varanasi News Articles | Page ${page} | Dalimss News`
+      : "All Varanasi News Articles | सभी खबरें - Dalimss News";
 
   return (
     <>
       <Head>
-        <title>All Varanasi News Articles | सभी खबरें - Dalimss News</title>
+        <title>{pageTitle}</title>
         <meta name="description" content="Read all Varanasi news articles on Dalimss News. वाराणसी की ताजा खबरें और समाचार सिर्फ Dalimss News पर पढ़ें।" />
         <meta name="keywords" content="Varanasi news articles, वाराणसी समाचार, latest news Varanasi, uttar pradesh news" />
-        <link rel="canonical" href={`${siteUrl}/articles`} />
+        <link rel="canonical" href={canonicalUrl} />
+        {page > 1 && (
+          <link
+            rel="prev"
+            href={
+              page === 2
+                ? `${siteUrl}/articles`
+                : `${siteUrl}/articles?page=${page - 1}`
+            }
+          />
+        )}
+        {page < totalPages && (
+          <link rel="next" href={`${siteUrl}/articles?page=${page + 1}`} />
+        )}
         <meta name="geo.region" content="IN-UP" />
         <meta name="geo.placename" content="Varanasi, Uttar Pradesh" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Dalimss News" />
-        <meta property="og:title" content="All Varanasi News Articles | Dalimss News" />
+        <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content="वाराणसी की ताजा खबरें और समाचार सिर्य Dalimss News पर पड़ें।" />
-        <meta property="og:url" content={`${siteUrl}/articles`} />
+        <meta property="og:url" content={canonicalUrl} />
         <meta property="og:locale" content="hi_IN" />
       </Head>
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-6 pt-0">
@@ -135,31 +167,67 @@ export default function AllArticlesPage({ articles }: Props) {
           </div>
         </section>
 
+        <Pagination page={page} totalPages={totalPages} pathname="/articles" />
+
       </div>
     </>
   );
 }
 
-// Fetch articles
-export const getServerSideProps: GetServerSideProps = async () => {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    (process.env.NODE_ENV === "production"
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000");
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const page = parsePageParam(context.query.page);
+  if (page === null) return { notFound: true };
+  if (page === 1 && context.query.page !== undefined) {
+    return {
+      redirect: { destination: "/articles", permanent: true },
+    };
+  }
 
   try {
-    const apiUrl = `${baseUrl}/api/articles`;
-    const res = await fetch(apiUrl);
-    
-    if (!res.ok) {
-        throw new Error(`Failed to fetch: ${res.status}`);
-    }
-    
-    const articles = await res.json();
-    return { props: { articles } };
+    const totalCount = await prisma.article.count();
+    const totalPages =
+      totalCount === 0 ? 0 : Math.ceil(totalCount / LISTING_PAGE_SIZE);
+    if (totalCount > 0 && page > totalPages) return { notFound: true };
+
+    const rows = await prisma.article.findMany({
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      skip: (page - 1) * LISTING_PAGE_SIZE,
+      take: LISTING_PAGE_SIZE,
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        content: true,
+        mediaUrl: true,
+        mediaType: true,
+        readTimeInMinutes: true,
+        category: true,
+        customAuthor: true,
+        createdAt: true,
+      },
+    });
+
+    const articles: Article[] = rows.map((article) => ({
+      id: article.id,
+      slug: article.slug,
+      title: article.title,
+      content: listingExcerpt(article.content),
+      mediaUrl: article.mediaUrl,
+      mediaType: article.mediaType as Article["mediaType"],
+      createdAt: article.createdAt.toISOString(),
+      authorName: canonicalAuthorName(
+        article.customAuthor || "Dalimss News Desk"
+      ),
+      authorAvatarUrl: "",
+      readTimeInMinutes: article.readTimeInMinutes,
+      claps: 0,
+      commentsCount: 0,
+      category: article.category,
+    }));
+
+    return { props: { articles, page, totalPages } };
   } catch (error) {
     console.error("Error fetching articles:", error);
-    return { props: { articles: [] } };
+    return { props: { articles: [], page: 1, totalPages: 0 } };
   }
 };
