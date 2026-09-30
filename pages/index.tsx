@@ -191,6 +191,7 @@ export default function HomePage({ articles, stories }: Props) {
     publishingPrinciples: `${siteUrl}/editorial-policy`,
     ethicsPolicy: `${siteUrl}/editorial-policy`,
     correctionsPolicy: `${siteUrl}/corrections-policy`,
+    ownershipFundingInfo: `${siteUrl}/ownership`,
     parentOrganization: {
       "@type": "Organization",
       name: "PAMF Digimedia Private Limited",

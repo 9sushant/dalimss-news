@@ -216,6 +216,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
       lastmod: newestEpisode,
     },
     { path: "/about", priority: "0.5", freq: "monthly", lastmod: null },
+    { path: "/ownership", priority: "0.5", freq: "monthly", lastmod: null },
     { path: "/contact", priority: "0.5", freq: "monthly", lastmod: null },
     { path: "/privacy-policy", priority: "0.3", freq: "monthly", lastmod: null },
     { path: "/editorial-policy", priority: "0.5", freq: "monthly", lastmod: null },
