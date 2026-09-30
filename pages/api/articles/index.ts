@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
 
 import { getCategoryBySlug, getCategoryByDbValue } from "@/lib/categories";
-import { articleUrl, submitIndexNow } from "@/lib/indexnow";
+import { indexNowUrlsForArticle, notifyIndexNow } from "@/lib/indexnow";
 import { createUniqueArticleSlug } from "@/lib/articleSlugs";
 import { normalizeArticleSources } from "@/lib/articleSources";
 import { canonicalAuthorName, stripForMeta } from "@/lib/seo";
@@ -118,7 +118,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
       });
 
-      await submitIndexNow([articleUrl(article.slug)]);
+      notifyIndexNow(indexNowUrlsForArticle(article));
 
       return res.status(200).json(article);
     } catch (err) {
