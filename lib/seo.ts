@@ -3,6 +3,8 @@
 
 export const SITE_URL = "https://dalimss.news";
 export const SITE_NAME = "Dalimss News";
+export const ORGANIZATION_ID = `${SITE_URL}/#organization`;
+export const WEBSITE_ID = `${SITE_URL}/#website`;
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/logo.png`;
 
 export const ARTICLE_SLUG_REDIRECTS: Record<string, string> = {

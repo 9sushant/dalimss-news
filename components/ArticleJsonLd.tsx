@@ -4,6 +4,8 @@
 import {
   SITE_URL,
   SITE_NAME,
+  ORGANIZATION_ID,
+  WEBSITE_ID,
   absoluteImageUrl,
   canonicalArticleSlug,
   toISOWithTZ,
@@ -84,14 +86,12 @@ export function ArticleJsonLd({ article, authorUrl }: ArticleJsonLdProps) {
       ...(authorUrl ? { url: authorUrl } : {}),
     },
     isPartOf: {
-      "@type": "WebSite",
-      name: SITE_NAME,
-      url: SITE_URL,
+      "@id": WEBSITE_ID,
     },
     publisher: {
       "@type": "NewsMediaOrganization",
+      "@id": ORGANIZATION_ID,
       name: SITE_NAME,
-      url: SITE_URL,
       logo: {
         "@type": "ImageObject",
         url: `${SITE_URL}/logo-square.png`,

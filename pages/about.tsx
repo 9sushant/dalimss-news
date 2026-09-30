@@ -10,7 +10,7 @@ import {
   ShieldCheckIcon,
   UserGroupIcon,
 } from "@heroicons/react/24/outline";
-import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { ORGANIZATION_ID, SITE_NAME, SITE_URL } from "@/lib/seo";
 
 const facts = [
   {
@@ -50,71 +50,7 @@ export default function AboutPage() {
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "NewsMediaOrganization",
-    name: SITE_NAME,
-    legalName: "PAMF DIGIMEDIA PRIVATE LIMITED",
-    url: SITE_URL,
-    foundingDate: "2024-02",
-    description:
-      "Dalimss News is a digital news publication reporting from Varanasi, Eastern Uttar Pradesh, Gurugram and Delhi-NCR, with coverage of major developments across India.",
-    logo: {
-      "@type": "ImageObject",
-      url: `${SITE_URL}/logo-square.png`,
-      width: 512,
-      height: 512,
-    },
-    email: "info@dalimss.news",
-    address: [
-      {
-        "@type": "PostalAddress",
-        addressLocality: "Varanasi",
-        addressRegion: "Uttar Pradesh",
-        addressCountry: "IN",
-      },
-      {
-        "@type": "PostalAddress",
-        addressLocality: "Gurugram",
-        addressRegion: "Haryana",
-        addressCountry: "IN",
-      },
-    ],
-    areaServed: [
-      "Varanasi",
-      "Eastern Uttar Pradesh",
-      "Gurugram",
-      "Delhi-NCR",
-      "India",
-    ],
-    sameAs: [
-      "https://www.instagram.com/dalimss.news.banaras/",
-      "https://x.com/dalimss_news",
-    ],
-    ethicsPolicy: `${SITE_URL}/editorial-policy`,
-    correctionsPolicy: `${SITE_URL}/corrections-policy`,
-    publishingPrinciples: `${SITE_URL}/editorial-policy`,
-    employee: {
-      "@type": "Person",
-      name: "Saurav Yadav",
-      jobTitle: "Editor-in-Chief",
-    },
-    parentOrganization: {
-      "@type": "Organization",
-      name: "PAMF DIGIMEDIA PRIVATE LIMITED",
-    },
-    contactPoint: [
-      {
-        "@type": "ContactPoint",
-        contactType: "Editorial enquiries",
-        telephone: "+91-63927-52976",
-        email: "editor@dalimss.news",
-        availableLanguage: ["English", "Hindi"],
-      },
-      {
-        "@type": "ContactPoint",
-        contactType: "General enquiries",
-        email: "info@dalimss.news",
-        availableLanguage: ["English", "Hindi"],
-      },
-    ],
+    "@id": ORGANIZATION_ID,
   };
 
   return (
