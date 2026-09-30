@@ -7,6 +7,7 @@ import { Article } from "@/types";
 import {
   SITE_URL,
   SITE_NAME,
+  ORGANIZATION_ID,
   authorSlug,
   canonicalAuthorName,
   authorNameVariants,
@@ -68,9 +69,7 @@ export default function AuthorPage({
     name: authorName,
     url: canonicalUrl,
     worksFor: {
-      "@type": "NewsMediaOrganization",
-      name: SITE_NAME,
-      url: SITE_URL,
+      "@id": ORGANIZATION_ID,
     },
     knowsAbout: beats,
     ...(portraitUrl ? { image: absolutePortraitUrl } : {}),
@@ -94,10 +93,13 @@ export default function AuthorPage({
     mainEntity: personSchema,
     publisher: {
       "@type": "NewsMediaOrganization",
+      "@id": ORGANIZATION_ID,
       name: SITE_NAME,
       logo: {
         "@type": "ImageObject",
-        url: `${SITE_URL}/logo.png`,
+        url: `${SITE_URL}/logo-square.png`,
+        width: 512,
+        height: 512,
       },
     },
   };

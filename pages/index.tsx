@@ -10,6 +10,7 @@ import { Article } from "@/types";
 import Link from "next/link";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import { useSession } from "next-auth/react";
+import { ORGANIZATION_ID, WEBSITE_ID } from "@/lib/seo";
 
 interface Props {
   articles: Article[];
@@ -135,8 +136,13 @@ export default function HomePage({ articles, stories }: Props) {
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "Dalimss News - वाराणसी समाचार",
-    url: siteUrl,
+    "@id": WEBSITE_ID,
+    name: "Dalimss News",
+    url: `${siteUrl}/`,
+    inLanguage: "en-IN",
+    publisher: {
+      "@id": ORGANIZATION_ID,
+    },
     potentialAction: {
       "@type": "SearchAction",
       target: `${siteUrl}/?search={search_term_string}`,
@@ -147,40 +153,53 @@ export default function HomePage({ articles, stories }: Props) {
   const orgSchema = {
     "@context": "https://schema.org",
     "@type": "NewsMediaOrganization",
+    "@id": ORGANIZATION_ID,
     name: "Dalimss News",
-    alternateName: [
-      "Dalimss News India",
-      "वाराणसी समाचार | Dalimss News",
-      "डेलीएमएस न्यूज"
-    ],
-    url: siteUrl,
+    legalName: "PAMF Digimedia Private Limited",
+    url: `${siteUrl}/`,
     logo: {
       "@type": "ImageObject",
-      url: `${siteUrl}/logo.png`,
+      url: `${siteUrl}/logo-square.png`,
+      width: 512,
+      height: 512,
     },
-    sameAs: [
-      "https://www.instagram.com/dalimss.news.banaras/",
-      "https://x.com/dalimss_news",
-    ],
+    description:
+      "Dalimss News is a digital news publication based in Gurugram, Haryana, reporting from Varanasi, Eastern Uttar Pradesh, Gurugram and Delhi-NCR, with coverage of major developments across India.",
+    foundingDate: "2024-02",
+    email: "editor@dalimss.news",
     address: {
       "@type": "PostalAddress",
-      addressLocality: "Varanasi",
-      addressRegion: "Uttar Pradesh",
+      addressLocality: "Gurugram",
+      addressRegion: "Haryana",
       addressCountry: "IN",
     },
     areaServed: [
+      "Varanasi",
+      "Eastern Uttar Pradesh",
+      "Gurugram",
+      "Delhi-NCR",
+      "India",
+    ],
+    contactPoint: [
       {
-        "@type": "Country",
-        name: "India",
+        "@type": "ContactPoint",
+        contactType: "editorial",
+        email: "editor@dalimss.news",
+        availableLanguage: ["English"],
       },
-      {
-        "@type": "State",
-        name: "Uttar Pradesh",
-      },
-      {
-        "@type": "City",
-        name: "Varanasi",
-      }
+    ],
+    publishingPrinciples: `${siteUrl}/editorial-policy`,
+    ethicsPolicy: `${siteUrl}/editorial-policy`,
+    correctionsPolicy: `${siteUrl}/corrections-policy`,
+    parentOrganization: {
+      "@type": "Organization",
+      name: "PAMF Digimedia Private Limited",
+    },
+    sameAs: [
+      "https://www.instagram.com/dalimss.news.banaras/",
+      "https://x.com/Dalimss_News",
+      "https://www.youtube.com/@dalimss_news",
+      "https://www.linkedin.com/company/dalimss-news",
     ],
   };
 

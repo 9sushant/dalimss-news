@@ -2,7 +2,13 @@ import Head from "next/head";
 import Link from "next/link";
 import ArticleCard from "@/components/ArticleCard";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { SITE_NAME, SITE_URL, absoluteImageUrl } from "@/lib/seo";
+import {
+  ORGANIZATION_ID,
+  SITE_NAME,
+  SITE_URL,
+  WEBSITE_ID,
+  absoluteImageUrl,
+} from "@/lib/seo";
 import { TopicHubProps } from "@/lib/topicHubs";
 
 export default function TopicHubPage({
@@ -32,14 +38,12 @@ export default function TopicHubPage({
     url: canonicalUrl,
     inLanguage: "en-IN",
     isPartOf: {
-      "@type": "WebSite",
-      name: SITE_NAME,
-      url: SITE_URL,
+      "@id": WEBSITE_ID,
     },
     publisher: {
       "@type": "NewsMediaOrganization",
+      "@id": ORGANIZATION_ID,
       name: SITE_NAME,
-      url: SITE_URL,
       logo: {
         "@type": "ImageObject",
         url: `${SITE_URL}/logo-square.png`,
