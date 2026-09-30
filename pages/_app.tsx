@@ -64,7 +64,10 @@ export default function App({
   }, [router.events]);
 
   // Use the page's getLayout if defined, otherwise use default Layout
-  const getLayout = Component.getLayout ?? ((page) => <Layout>{page}</Layout>);
+  const isEditorFlow = router.pathname.startsWith('/admin/') ||
+    router.pathname.startsWith('/auth/') || router.pathname.startsWith('/mobile-sign-in') ||
+    /^\/(articles|stories|ott)\/(new|.*\/edit)$/.test(router.pathname);
+  const getLayout = Component.getLayout ?? ((page) => isEditorFlow ? page : <Layout>{page}</Layout>);
 
   const isStory = router.pathname.startsWith('/stories/') && !router.pathname.includes('/edit') && !router.pathname.includes('/new');
 
