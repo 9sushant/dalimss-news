@@ -72,6 +72,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     { path: "/ott", priority: "0.9", freq: "daily" },
     { path: "/ott/feed.xml", priority: "0.5", freq: "hourly" },
     { path: "/about", priority: "0.5", freq: "monthly" },
+    { path: "/ownership", priority: "0.5", freq: "monthly" },
     { path: "/contact", priority: "0.5", freq: "monthly" },
     { path: "/privacy-policy", priority: "0.3", freq: "monthly" },
     { path: "/editorial-policy", priority: "0.5", freq: "monthly" },

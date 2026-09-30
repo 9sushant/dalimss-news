@@ -155,6 +155,9 @@ export default function AboutPage() {
                 <Link className="text-red-700 font-semibold hover:underline" href="/editorial-policy">
                   Editorial policy
                 </Link>
+                <Link className="text-red-700 font-semibold hover:underline" href="/ownership">
+                  Ownership
+                </Link>
                 <Link className="text-red-700 font-semibold hover:underline" href="/corrections-policy">
                   Corrections policy
                 </Link>
