@@ -58,6 +58,7 @@ interface Props {
 import Head from "next/head";
 import ShareButton from "@/components/ShareButton";
 import { ArticleJsonLd } from "@/components/ArticleJsonLd";
+import { AuthorBox } from "@/components/AuthorBox";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { RelatedArticles } from "@/components/RelatedArticles";
 import {
@@ -72,6 +73,7 @@ import {
 } from "@/lib/seo";
 import { getCategoriesByDbValue } from "@/lib/categories";
 import { normalizeArticleSources } from "@/lib/articleSources";
+import { getAuthorBox } from "@/lib/authorBoxes";
 
 const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
   const { data: session } = useSession();
@@ -113,6 +115,7 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
     ? `/author/${authorSlug(authorName)}`
     : "/authors";
   const authorUrl = `${SITE_URL}${authorPath}`;
+  const authorBox = isOpinion ? getAuthorBox(authorName) : null;
 
   const articleSlug = canonicalArticleSlug(article.slug);
   const canonicalUrl = `${SITE_URL}/articles/${articleSlug}`;
@@ -167,7 +170,11 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
       </Head>
 
       {/* JSON-LD Structured Data */}
-      <ArticleJsonLd article={article} authorUrl={authorUrl} />
+      <ArticleJsonLd
+        article={article}
+        authorUrl={authorUrl}
+        authorProfile={authorBox}
+      />
 
       {/* Breadcrumbs */}
       <Breadcrumbs
@@ -472,6 +479,8 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
           <pre>{article.content || "No content available."}</pre>
         )}
       </div>
+
+      {authorBox && <AuthorBox author={authorBox} />}
 
       {(article.reportingBasis || visibleSources.length > 0) && (
         <section className="mt-8 pt-5 border-t border-gray-200 text-sm text-gray-600">

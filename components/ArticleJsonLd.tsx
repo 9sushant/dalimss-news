@@ -13,6 +13,7 @@ import {
   canonicalAuthorName,
 } from "@/lib/seo";
 import { normalizeArticleSources } from "@/lib/articleSources";
+import type { AuthorBoxProfile } from "@/lib/authorBoxes";
 
 interface ArticleJsonLdProps {
   article: {
@@ -33,9 +34,14 @@ interface ArticleJsonLdProps {
     language?: string | null;
   };
   authorUrl?: string;
+  authorProfile?: AuthorBoxProfile | null;
 }
 
-export function ArticleJsonLd({ article, authorUrl }: ArticleJsonLdProps) {
+export function ArticleJsonLd({
+  article,
+  authorUrl,
+  authorProfile,
+}: ArticleJsonLdProps) {
   const url = `${SITE_URL}/articles/${canonicalArticleSlug(article.slug)}`;
   const imageUrl = absoluteImageUrl(article.mediaUrl);
   const authorName = canonicalAuthorName(
@@ -84,6 +90,17 @@ export function ArticleJsonLd({ article, authorUrl }: ArticleJsonLdProps) {
       "@type": isNewsroomByline ? "Organization" : "Person",
       name: authorName,
       ...(authorUrl ? { url: authorUrl } : {}),
+      ...(authorProfile
+        ? {
+            "@type": "Person",
+            jobTitle: authorProfile.jobTitle,
+            image: authorProfile.photoUrl,
+            worksFor: {
+              "@type": "Organization",
+              name: authorProfile.organizationName,
+            },
+          }
+        : {}),
     },
     isPartOf: {
       "@id": WEBSITE_ID,
