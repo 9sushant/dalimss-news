@@ -23,6 +23,7 @@ const Layout = ({ children }: LayoutProps) => (
       <link rel="manifest" href="/site.webmanifest" />
       <link rel="search" type="application/opensearchdescription+xml" title={SITE_NAME} href={`${SITE_URL}/opensearch.xml`} />
       <link rel="alternate" type="application/rss+xml" title="Dalimss News Feed" href="https://dalimss.news/feed.xml" />
+      <link rel="alternate" type="application/rss+xml" title="हिंदी समाचार" href="https://dalimss.news/hindi/feed.xml" />
       <link rel="alternate" type="application/rss+xml" title="Varanasi News Feed" href="https://dalimss.news/varanasi/feed.xml" />
       <link rel="alternate" type="application/rss+xml" title="Gurugram News Feed" href="https://dalimss.news/gurugram/feed.xml" />
       <link rel="alternate" type="application/rss+xml" title="Education News Feed" href="https://dalimss.news/education/feed.xml" />

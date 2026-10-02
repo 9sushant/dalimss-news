@@ -14,8 +14,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Inter", ...fontFamily.sans],
-        serif: ["Lora", ...fontFamily.serif],
+        sans: ["Inter", "Noto Sans Devanagari", ...fontFamily.sans],
+        serif: ["Lora", "Noto Serif Devanagari", ...fontFamily.serif],
       },
 
       typography: ({ theme }: { theme: any }) => ({

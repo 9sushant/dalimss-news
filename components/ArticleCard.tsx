@@ -12,16 +12,18 @@ interface ArticleCardProps {
 
 const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical' }) => {
   const [formattedDate, setFormattedDate] = useState<string>('');
+  const dateLocale = article.language === "hi" ? "hi-IN" : "en-IN";
+  const titleLang = article.language === "hi" ? "hi" : undefined;
 
   useEffect(() => {
     // Format date only on client side to avoid hydration mismatch
     setFormattedDate(
-      new Date(article.createdAt).toLocaleDateString('en-IN', {
+      new Date(article.createdAt).toLocaleDateString(dateLocale, {
         month: 'short',
         day: 'numeric',
       })
     );
-  }, [article.createdAt]);
+  }, [article.createdAt, dateLocale]);
 
   const snippet =
     typeof article.content === "string"
@@ -46,7 +48,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
         )}
         <div className="flex flex-col justify-between">
           <Link href={`/articles/${articleSlug}`}>
-            <h3 className="text-lg md:text-xl font-serif font-bold text-gray-900 leading-tight group-hover:text-[#E21B22] transition-colors">
+            <h3 lang={titleLang} className="text-lg md:text-xl font-serif font-bold text-gray-900 leading-tight group-hover:text-[#E21B22] transition-colors">
               {article.title}
             </h3>
           </Link>
@@ -55,7 +57,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
           </p>
           <div className="mt-2 flex items-center justify-between">
             <time dateTime={article.createdAt} className="text-xs text-gray-400 uppercase font-semibold" suppressHydrationWarning>
-              {formattedDate || new Date(article.createdAt).toLocaleDateString("en-IN", { month: 'short', day: 'numeric' })}
+              {formattedDate || new Date(article.createdAt).toLocaleDateString(dateLocale, { month: 'short', day: 'numeric' })}
             </time>
             <ShareButton 
               url={`/articles/${articleSlug}`}
@@ -73,13 +75,13 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
     return (
       <div className="group py-3 border-b border-gray-100 last:border-0">
         <Link href={`/articles/${articleSlug}`} className="block">
-          <h4 className="text-sm md:text-base font-medium text-gray-800 group-hover:text-[#E21B22] leading-snug">
+          <h4 lang={titleLang} className="text-sm md:text-base font-medium text-gray-800 group-hover:text-[#E21B22] leading-snug">
             {article.title}
           </h4>
         </Link>
         <div className="flex items-center justify-between mt-1">
           <time dateTime={article.createdAt} className="text-xs text-gray-400" suppressHydrationWarning>
-            {formattedDate || new Date(article.createdAt).toLocaleDateString("en-IN", { month: 'short', day: 'numeric' })}
+            {formattedDate || new Date(article.createdAt).toLocaleDateString(dateLocale, { month: 'short', day: 'numeric' })}
           </time>
           <ShareButton 
             url={`/articles/${articleSlug}`}
@@ -107,7 +109,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
       )}
       <div className="p-4 flex flex-col flex-grow">
         <Link href={`/articles/${articleSlug}`} className="block mb-2">
-          <h3 className="text-xl font-serif font-bold text-gray-900 leading-tight group-hover:text-[#E21B22] transition-colors">
+          <h3 lang={titleLang} className="text-xl font-serif font-bold text-gray-900 leading-tight group-hover:text-[#E21B22] transition-colors">
             {article.title}
           </h3>
         </Link>
@@ -117,7 +119,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
         <div className="flex items-center justify-between text-xs text-gray-500 border-t border-gray-100 pt-3">
           <div className="flex items-center gap-2">
             <time dateTime={article.createdAt} suppressHydrationWarning>
-              {formattedDate || new Date(article.createdAt).toLocaleDateString("en-IN", { month: 'short', day: 'numeric' })}
+              {formattedDate || new Date(article.createdAt).toLocaleDateString(dateLocale, { month: 'short', day: 'numeric' })}
             </time>
             {article.authorName && <span className="font-medium text-gray-700">• {article.authorName}</span>}
           </div>

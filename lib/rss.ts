@@ -1,4 +1,8 @@
 import prisma from "@/lib/prisma";
+import {
+  englishArticleWhere,
+  hindiArticleWhere,
+} from "@/lib/articleLanguage";
 import { getCategoryBySlug, getCategoryByDbValue } from "@/lib/categories";
 import {
   SITE_NAME,
@@ -42,19 +46,31 @@ export async function buildRssFeed(options?: {
   title?: string;
   description?: string;
   selfPath?: string;
+  /** Section channel link. Defaults to the site homepage. */
+  channelPath?: string;
+  /**
+   * "hi" publishes only Hindi stories. English feeds omit Hindi so they
+   * stay single-language.
+   */
+  language?: "en" | "hi";
 }) {
   const category = options?.categorySlug
     ? getCategoryBySlug(options.categorySlug)
     : undefined;
+  const languageWhere =
+    options?.language === "hi" ? hindiArticleWhere : englishArticleWhere;
+  const categoryWhere = category
+    ? {
+        OR: category.dbValues.map((value) => ({
+          category: { contains: value, mode: "insensitive" as const },
+        })),
+      }
+    : undefined;
 
   const articles = await prisma.article.findMany({
-    where: category
-      ? {
-          OR: category.dbValues.map((value) => ({
-            category: { contains: value, mode: "insensitive" as const },
-          })),
-        }
-      : undefined,
+    where: categoryWhere
+      ? { AND: [languageWhere, categoryWhere] }
+      : languageWhere,
     take: 50,
     orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     select: {
@@ -75,15 +91,19 @@ export async function buildRssFeed(options?: {
     options?.description ||
     "Latest verified reports from Dalimss News covering Varanasi, Gurugram, Uttar Pradesh, education, technology and public-interest news.";
   const selfPath = options?.selfPath || "/feed.xml";
+  const channelLink = `${SITE_URL}${options?.channelPath || ""}`;
+  const feedLanguage = options?.language === "hi" ? "hi" : "en-IN";
 
   const items = (articles as FeedArticle[])
     .map((article) => {
       const articleUrl = `${SITE_URL}/articles/${canonicalArticleSlug(article.slug)}`;
       const author = article.customAuthor || "Dalimss News Desk";
+      const matchedCategory = getCategoryByDbValue(article.category || "");
       const section =
-        getCategoryByDbValue(article.category || "")?.name ||
+        (options?.language === "hi" && matchedCategory?.nameHi) ||
+        matchedCategory?.name ||
         article.category ||
-        "News";
+        (options?.language === "hi" ? "समाचार" : "News");
       const description =
         article.metaDescription || stripForMeta(article.content || "", 250);
       const imageUrl = article.mediaUrl ? absoluteImageUrl(article.mediaUrl) : "";
@@ -116,15 +136,15 @@ export async function buildRssFeed(options?: {
   xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>${xmlEscape(feedTitle)}</title>
-    <link>${SITE_URL}</link>
+    <link>${channelLink}</link>
     <description>${xmlEscape(feedDescription)}</description>
-    <language>en-IN</language>
+    <language>${feedLanguage}</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <atom:link href="${SITE_URL}${selfPath}" rel="self" type="application/rss+xml" />
     <image>
       <url>${SITE_URL}/logo-square.png</url>
       <title>${xmlEscape(SITE_NAME)}</title>
-      <link>${SITE_URL}</link>
+      <link>${channelLink}</link>
     </image>
     ${items}
   </channel>

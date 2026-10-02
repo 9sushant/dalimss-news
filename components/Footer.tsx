@@ -34,6 +34,12 @@ const Footer = () => {
               >
                 OTT
               </Link>
+              <Link
+                href="/hindi"
+                className="font-semibold text-red-400 transition-colors hover:text-white"
+              >
+                हिंदी
+              </Link>
               {NAV_CATEGORIES.slice(0, 10).map((cat) => (
                 <Link
                   key={cat.slug}

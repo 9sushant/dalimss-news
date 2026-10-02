@@ -33,6 +33,7 @@ interface Props {
   page: number;
   totalPages: number;
   totalCount: number;
+  pageLanguage: "en" | "hi";
   profile: {
     bio: string | null;
     beat: string | null;
@@ -64,14 +65,19 @@ export default function AuthorPage({
   page,
   totalPages,
   totalCount,
+  pageLanguage,
 }: Props) {
+  const hindiPage = pageLanguage === "hi";
   const profileUrl = `${SITE_URL}/author/${authorSlugStr}`;
   const canonicalUrl = `${SITE_URL}${listingPath(
     `/author/${authorSlugStr}`,
     page
   )}`;
-  const pageTitle =
-    page > 1
+  const pageTitle = hindiPage
+    ? page > 1
+      ? `${authorName} के लेख, पृष्ठ ${page} | ${SITE_NAME}`
+      : `${authorName} के लेख | ${SITE_NAME}`
+    : page > 1
       ? `Articles by ${authorName} | Page ${page} | ${SITE_NAME}`
       : `Articles by ${authorName} | ${SITE_NAME}`;
   const portraitUrl = getAuthorPortrait(authorName) || profile?.imageUrl;
@@ -80,9 +86,11 @@ export default function AuthorPage({
     : `${SITE_URL}/logo.png`;
   const pageDescription =
     profile?.bio ||
-    `Read all ${totalCount} article${
-      totalCount !== 1 ? "s" : ""
-    } by ${authorName} on ${SITE_NAME}.`;
+    (hindiPage
+      ? `${SITE_NAME} पर ${authorName} के ${totalCount} लेख पढ़ें.`
+      : `Read all ${totalCount} article${
+          totalCount !== 1 ? "s" : ""
+        } by ${authorName} on ${SITE_NAME}.`);
 
   const personSchema = {
     "@type": "Person",
@@ -110,6 +118,7 @@ export default function AuthorPage({
     name: pageTitle,
     description: pageDescription,
     url: canonicalUrl,
+    ...(hindiPage ? { inLanguage: "hi" } : {}),
     mainEntity: personSchema,
     publisher: {
       "@type": "NewsMediaOrganization",
@@ -153,7 +162,7 @@ export default function AuthorPage({
         <meta property="og:description" content={pageDescription} />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:image" content={absolutePortraitUrl} />
-        <meta property="og:locale" content="en_IN" />
+        <meta property="og:locale" content={hindiPage ? "hi_IN" : "en_IN"} />
 
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary" />
@@ -169,11 +178,16 @@ export default function AuthorPage({
         />
       </Head>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div
+        className="container mx-auto px-4 sm:px-6 lg:px-8 py-8"
+        lang={hindiPage ? "hi" : undefined}
+      >
         {/* Breadcrumbs */}
         <Breadcrumbs
+          homeLabel={hindiPage ? "होम" : "Home"}
+          navLabel={hindiPage ? "नेविगेशन पथ" : "Breadcrumb"}
           items={[
-            { name: "Authors", href: "/authors" },
+            { name: hindiPage ? "लेखक" : "Authors", href: "/authors" },
             { name: authorName, href: `/author/${authorSlugStr}` },
           ]}
         />
@@ -186,7 +200,11 @@ export default function AuthorPage({
               {portraitUrl ? (
                 <img
                   src={portraitUrl}
-                  alt={`Portrait of ${authorName}`}
+                  alt={
+                    hindiPage
+                      ? `${authorName} का चित्र`
+                      : `Portrait of ${authorName}`
+                  }
                   width={112}
                   height={112}
                   className="h-24 w-24 rounded-full border-4 border-white object-cover shadow-md md:h-28 md:w-28"
@@ -204,49 +222,64 @@ export default function AuthorPage({
                 {authorName}
               </h1>
               <p className="text-gray-500 text-sm mb-4">
-                Published contributor at {SITE_NAME}
+                {hindiPage
+                  ? `${SITE_NAME} के प्रकाशित लेखक`
+                  : `Published contributor at ${SITE_NAME}`}
               </p>
               <p className="text-gray-600 text-sm leading-relaxed max-w-2xl mb-4">
                 {profile?.bio ||
-                  `This page collects stories published under the ${authorName} byline. Article pages identify their available reporting basis, primary material and update history.`}
+                  (hindiPage
+                    ? `इस पृष्ठ पर ${authorName} के नाम से छपी खबरें एक जगह हैं. हर लेख में रिपोर्टिंग का आधार, स्रोत और अपडेट का समय दिया गया है.`
+                    : `This page collects stories published under the ${authorName} byline. Article pages identify their available reporting basis, primary material and update history.`)}
               </p>
               {profile?.experience && (
                 <p className="text-gray-600 text-sm leading-relaxed max-w-2xl mb-4">
-                  <strong className="text-gray-800">Experience:</strong>{" "}
+                  <strong className="text-gray-800">
+                    {hindiPage ? "अनुभव:" : "Experience:"}
+                  </strong>{" "}
                   {profile.experience}
                 </p>
               )}
               {profile?.beat && (
                 <p className="text-gray-600 text-sm leading-relaxed max-w-2xl mb-4">
-                  <strong className="text-gray-800">Reporting beat:</strong>{" "}
+                  <strong className="text-gray-800">
+                    {hindiPage ? "रिपोर्टिंग क्षेत्र:" : "Reporting beat:"}
+                  </strong>{" "}
                   {profile.beat}
                 </p>
               )}
               {beats.length > 0 && (
                 <p className="text-gray-600 text-sm leading-relaxed max-w-2xl mb-4">
-                  <strong className="text-gray-800">Published beats:</strong>{" "}
+                  <strong className="text-gray-800">
+                    {hindiPage ? "प्रकाशित विषय:" : "Published beats:"}
+                  </strong>{" "}
                   {beats.join(", ")}.
                 </p>
               )}
 
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm">
                 <div className="bg-red-50 text-red-700 px-4 py-2 rounded-full font-semibold">
-                  {totalCount} Article{totalCount !== 1 ? "s" : ""}
+                  {hindiPage
+                    ? `${totalCount} लेख`
+                    : `${totalCount} Article${totalCount !== 1 ? "s" : ""}`}
                 </div>
                 {firstPublished && (
                   <div className="bg-gray-100 text-gray-600 px-4 py-2 rounded-full">
-                    Writing since{" "}
-                    {new Date(firstPublished).toLocaleDateString("en-IN", {
-                      month: "long",
-                      year: "numeric",
-                    })}
+                    {hindiPage ? "लेखन शुरू: " : "Writing since "}
+                    {new Date(firstPublished).toLocaleDateString(
+                      hindiPage ? "hi-IN" : "en-IN",
+                      {
+                        month: "long",
+                        year: "numeric",
+                      }
+                    )}
                   </div>
                 )}
                 <Link
                   href="/corrections-policy"
                   className="bg-gray-100 text-gray-600 px-4 py-2 rounded-full hover:text-red-600"
                 >
-                  Corrections standards
+                  {hindiPage ? "सुधार नीति" : "Corrections standards"}
                 </Link>
                 {profile?.professionalUrl && (
                   <a
@@ -255,7 +288,7 @@ export default function AuthorPage({
                     rel="noopener noreferrer"
                     className="bg-gray-100 text-gray-600 px-4 py-2 rounded-full hover:text-red-600"
                   >
-                    Professional profile
+                    {hindiPage ? "प्रोफेशनल प्रोफाइल" : "Professional profile"}
                   </a>
                 )}
                 {profile?.email && (
@@ -263,7 +296,7 @@ export default function AuthorPage({
                     href={`mailto:${profile.email}`}
                     className="bg-gray-100 text-gray-600 px-4 py-2 rounded-full hover:text-red-600"
                   >
-                    Contact
+                    {hindiPage ? "संपर्क" : "Contact"}
                   </a>
                 )}
               </div>
@@ -276,7 +309,7 @@ export default function AuthorPage({
           <div className="flex items-center justify-between border-b border-gray-200 pb-2 mb-6">
             <h2 className="text-xl md:text-2xl font-bold font-serif text-black uppercase tracking-tight relative">
               <span className="relative z-10 pr-4 bg-white">
-                Articles by {authorName}
+                {hindiPage ? `${authorName} के लेख` : `Articles by ${authorName}`}
               </span>
               <span className="absolute bottom-0 left-0 w-full h-[1px] bg-red-600 transform translate-y-[1px]" />
             </h2>
@@ -284,12 +317,14 @@ export default function AuthorPage({
 
           {articles.length === 0 ? (
             <div className="text-center py-20">
-              <p className="text-gray-400 text-xl">No articles found.</p>
+              <p className="text-gray-400 text-xl">
+                {hindiPage ? "कोई लेख नहीं मिला." : "No articles found."}
+              </p>
               <Link
                 href="/"
                 className="mt-6 inline-block text-red-600 hover:text-red-700 font-semibold"
               >
-                ← Back to Home
+                {hindiPage ? "होम पर वापस" : "← Back to Home"}
               </Link>
             </div>
           ) : (
@@ -311,7 +346,9 @@ export default function AuthorPage({
               <div className="lg:col-span-4">
                 <div className="sticky top-4 bg-gray-50 rounded-lg p-5 border border-gray-100">
                   <h3 className="text-lg font-bold font-serif text-gray-800 border-b border-red-600 pb-2 mb-4">
-                    Latest by {authorName.split(" ")[0]}
+                    {hindiPage
+                      ? "ताजा लेख"
+                      : `Latest by ${authorName.split(" ")[0]}`}
                   </h3>
                   <div className="flex flex-col gap-0">
                     {articles.slice(0, 8).map((article) => (
@@ -331,6 +368,16 @@ export default function AuthorPage({
             page={page}
             totalPages={totalPages}
             pathname={`/author/${authorSlugStr}`}
+            labels={
+              hindiPage
+                ? {
+                    summary: `पृष्ठ ${page} / ${totalPages}`,
+                    previous: "पिछला",
+                    next: "अगला",
+                    nav: "पृष्ठ",
+                  }
+                : undefined
+            }
           />
         </section>
       </div>
@@ -387,7 +434,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       };
     }
 
-    const [rows, earliest, categoryRows, profile] = await Promise.all([
+    const [rows, earliest, categoryRows, profile, hindiCount] = await Promise.all([
       prisma.article.findMany({
         where,
         orderBy: [{ createdAt: "desc" }, { id: "desc" }],
@@ -404,6 +451,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
           category: true,
           customAuthor: true,
           createdAt: true,
+          language: true,
         },
       }),
       prisma.article.findFirst({
@@ -413,7 +461,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       }),
       prisma.article.findMany({
         where,
-        select: { category: true },
+        select: { category: true, language: true },
       }),
       prisma.authorProfile.findUnique({
         where: { slug: authorSlugStr },
@@ -426,7 +474,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
           email: true,
         },
       }),
+      prisma.article.count({
+        where: { AND: [where, { language: "hi" }] },
+      }),
     ]);
+    const pageLanguage: "en" | "hi" =
+      hindiCount === totalCount ? "hi" : "en";
 
     const serializedArticles: Article[] = rows.map((article) => ({
       id: article.id,
@@ -444,12 +497,19 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       claps: 0,
       commentsCount: 0,
       category: article.category,
+      language: article.language,
     }));
     const beats = Array.from(
       new Map(
-        categoryRows
-          .flatMap((article) => getCategoriesByDbValue(article.category))
-          .map((category) => [category.slug, category.name])
+        categoryRows.flatMap((article) =>
+          getCategoriesByDbValue(article.category).map((category) => {
+            const label =
+              article.language === "hi" && category.nameHi
+                ? category.nameHi
+                : category.name;
+            return [`${category.slug}:${label}`, label] as const;
+          })
+        )
       ).values()
     );
 
@@ -464,6 +524,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         page,
         totalPages,
         totalCount,
+        pageLanguage,
+        htmlLang: pageLanguage,
       },
     };
   } catch (error) {

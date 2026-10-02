@@ -5,18 +5,30 @@ interface PaginationProps {
   page: number;
   totalPages: number;
   pathname: string;
+  labels?: {
+    summary?: string;
+    previous?: string;
+    next?: string;
+    nav?: string;
+  };
 }
 
-export function Pagination({ page, totalPages, pathname }: PaginationProps) {
+export function Pagination({
+  page,
+  totalPages,
+  pathname,
+  labels,
+}: PaginationProps) {
   if (totalPages <= 1) return null;
 
   const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
+  const summary = labels?.summary || `Page ${page} of ${totalPages}`;
+  const previousLabel = labels?.previous || "Previous";
+  const nextLabel = labels?.next || "Next";
 
   return (
-    <nav aria-label="Pagination" className="mt-10">
-      <p className="mb-3 text-sm text-gray-500">
-        Page {page} of {totalPages}
-      </p>
+    <nav aria-label={labels?.nav || "Pagination"} className="mt-10">
+      <p className="mb-3 text-sm text-gray-500">{summary}</p>
       <div className="flex flex-wrap items-center gap-2">
         {page > 1 && (
           <Link
@@ -24,7 +36,7 @@ export function Pagination({ page, totalPages, pathname }: PaginationProps) {
             rel="prev"
             className="rounded-md border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 hover:border-red-600 hover:text-red-600"
           >
-            Previous
+            {previousLabel}
           </Link>
         )}
         {pages.map((number) => (
@@ -47,7 +59,7 @@ export function Pagination({ page, totalPages, pathname }: PaginationProps) {
             rel="next"
             className="rounded-md border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 hover:border-red-600 hover:text-red-600"
           >
-            Next
+            {nextLabel}
           </Link>
         )}
       </div>

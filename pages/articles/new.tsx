@@ -347,8 +347,8 @@ const NewArticle: React.FC = () => {
             <option value="hi">Hindi</option>
           </select>
           <p className="mt-1 text-xs text-gray-500">
-            This controls the language declared in article structured data and
-            the Google News sitemap.
+            Hindi articles are listed on the Hindi section and stay off the
+            English homepage, article index, category pages, and English feeds.
           </p>
         </div>
         
