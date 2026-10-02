@@ -68,7 +68,7 @@ export function ArticleJsonLd({ article, authorUrl }: ArticleJsonLdProps) {
     image: imageUrl ? [imageUrl] : [],
     datePublished: toISOWithTZ(article.createdAt),
     dateModified: toISOWithTZ(article.updatedAt || article.createdAt),
-    inLanguage: article.language === "hi" ? "hi-IN" : "en-IN",
+    inLanguage: article.language === "hi" ? "hi" : "en-IN",
     articleSection: article.category || "News",
     isAccessibleForFree: true,
     keywords: article.tags

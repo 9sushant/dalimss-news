@@ -30,6 +30,7 @@ type ArticleRow = {
   updatedAt: Date;
   category: string | null;
   customAuthor: string | null;
+  language: string;
   lastmod: Date | null;
 };
 
@@ -81,7 +82,7 @@ function isAllowedSitemapLoc(loc: string): boolean {
   if (!query) return true;
   return (
     /^page=([2-9]|[1-9]\d+)$/.test(query) &&
-    (path === "/articles" || path.startsWith("/author/"))
+    (path === "/articles" || path === "/hindi" || path.startsWith("/author/"))
   );
 }
 
@@ -130,6 +131,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
         updatedAt: true,
         category: true,
         customAuthor: true,
+        language: true,
       },
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     }),
@@ -180,8 +182,15 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     });
   }
 
+  const englishArticles = preparedArticles.filter(
+    (article) => article.language !== "hi"
+  );
+  const hindiArticles = preparedArticles.filter(
+    (article) => article.language === "hi"
+  );
+
   const categoryLastMod = new Map<string, Date | null>();
-  for (const article of preparedArticles) {
+  for (const article of englishArticles) {
     for (const category of getCategoriesByDbValue(article.category)) {
       categoryLastMod.set(
         category.slug,
@@ -200,7 +209,10 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     authors.set(slug, bucket);
   }
 
-  const newestArticle = maxDate(preparedArticles.map((article) => article.lastmod));
+  const newestArticle = maxDate(englishArticles.map((article) => article.lastmod));
+  const newestHindiArticle = maxDate(
+    hindiArticles.map((article) => article.lastmod)
+  );
   const episodeLastMods = podcastEpisodes.map((episode) =>
     contentLastMod(episode, new Set())
   );
@@ -242,6 +254,12 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     { path: "/varanasi-airport-news", priority: "0.8", freq: "hourly", lastmod: null },
     { path: "/feed.xml", priority: "0.4", freq: "hourly", lastmod: newestArticle },
     {
+      path: "/hindi/feed.xml",
+      priority: "0.4",
+      freq: "hourly",
+      lastmod: newestHindiArticle,
+    },
+    {
       path: "/varanasi/feed.xml",
       priority: "0.4",
       freq: "hourly",
@@ -275,12 +293,19 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
 
   const articleListing = listingEntries(
     "/articles",
-    preparedArticles,
-    preparedArticles.length,
+    englishArticles,
+    englishArticles.length,
     "hourly",
     "0.9"
   );
   const articlePageUrls = articleListing.slice(1);
+  const hindiListing = listingEntries(
+    "/hindi",
+    hindiArticles,
+    hindiArticles.length,
+    "hourly",
+    "0.9"
+  );
 
   const authorUrls = Array.from(authors.entries()).flatMap(([slug, rows]) => {
     const ordered = [...rows].sort(
@@ -329,8 +354,10 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   const entries = [
     ...staticPages,
     ...articleListing.slice(0, 1),
+    ...hindiListing.slice(0, 1),
     ...categoryUrls,
     ...articlePageUrls,
+    ...hindiListing.slice(1),
     ...authorUrls,
     ...storyUrls,
     ...episodeUrls,

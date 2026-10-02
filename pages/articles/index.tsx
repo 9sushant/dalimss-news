@@ -7,6 +7,7 @@ import { Article } from "@/types";
 import Link from "next/link";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import prisma from "@/lib/prisma";
+import { englishArticleWhere } from "@/lib/articleLanguage";
 import { canonicalAuthorName } from "@/lib/seo";
 import {
   LISTING_PAGE_SIZE,
@@ -184,12 +185,13 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 
   try {
-    const totalCount = await prisma.article.count();
+    const totalCount = await prisma.article.count({ where: englishArticleWhere });
     const totalPages =
       totalCount === 0 ? 0 : Math.ceil(totalCount / LISTING_PAGE_SIZE);
     if (totalCount > 0 && page > totalPages) return { notFound: true };
 
     const rows = await prisma.article.findMany({
+      where: englishArticleWhere,
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       skip: (page - 1) * LISTING_PAGE_SIZE,
       take: LISTING_PAGE_SIZE,

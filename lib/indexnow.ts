@@ -9,18 +9,30 @@ export function articleUrl(slug: string): string {
   return `${SITE_URL}/articles/${canonicalArticleSlug(slug)}`;
 }
 
-/** Article URL plus the homepage, article index, and its category and author pages. */
+/**
+ * Article URL plus the pages that actually list it.
+ * Hindi stories are indexed on /hindi and the author page. English stories
+ * are indexed on the homepage, /articles, and their category pages.
+ */
 export function indexNowUrlsForArticle(article: {
   slug: string;
   category?: string | null;
   customAuthor?: string | null;
+  language?: string | null;
 }): string[] {
-  const urls = [articleUrl(article.slug), `${SITE_URL}/`, `${SITE_URL}/articles`];
+  const urls = [articleUrl(article.slug)];
+  const author = article.customAuthor ? authorSlug(article.customAuthor) : "";
+  if (author) urls.push(`${SITE_URL}/author/${author}`);
+
+  if (article.language === "hi") {
+    urls.push(`${SITE_URL}/hindi`);
+    return urls;
+  }
+
+  urls.push(`${SITE_URL}/`, `${SITE_URL}/articles`);
   getCategoriesByDbValue(article.category).forEach((category) => {
     urls.push(`${SITE_URL}/category/${category.slug}`);
   });
-  const author = article.customAuthor ? authorSlug(article.customAuthor) : "";
-  if (author) urls.push(`${SITE_URL}/author/${author}`);
   return urls;
 }
 

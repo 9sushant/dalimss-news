@@ -129,10 +129,12 @@ const Nav: React.FC = () => {
     setIsMenuOpen(false);
   };
 
-  const isActive = (href: string) =>
-    href === "/"
-      ? router.pathname === "/"
-      : router.asPath === href || router.asPath.startsWith(`${href}/`);
+  const isActive = (href: string) => {
+    const path = router.asPath.split("?")[0];
+    return href === "/"
+      ? path === "/"
+      : path === href || path.startsWith(`${href}/`);
+  };
 
   const desktopLinkClass = (href: string) =>
     `relative whitespace-nowrap py-3 text-[12px] font-extrabold uppercase tracking-[0.055em] transition-colors xl:text-[13px] ${
@@ -305,6 +307,15 @@ const Nav: React.FC = () => {
                 Home
               </Link>
             </li>
+            <li className="flex items-stretch">
+              <Link
+                href="/hindi"
+                onClick={closeDropdowns}
+                className={desktopLinkClass("/hindi")}
+              >
+                हिंदी
+              </Link>
+            </li>
             {primaryCategories.map((category) => {
               const href = categoryHref(category.slug);
               return (
@@ -411,6 +422,13 @@ const Nav: React.FC = () => {
                 className="rounded-xl px-3 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-slate-50 hover:text-[#E21B22]"
               >
                 Home
+              </Link>
+              <Link
+                href="/hindi"
+                onClick={closeDropdowns}
+                className="rounded-xl px-3 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-slate-50 hover:text-[#E21B22]"
+              >
+                हिंदी
               </Link>
               {NAV_CATEGORIES.map((category) => (
                 <Link

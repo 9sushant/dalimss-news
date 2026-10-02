@@ -21,6 +21,17 @@ export default function App({
   pageProps: { session, ...pageProps },
 }: AppPropsWithLayout) {
   const router = useRouter();
+  const htmlLang =
+    pageProps &&
+    typeof pageProps === "object" &&
+    "htmlLang" in pageProps &&
+    (pageProps as { htmlLang?: string }).htmlLang === "hi"
+      ? "hi"
+      : "en";
+
+  useEffect(() => {
+    document.documentElement.lang = htmlLang;
+  }, [htmlLang]);
 
   // Suppress common Next.js navigation errors
   // These are expected behaviors when navigation is interrupted or same-URL navigation occurs

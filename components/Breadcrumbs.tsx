@@ -11,11 +11,17 @@ interface BreadcrumbItem {
 
 interface BreadcrumbsProps {
   items: BreadcrumbItem[];
+  homeLabel?: string;
+  navLabel?: string;
 }
 
-export function Breadcrumbs({ items }: BreadcrumbsProps) {
+export function Breadcrumbs({
+  items,
+  homeLabel = "Home",
+  navLabel = "Breadcrumb",
+}: BreadcrumbsProps) {
   const fullItems: BreadcrumbItem[] = [
-    { name: "Home", href: "/" },
+    { name: homeLabel, href: "/" },
     ...items,
   ];
 
@@ -37,7 +43,7 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <nav
-        aria-label="Breadcrumb"
+        aria-label={navLabel}
         className="text-sm text-gray-500 mb-4 flex flex-wrap items-center gap-1"
       >
         {fullItems.map((item, index) => (
