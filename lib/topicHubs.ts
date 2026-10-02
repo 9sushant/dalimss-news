@@ -223,13 +223,18 @@ export function makeTopicHubServerSideProps(slug: string): GetServerSideProps {
     }
 
     const articleWhere = {
-      OR: hub.keywords.flatMap((keyword) => [
-        { title: { contains: keyword, mode: "insensitive" as const } },
-        { content: { contains: keyword, mode: "insensitive" as const } },
-        { category: { contains: keyword, mode: "insensitive" as const } },
-        { focusKeyword: { contains: keyword, mode: "insensitive" as const } },
-        { tags: { contains: keyword, mode: "insensitive" as const } },
-      ]),
+      AND: [
+        { NOT: { language: "hi" } },
+        {
+          OR: hub.keywords.flatMap((keyword) => [
+            { title: { contains: keyword, mode: "insensitive" as const } },
+            { content: { contains: keyword, mode: "insensitive" as const } },
+            { category: { contains: keyword, mode: "insensitive" as const } },
+            { focusKeyword: { contains: keyword, mode: "insensitive" as const } },
+            { tags: { contains: keyword, mode: "insensitive" as const } },
+          ]),
+        },
+      ],
     };
 
     const articles = await prisma.article.findMany({

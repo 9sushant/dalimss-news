@@ -15,15 +15,23 @@ interface RelatedArticle {
 
 interface RelatedArticlesProps {
   articles: RelatedArticle[];
+  heading?: string;
+  locale?: string;
+  itemLang?: string;
 }
 
-export function RelatedArticles({ articles }: RelatedArticlesProps) {
+export function RelatedArticles({
+  articles,
+  heading = "Related Stories",
+  locale = "en-IN",
+  itemLang,
+}: RelatedArticlesProps) {
   if (!articles || articles.length === 0) return null;
 
   return (
     <section className="mt-12 pt-8 border-t border-gray-200">
       <h2 className="text-xl font-bold font-serif text-gray-900 mb-6 uppercase tracking-tight">
-        Related Stories
+        {heading}
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {articles.map((article) => (
@@ -51,7 +59,10 @@ export function RelatedArticles({ articles }: RelatedArticlesProps) {
                   {article.category}
                 </span>
               )}
-              <h3 className="text-sm font-bold text-gray-900 group-hover:text-red-600 transition-colors line-clamp-2 mt-0.5">
+              <h3
+                lang={itemLang}
+                className="text-sm font-bold text-gray-900 group-hover:text-red-600 transition-colors line-clamp-2 mt-0.5"
+              >
                 {article.title}
               </h3>
               <time
@@ -59,7 +70,7 @@ export function RelatedArticles({ articles }: RelatedArticlesProps) {
                 dateTime={article.createdAt}
                 suppressHydrationWarning
               >
-                {new Date(article.createdAt).toLocaleDateString("en-IN", {
+                {new Date(article.createdAt).toLocaleDateString(locale, {
                   day: "numeric",
                   month: "short",
                   year: "numeric",

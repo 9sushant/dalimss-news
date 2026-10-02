@@ -14,6 +14,7 @@ Dalimss News is an Indian digital news publication specialising in Varanasi, Eas
 - Education: https://dalimss.news/category/education
 - Technology: https://dalimss.news/category/technology
 - OTT: https://dalimss.news/ott
+- Hindi News: https://dalimss.news/hindi
 
 ## Editorial Information
 
@@ -26,6 +27,7 @@ Dalimss News is an Indian digital news publication specialising in Varanasi, Eas
 ## Feeds
 
 - RSS: https://dalimss.news/feed.xml
+- Hindi RSS: https://dalimss.news/hindi/feed.xml
 - Varanasi RSS: https://dalimss.news/varanasi/feed.xml
 - Gurugram RSS: https://dalimss.news/gurugram/feed.xml
 - Education RSS: https://dalimss.news/education/feed.xml

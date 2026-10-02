@@ -74,6 +74,7 @@ import {
 import { getCategoriesByDbValue } from "@/lib/categories";
 import { normalizeArticleSources } from "@/lib/articleSources";
 import { getAuthorBox } from "@/lib/authorBoxes";
+import { hreflangLinks } from "@/lib/hreflang";
 
 const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
   const { data: session } = useSession();
@@ -120,6 +121,12 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
   const articleSlug = canonicalArticleSlug(article.slug);
   const canonicalUrl = `${SITE_URL}/articles/${articleSlug}`;
   const seoTitle = stripForMeta(article.metaTitle || article.title, 70);
+  const isHindi = article.language === "hi";
+  const dateLocale = isHindi ? "hi-IN" : "en-IN";
+  const alternates = hreflangLinks({
+    path: `/articles/${articleSlug}`,
+    language: isHindi ? "hi" : "en",
+  });
 
   return (
     <article
@@ -130,6 +137,14 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
         <title>{article.metaTitle ? seoTitle : `${article.title} | Dalimss News`}</title>
         <meta name="description" content={seoDescription} />
         <link rel="canonical" href={canonicalUrl} />
+        {alternates.map((alternate) => (
+          <link
+            key={`${alternate.hrefLang}-${alternate.href}`}
+            rel="alternate"
+            hrefLang={alternate.hrefLang}
+            href={alternate.href}
+          />
+        ))}
         
         {/* Robots with max-image-preview */}
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
@@ -178,9 +193,17 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
 
       {/* Breadcrumbs */}
       <Breadcrumbs
+        homeLabel={isHindi ? "होम" : "Home"}
+        navLabel={isHindi ? "नेविगेशन पथ" : "Breadcrumb"}
         items={[
           ...(breadcrumbCategory
-            ? [{ name: breadcrumbCategory.name, href: `/category/${breadcrumbCategory.slug}` }]
+            ? [{
+                name:
+                  isHindi && breadcrumbCategory.nameHi
+                    ? breadcrumbCategory.nameHi
+                    : breadcrumbCategory.name,
+                href: `/category/${breadcrumbCategory.slug}`,
+              }]
             : []),
           { name: article.title.length > 60 ? article.title.slice(0, 57) + "..." : article.title, href: `/articles/${articleSlug}` },
         ]}
@@ -229,7 +252,7 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
                 href={`/category/${category.slug}`}
                 className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded hover:bg-blue-200 transition-colors"
               >
-                {category.name}
+                {isHindi && category.nameHi ? category.nameHi : category.name}
               </a>
             ))}
           </div>
@@ -237,9 +260,18 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
         <h1 className="text-4xl font-bold mb-3 text-gray-900">{article.title}</h1>
         {isOpinion && (
           <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-            <strong>Opinion:</strong> This article reflects the writer&apos;s
-            analysis or viewpoint. Factual claims should be assessed against
-            the linked source material below.
+            {isHindi ? (
+              <>
+                <strong>राय:</strong> यह लेख लेखक के विश्लेषण या विचार को
+                दर्शाता है. तथ्यों को नीचे दिए गए स्रोतों से जांचें.
+              </>
+            ) : (
+              <>
+                <strong>Opinion:</strong> This article reflects the writer&apos;s
+                analysis or viewpoint. Factual claims should be assessed against
+                the linked source material below.
+              </>
+            )}
           </div>
         )}
         <div className="text-sm text-gray-600 flex flex-wrap items-center gap-2">
@@ -247,11 +279,11 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
             href={authorPath}
             className="hover:text-red-600 transition-colors"
           >
-            By {authorName}
+            {isHindi ? authorName : `By ${authorName}`}
           </a>
           <span>•</span>
           <time dateTime={toISOWithTZ(article.createdAt)} suppressHydrationWarning>
-            {new Date(article.createdAt).toLocaleString("en-IN", {
+            {new Date(article.createdAt).toLocaleString(dateLocale, {
               dateStyle: "long",
               timeStyle: "short",
               timeZone: "Asia/Kolkata",
@@ -261,7 +293,7 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
             <>
               <span>•</span>
               <time dateTime={toISOWithTZ(article.updatedAt)} className="text-gray-500 italic" suppressHydrationWarning>
-                Updated: {new Date(article.updatedAt).toLocaleString("en-IN", {
+                {isHindi ? "अपडेट:" : "Updated:"} {new Date(article.updatedAt).toLocaleString(dateLocale, {
                   dateStyle: "long",
                   timeStyle: "short",
                   timeZone: "Asia/Kolkata",
@@ -270,7 +302,7 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
             </>
           )}
           {article.readTimeInMinutes
-            ? <><span>•</span><span>{article.readTimeInMinutes} min read</span></>
+            ? <><span>•</span><span>{isHindi ? `${article.readTimeInMinutes} मिनट` : `${article.readTimeInMinutes} min read`}</span></>
             : null}
           <div className="ml-auto">
             <ShareButton 
@@ -293,7 +325,11 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
         }
 
         if (items.length === 0) {
-          return <p className="text-gray-500 italic my-6">No media included.</p>;
+          return (
+            <p className="text-gray-500 italic my-6">
+              {isHindi ? "कोई मीडिया शामिल नहीं है." : "No media included."}
+            </p>
+          );
         }
 
         if (items.length === 1) {
@@ -473,10 +509,14 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
               }
             }}
           >
-            {article.content || "No content available."}
+            {article.content ||
+              (isHindi ? "सामग्री उपलब्ध नहीं है." : "No content available.")}
           </ReactMarkdown>
         ) : (
-          <pre>{article.content || "No content available."}</pre>
+          <pre>
+            {article.content ||
+              (isHindi ? "सामग्री उपलब्ध नहीं है." : "No content available.")}
+          </pre>
         )}
       </div>
 
@@ -485,7 +525,7 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
       {(article.reportingBasis || visibleSources.length > 0) && (
         <section className="mt-8 pt-5 border-t border-gray-200 text-sm text-gray-600">
           <h2 className="text-base font-bold text-gray-900 mb-2">
-            Sources and reporting
+            {isHindi ? "स्रोत और रिपोर्टिंग" : "Sources and reporting"}
           </h2>
           {article.reportingBasis && <p>{article.reportingBasis}</p>}
           {visibleSources.length > 0 && (
@@ -508,7 +548,12 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
       )}
 
       {/* RELATED ARTICLES */}
-      <RelatedArticles articles={relatedArticles} />
+      <RelatedArticles
+        articles={relatedArticles}
+        heading={isHindi ? "संबंधित खबरें" : "Related Stories"}
+        locale={dateLocale}
+        itemLang={isHindi ? "hi" : undefined}
+      />
     </article>
   );
 };
@@ -540,9 +585,16 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       const categoryList = article.category.split(",").map((c) => c.trim()).filter(Boolean);
       relatedArticles = await prisma.article.findMany({
         where: {
-          OR: categoryList.map((cat) => ({
-            category: { contains: cat, mode: "insensitive" },
-          })),
+          AND: [
+            {
+              OR: categoryList.map((cat) => ({
+                category: { contains: cat, mode: "insensitive" as const },
+              })),
+            },
+            article.language === "hi"
+              ? { language: "hi" }
+              : { NOT: { language: "hi" } },
+          ],
           id: { not: article.id },
         },
         select: {
@@ -585,6 +637,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
             : null,
         })
       ),
+      htmlLang: article.language === "hi" ? "hi" : "en",
       relatedArticles: JSON.parse(
         JSON.stringify(
           relatedArticles.map((relatedArticle) => ({

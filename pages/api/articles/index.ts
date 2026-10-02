@@ -7,6 +7,7 @@ import { getCategoryBySlug, getCategoryByDbValue } from "@/lib/categories";
 import { indexNowUrlsForArticle, notifyIndexNow } from "@/lib/indexnow";
 import { createUniqueArticleSlug } from "@/lib/articleSlugs";
 import { normalizeArticleSources } from "@/lib/articleSources";
+import { englishArticleWhere } from "@/lib/articleLanguage";
 import { canonicalAuthorName, stripForMeta } from "@/lib/seo";
 import { Prisma } from "@prisma/client";
 
@@ -129,7 +130,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   // ----------- GET ALL ARTICLES -----------
   const { category, search, page, limit } = req.query;
-  const where: any = {};
+  const where: any = { ...englishArticleWhere };
 
   if (category) {
     const matchedCategory = getCategoryBySlug(String(category)) || getCategoryByDbValue(String(category));

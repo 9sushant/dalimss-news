@@ -13,6 +13,7 @@ import {
   canonicalAuthorName,
 } from "@/lib/seo";
 import { getCategoryBySlug, Category } from "@/lib/categories";
+import { englishArticleWhere } from "@/lib/articleLanguage";
 import prisma from "@/lib/prisma";
 
 interface Props {
@@ -307,12 +308,17 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   try {
     const categoryFilter = {
-      OR: category.dbValues.map((val) => ({
-        category: {
-          contains: val,
-          mode: "insensitive" as const,
+      AND: [
+        englishArticleWhere,
+        {
+          OR: category.dbValues.map((val) => ({
+            category: {
+              contains: val,
+              mode: "insensitive" as const,
+            },
+          })),
         },
-      })),
+      ],
     };
 
     // Query articles matching the category's dbValues (case-insensitive contains)
