@@ -48,7 +48,12 @@ function slugToName(slug: string): string {
     .join(" ");
 }
 
-/** Slug of the public author page that actually lists this byline. */
+/**
+ * Slug of the public author page that lists this byline with HTTP 200.
+ * Match the author route: case-insensitive equality on the raw byline.
+ * Do not trim or collapse whitespace first — Prisma `equals` does not,
+ * so "Pooja Kapoor " and " Dalimss Editorial Team" are not that page.
+ */
 function authorPageSlug(name: string): string | null {
   const slug = authorSlug(name);
   if (!slug) return null;
@@ -56,8 +61,7 @@ function authorPageSlug(name: string): string | null {
   const accepted = new Set(
     authorNameVariants(lookup).map((variant) => variant.toLowerCase())
   );
-  accepted.add(lookup.toLowerCase());
-  if (!accepted.has(canonicalAuthorName(name).toLowerCase())) return null;
+  if (!accepted.has(name.toLowerCase())) return null;
   return slug;
 }
 
@@ -79,6 +83,11 @@ function isAllowedSitemapLoc(loc: string): boolean {
   const pathAndQuery = loc.slice(BASE_URL.length);
   const [path, query] = pathAndQuery.split("?");
   if (!path || path.endsWith("/") || pathAndQuery.split("?").length > 2) return false;
+  // RSS feeds and llms.txt are not HTML pages. Discover them via link
+  // rel="alternate" and /llms.txt, not as urlset locs.
+  if (path === "/llms.txt" || path.endsWith("/feed.xml") || path === "/feed.xml") {
+    return false;
+  }
   if (!query) return true;
   return (
     /^page=([2-9]|[1-9]\d+)$/.test(query) &&
@@ -210,9 +219,6 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   }
 
   const newestArticle = maxDate(englishArticles.map((article) => article.lastmod));
-  const newestHindiArticle = maxDate(
-    hindiArticles.map((article) => article.lastmod)
-  );
   const episodeLastMods = podcastEpisodes.map((episode) =>
     contentLastMod(episode, new Set())
   );
@@ -221,12 +227,6 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   const staticPages: UrlEntry[] = [
     { path: "", priority: "1.0", freq: "hourly", lastmod: newestArticle },
     { path: "/ott", priority: "0.9", freq: "daily", lastmod: newestEpisode },
-    {
-      path: "/ott/feed.xml",
-      priority: "0.5",
-      freq: "hourly",
-      lastmod: newestEpisode,
-    },
     { path: "/about", priority: "0.5", freq: "monthly", lastmod: null },
     { path: "/ownership", priority: "0.5", freq: "monthly", lastmod: null },
     { path: "/contact", priority: "0.5", freq: "monthly", lastmod: null },
@@ -252,38 +252,6 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     { path: "/varanasi-infrastructure", priority: "0.8", freq: "hourly", lastmod: null },
     { path: "/kashi-vishwanath-news", priority: "0.8", freq: "hourly", lastmod: null },
     { path: "/varanasi-airport-news", priority: "0.8", freq: "hourly", lastmod: null },
-    { path: "/feed.xml", priority: "0.4", freq: "hourly", lastmod: newestArticle },
-    {
-      path: "/hindi/feed.xml",
-      priority: "0.4",
-      freq: "hourly",
-      lastmod: newestHindiArticle,
-    },
-    {
-      path: "/varanasi/feed.xml",
-      priority: "0.4",
-      freq: "hourly",
-      lastmod: categoryLastMod.get("varanasi") || null,
-    },
-    {
-      path: "/gurugram/feed.xml",
-      priority: "0.4",
-      freq: "hourly",
-      lastmod: categoryLastMod.get("gurgaon") || null,
-    },
-    {
-      path: "/education/feed.xml",
-      priority: "0.4",
-      freq: "hourly",
-      lastmod: categoryLastMod.get("education") || null,
-    },
-    {
-      path: "/technology/feed.xml",
-      priority: "0.4",
-      freq: "hourly",
-      lastmod: categoryLastMod.get("technology") || null,
-    },
-    { path: "/llms.txt", priority: "0.3", freq: "weekly", lastmod: null },
   ].map((page) => ({
     loc: absoluteUrl(page.path),
     lastmod: page.lastmod,
