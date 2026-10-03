@@ -11,6 +11,7 @@ import {
   toISOWithTZ,
   stripForMeta,
   canonicalAuthorName,
+  isNewsroomByline,
 } from "@/lib/seo";
 import { normalizeArticleSources } from "@/lib/articleSources";
 import type { AuthorBoxProfile } from "@/lib/authorBoxes";
@@ -47,7 +48,7 @@ export function ArticleJsonLd({
   const authorName = canonicalAuthorName(
     article.customAuthor || "Dalimss News Desk"
   );
-  const isNewsroomByline = authorName === "Dalimss News Desk";
+  const newsroomByline = isNewsroomByline(authorName);
   const sources = normalizeArticleSources(article.sourceUrls);
   const citations = [
     ...sources.map((source) => source.url),
@@ -87,10 +88,10 @@ export function ArticleJsonLd({
         ? citations
         : undefined,
     author: {
-      "@type": isNewsroomByline ? "Organization" : "Person",
+      "@type": newsroomByline ? "Organization" : "Person",
       name: authorName,
       ...(authorUrl ? { url: authorUrl } : {}),
-      ...(authorProfile
+      ...(authorProfile && !newsroomByline
         ? {
             "@type": "Person",
             jobTitle: authorProfile.jobTitle,
