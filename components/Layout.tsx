@@ -1,6 +1,7 @@
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { ReactNode } from "react";
+import Script from "next/script";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
 interface LayoutProps {
@@ -29,9 +30,13 @@ const Layout = ({ children }: LayoutProps) => (
       <link rel="alternate" type="application/rss+xml" title="Education News Feed" href="https://dalimss.news/education/feed.xml" />
       <link rel="alternate" type="application/rss+xml" title="Technology News Feed" href="https://dalimss.news/technology/feed.xml" />
       <link rel="alternate" type="application/rss+xml" title="Dalimss News OTT" href="https://dalimss.news/ott/feed.xml" />
-      {/* Google AdSense */}
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7477796529453554" crossOrigin="anonymous"></script>
     </Head>
+    <Script
+      id="google-adsense"
+      strategy="lazyOnload"
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7477796529453554"
+      crossOrigin="anonymous"
+    />
     <a className="skip-link" href="#main-content">
       Skip to main content
     </a>

@@ -1,5 +1,7 @@
 import React from "react";
+import Image from "next/image";
 import ImageWithFallback from "./ImageWithFallback";
+import { isOptimizableImageSrc } from "@/lib/optimizableImage";
 
 interface ArticleMediaPreviewProps {
   src: string;
@@ -7,6 +9,9 @@ interface ArticleMediaPreviewProps {
   alt: string;
   className?: string;
   loading?: "eager" | "lazy";
+  priority?: boolean;
+  sizes?: string;
+  quality?: number;
 }
 
 export default function ArticleMediaPreview({
@@ -15,6 +20,9 @@ export default function ArticleMediaPreview({
   alt,
   className = "h-full w-full object-cover",
   loading = "lazy",
+  priority = false,
+  sizes = "100vw",
+  quality = 70,
 }: ArticleMediaPreviewProps) {
   if (mediaType === "video") {
     return (
@@ -39,12 +47,26 @@ export default function ArticleMediaPreview({
     );
   }
 
+  if (isOptimizableImageSrc(src)) {
+    return (
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes={sizes}
+        quality={quality}
+        className={className}
+        {...(priority ? { priority: true } : { loading })}
+      />
+    );
+  }
+
   return (
     <ImageWithFallback
       src={src}
       alt={alt}
       className={className}
-      loading={loading}
+      loading={priority ? "eager" : loading}
     />
   );
 }

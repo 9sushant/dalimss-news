@@ -30,11 +30,12 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
         {article.mediaUrl && (
           <div className="relative aspect-[3/2] w-32 shrink-0 overflow-hidden rounded-lg bg-gray-100 md:w-48">
              <ArticleMediaPreview
-                src={article.mediaUrl} 
+                src={article.mediaUrl}
                 mediaType={article.mediaType}
                 alt={article.title}
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 loading="lazy"
+                sizes="(max-width: 768px) 128px, 192px"
               />
           </div>
         )}
@@ -91,11 +92,12 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
       {article.mediaUrl && (
         <div className="relative aspect-[3/2] w-full overflow-hidden bg-gray-100">
           <ArticleMediaPreview
-            src={article.mediaUrl} 
+            src={article.mediaUrl}
             mediaType={article.mediaType}
             alt={article.title}
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
+            sizes="(max-width: 640px) 100vw, 320px"
           />
         </div>
       )}

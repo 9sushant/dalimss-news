@@ -14,8 +14,16 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Inter", "Noto Sans Devanagari", ...fontFamily.sans],
-        serif: ["Lora", "Noto Serif Devanagari", ...fontFamily.serif],
+        sans: [
+          "var(--font-inter)",
+          "var(--font-sans-devanagari)",
+          ...fontFamily.sans,
+        ],
+        serif: [
+          "var(--font-lora)",
+          "var(--font-serif-devanagari)",
+          ...fontFamily.serif,
+        ],
       },
 
       typography: ({ theme }: { theme: any }) => ({
@@ -31,7 +39,7 @@ const config: Config = {
             "--tw-prose-invert-links": theme("colors.blue.400"),
 
             "p, ul, ol, blockquote": {
-              fontFamily: theme("fontFamily.serif"),
+              fontFamily: theme("fontFamily.serif").join(", "),
             },
           },
         },

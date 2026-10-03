@@ -2,8 +2,10 @@
 // Displays 4-6 related articles for internal linking
 
 import Link from "next/link";
+import Image from "next/image";
 import { formatDateIST } from "@/lib/seo";
 import { getCategoriesByDbValue } from "@/lib/categories";
+import { isOptimizableImageSrc } from "@/lib/optimizableImage";
 
 interface RelatedArticle {
   id: number;
@@ -49,15 +51,26 @@ export function RelatedArticles({
           >
             {article.mediaUrl && (
               <div className="relative aspect-[3/2] w-28 shrink-0 overflow-hidden rounded-lg bg-gray-100">
-                <img
-                  src={article.mediaUrl}
-                  alt={article.title}
-                  className="absolute inset-0 h-full w-full bg-gray-100 object-cover transition-transform duration-300 group-hover:scale-105"
-                  loading="lazy"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).style.display = "none";
-                  }}
-                />
+                {isOptimizableImageSrc(article.mediaUrl) ? (
+                  <Image
+                    src={article.mediaUrl}
+                    alt={article.title}
+                    fill
+                    sizes="112px"
+                    quality={70}
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                ) : (
+                  <img
+                    src={article.mediaUrl}
+                    alt={article.title}
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    loading="lazy"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).style.display = "none";
+                    }}
+                  />
+                )}
               </div>
             )}
             <div className="min-w-0 flex-1">

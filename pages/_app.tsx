@@ -1,5 +1,6 @@
 import "@/styles/globals.css";
 import Script from "next/script";
+import Head from "next/head";
 import { Analytics } from "@vercel/analytics/react";
 import type { AppProps } from "next/app";
 import { SessionProvider } from "next-auth/react";
@@ -7,6 +8,7 @@ import Layout from "@/components/Layout";
 import { NextPage } from "next";
 import { ReactElement, ReactNode, useEffect } from "react";
 import { useRouter } from "next/router";
+import { fontRootStyle } from "@/lib/fonts";
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
@@ -32,6 +34,10 @@ export default function App({
   useEffect(() => {
     document.documentElement.lang = htmlLang;
   }, [htmlLang]);
+
+  useEffect(() => {
+    document.documentElement.classList.add("fonts-ready");
+  }, []);
 
   // Suppress common Next.js navigation errors
   // These are expected behaviors when navigation is interrupted or same-URL navigation occurs
@@ -84,21 +90,26 @@ export default function App({
 
   return (
     <SessionProvider session={session}>
-      <Script
-        src="https://www.googletagmanager.com/gtag/js?id=G-2N4BWSS6GL"
-        strategy="afterInteractive"
-      />
-      <Script id="google-analytics" strategy="afterInteractive">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
+      <Head>
+        <style>{fontRootStyle}</style>
+      </Head>
+      <div>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-2N4BWSS6GL"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
 
-          gtag('config', 'G-2N4BWSS6GL');
-        `}
-      </Script>
-      {getLayout(<Component {...pageProps} />)}
-      {!isStory && <Analytics />}
+            gtag('config', 'G-2N4BWSS6GL');
+          `}
+        </Script>
+        {getLayout(<Component {...pageProps} />)}
+        {!isStory && <Analytics />}
+      </div>
     </SessionProvider>
   );
 }

@@ -22,6 +22,7 @@ import {
   canonicalArticleSlug,
   canonicalAuthorName,
 } from "@/lib/seo";
+import { setPublicPageCache } from "@/lib/publicCache";
 import { Article } from "@/types";
 
 interface Props {
@@ -235,6 +236,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
       language: article.language,
     }));
 
+    setPublicPageCache(context.res);
     return {
       props: {
         articles,

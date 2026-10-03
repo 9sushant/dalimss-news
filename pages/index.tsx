@@ -11,6 +11,7 @@ import Link from "next/link";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import { useSession } from "next-auth/react";
 import { ORGANIZATION_ADDRESS, ORGANIZATION_ID, ORGANIZATION_LANGUAGES, WEBSITE_ID, formatDateIST } from "@/lib/seo";
+import { setPublicPageCache } from "@/lib/publicCache";
 
 interface Props {
   articles: Article[];
@@ -272,20 +273,22 @@ export default function HomePage({ articles, stories, searchQuery }: Props) {
             <div className="lg:col-span-7">
               <div className="h-full border border-gray-100 rounded-lg overflow-hidden group bg-white hover:shadow-md transition-shadow">
                 {heroArticle.mediaUrl && (
-                  <div className="w-full h-64 md:h-[500px] bg-black overflow-hidden relative">
-                    {/* Blurred Background for better aesthetics */}
+                  <div className="relative h-64 w-full overflow-hidden bg-black md:h-[500px]">
                     {heroArticle.mediaType !== "video" && (
                       <div
-                        className="absolute inset-0 bg-cover bg-center opacity-50 blur-xl scale-110"
+                        className="absolute inset-0 hidden scale-110 bg-cover bg-center opacity-50 blur-xl md:block"
                         style={{ backgroundImage: `url(${heroArticle.mediaUrl})` }}
+                        aria-hidden="true"
                       />
                     )}
                     <ArticleMediaPreview
-                      src={heroArticle.mediaUrl} 
+                      src={heroArticle.mediaUrl}
                       mediaType={heroArticle.mediaType}
                       alt={heroArticle.title}
-                      loading="eager"
-                      className="relative z-10 w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+                      priority={heroArticle.mediaType !== "video"}
+                      sizes="(max-width: 768px) 100vw, 720px"
+                      quality={70}
+                      className="z-10 object-contain transition-transform duration-700 group-hover:scale-105"
                     />
                   </div>
                 )}
@@ -401,6 +404,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
     
     const articles = await res.json();
+    if (!Array.isArray(articles)) {
+      throw new Error("Invalid articles response");
+    }
 
     // Fetch Web Stories
     let stories = [];
@@ -413,6 +419,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       console.error("Error fetching stories:", e);
     }
 
+    setPublicPageCache(context.res);
     return { props: { articles, stories, searchQuery } };
   } catch (error) {
     console.error("Error fetching articles:", error);

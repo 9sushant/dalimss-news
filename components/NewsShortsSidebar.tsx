@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Article } from "@/types";
 import { formatDateIST } from "@/lib/seo";
+import { isOptimizableImageSrc } from "@/lib/optimizableImage";
 
 interface Props {
   articles: Article[];
@@ -102,11 +104,23 @@ const NewsShortsSidebar = ({ articles }: Props) => {
             {/* Image Section */}
             <div className={`relative w-full h-[220px] bg-gray-200 overflow-hidden transition-opacity duration-300 ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
               {currentArticle.mediaUrl ? (
-                <img
-                  src={currentArticle.mediaUrl}
-                  alt={currentArticle.title}
-                  className="w-full h-full object-cover"
-                />
+                isOptimizableImageSrc(currentArticle.mediaUrl) ? (
+                  <Image
+                    src={currentArticle.mediaUrl}
+                    alt={currentArticle.title}
+                    fill
+                    sizes="380px"
+                    quality={70}
+                    className="object-cover"
+                  />
+                ) : (
+                  <img
+                    src={currentArticle.mediaUrl}
+                    alt={currentArticle.title}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                )
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center">
                   <span className="text-white text-xl font-bold opacity-40">DALIMSS NEWS</span>

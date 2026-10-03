@@ -1,6 +1,8 @@
 import Link from "next/link";
+import Image from "next/image";
 import ImageWithFallback from "./ImageWithFallback";
 import { formatDateIST } from "@/lib/seo";
+import { isOptimizableImageSrc } from "@/lib/optimizableImage";
 
 interface StoryPage {
   id: number;
@@ -49,11 +51,23 @@ const WebStoriesCarousel = ({ stories }: Props) => {
           >
             <div className="relative w-[140px] h-[200px] md:w-[160px] md:h-[240px] rounded-xl overflow-hidden shadow-lg border-2 border-white hover:border-red-500 transition-all">
               {/* Cover Image */}
-              <ImageWithFallback
-                src={story.coverImage}
-                alt={story.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
+              {isOptimizableImageSrc(story.coverImage) ? (
+                <Image
+                  src={story.coverImage}
+                  alt={story.title}
+                  fill
+                  sizes="160px"
+                  quality={70}
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              ) : (
+                <ImageWithFallback
+                  src={story.coverImage}
+                  alt={story.title}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
+              )}
 
               {/* Gradient Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
