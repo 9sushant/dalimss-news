@@ -99,7 +99,7 @@ export function ArticleJsonLd({
         ? {
             "@type": "Person",
             jobTitle: authorProfile.jobTitle,
-            image: authorProfile.photoUrl,
+            image: absoluteImageUrl(authorProfile.photoUrl),
             worksFor: {
               "@type": "Organization",
               name: authorProfile.organizationName,

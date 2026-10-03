@@ -12,11 +12,13 @@ import {
   authorSlug,
   canonicalAuthorName,
   authorNameVariants,
+  absoluteImageUrl,
   formatDateIST,
 } from "@/lib/seo";
 import { getCategoriesByDbValue } from "@/lib/categories";
 import prisma from "@/lib/prisma";
 import { getAuthorPortrait } from "@/lib/author-portraits";
+import { getAuthorBox } from "@/lib/authorBoxes";
 import {
   LISTING_PAGE_SIZE,
   listingExcerpt,
@@ -81,11 +83,14 @@ export default function AuthorPage({
     : page > 1
       ? `Articles by ${authorName} | Page ${page} | ${SITE_NAME}`
       : `Articles by ${authorName} | ${SITE_NAME}`;
-  const portraitUrl = getAuthorPortrait(authorName) || profile?.imageUrl;
+  const curated = getAuthorBox(authorName);
+  const portraitUrl =
+    curated?.photoUrl || getAuthorPortrait(authorName) || profile?.imageUrl;
   const absolutePortraitUrl = portraitUrl
-    ? new URL(portraitUrl, SITE_URL).href
+    ? absoluteImageUrl(portraitUrl)
     : `${SITE_URL}/logo.png`;
   const pageDescription =
+    curated?.bio ||
     profile?.bio ||
     (hindiPage
       ? `${SITE_NAME} पर ${authorName} के ${totalCount} लेख पढ़ें.`
@@ -97,15 +102,35 @@ export default function AuthorPage({
     "@type": "Person",
     name: authorName,
     url: profileUrl,
-    worksFor: {
-      "@id": ORGANIZATION_ID,
-    },
+    worksFor: curated
+      ? {
+          "@type":
+            curated.organizationName === SITE_NAME
+              ? "NewsMediaOrganization"
+              : "Organization",
+          name: curated.organizationName,
+          ...(curated.organizationName === SITE_NAME
+            ? { "@id": ORGANIZATION_ID }
+            : {}),
+        }
+      : {
+          "@id": ORGANIZATION_ID,
+        },
+    ...(curated?.jobTitle ? { jobTitle: curated.jobTitle } : {}),
+    ...(curated?.alumniOf
+      ? {
+          alumniOf: {
+            "@type": "CollegeOrUniversity",
+            name: curated.alumniOf,
+          },
+        }
+      : {}),
     knowsAbout: beats,
     ...(portraitUrl ? { image: absolutePortraitUrl } : {}),
-    ...(profile?.professionalUrl
+    ...(!curated && profile?.professionalUrl
       ? { sameAs: [profile.professionalUrl] }
       : {}),
-    ...(profile?.email ? { email: profile.email } : {}),
+    ...(!curated && profile?.email ? { email: profile.email } : {}),
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "Newsroom",
@@ -202,9 +227,10 @@ export default function AuthorPage({
                 <img
                   src={portraitUrl}
                   alt={
-                    hindiPage
+                    curated?.photoAlt ||
+                    (hindiPage
                       ? `${authorName} का चित्र`
-                      : `Portrait of ${authorName}`
+                      : `Portrait of ${authorName}`)
                   }
                   width={112}
                   height={112}
@@ -223,17 +249,20 @@ export default function AuthorPage({
                 {authorName}
               </h1>
               <p className="text-gray-500 text-sm mb-4">
-                {hindiPage
-                  ? `${SITE_NAME} के प्रकाशित लेखक`
-                  : `Published contributor at ${SITE_NAME}`}
+                {curated
+                  ? `${curated.jobTitle}, ${curated.organizationName}`
+                  : hindiPage
+                    ? `${SITE_NAME} के प्रकाशित लेखक`
+                    : `Published contributor at ${SITE_NAME}`}
               </p>
               <p className="text-gray-600 text-sm leading-relaxed max-w-2xl mb-4">
-                {profile?.bio ||
+                {curated?.bio ||
+                  profile?.bio ||
                   (hindiPage
                     ? `इस पृष्ठ पर ${authorName} के नाम से छपी खबरें एक जगह हैं. हर लेख में रिपोर्टिंग का आधार, स्रोत और अपडेट का समय दिया गया है.`
                     : `This page collects stories published under the ${authorName} byline. Article pages identify their available reporting basis, primary material and update history.`)}
               </p>
-              {profile?.experience && (
+              {!curated && profile?.experience && (
                 <p className="text-gray-600 text-sm leading-relaxed max-w-2xl mb-4">
                   <strong className="text-gray-800">
                     {hindiPage ? "अनुभव:" : "Experience:"}
@@ -241,7 +270,7 @@ export default function AuthorPage({
                   {profile.experience}
                 </p>
               )}
-              {profile?.beat && (
+              {!curated && profile?.beat && (
                 <p className="text-gray-600 text-sm leading-relaxed max-w-2xl mb-4">
                   <strong className="text-gray-800">
                     {hindiPage ? "रिपोर्टिंग क्षेत्र:" : "Reporting beat:"}
@@ -279,7 +308,7 @@ export default function AuthorPage({
                 >
                   {hindiPage ? "सुधार नीति" : "Corrections standards"}
                 </Link>
-                {profile?.professionalUrl && (
+                {!curated && profile?.professionalUrl && (
                   <a
                     href={profile.professionalUrl}
                     target="_blank"
@@ -289,7 +318,7 @@ export default function AuthorPage({
                     {hindiPage ? "प्रोफेशनल प्रोफाइल" : "Professional profile"}
                   </a>
                 )}
-                {profile?.email && (
+                {!curated && profile?.email && (
                   <a
                     href={`mailto:${profile.email}`}
                     className="bg-gray-100 text-gray-600 px-4 py-2 rounded-full hover:text-red-600"
