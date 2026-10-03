@@ -1,3 +1,5 @@
+import { decodeEntities } from "@/lib/decodeEntities";
+
 export const LISTING_PAGE_SIZE = 30;
 
 /** Missing page is page 1. Any other value must be a positive integer. */
@@ -21,11 +23,12 @@ export function listingExcerpt(
   maxLength = 180
 ): string {
   if (!content) return "";
-  return content
-    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ")
-    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;|&#160;/gi, " ")
+  return decodeEntities(
+    content
+      .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+  )
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, maxLength);

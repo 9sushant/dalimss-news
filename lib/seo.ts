@@ -1,6 +1,8 @@
 // lib/seo.ts
 // SEO helper functions
 
+import { decodeEntities } from "@/lib/decodeEntities";
+
 export const SITE_URL = "https://dalimss.news";
 export const SITE_NAME = "Dalimss News";
 export const ORGANIZATION_ID = `${SITE_URL}/#organization`;
@@ -125,18 +127,14 @@ export function authorSlug(name: string): string {
  * Strip HTML tags and Markdown formatting from content.
  */
 export function toPlainText(content: string): string {
-  return content
-    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ")
-    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ")
-    .replace(/!\[([^\]]*)\]\([^)]+\)/g, " $1 ")
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, " $1 ")
-    .replace(/<[^>]*>/g, " ")
-    .replace(/&nbsp;|&#160;/gi, " ")
-    .replace(/&amp;/gi, "&")
-    .replace(/&quot;|&#34;/gi, '"')
-    .replace(/&#39;|&apos;/gi, "'")
-    .replace(/&lt;/gi, "<")
-    .replace(/&gt;/gi, ">")
+  return decodeEntities(
+    content
+      .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ")
+      .replace(/!\[([^\]]*)\]\([^)]+\)/g, " $1 ")
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, " $1 ")
+      .replace(/<[^>]*>/g, " ")
+  )
     .replace(/[#*`_~]/g, "")
     .replace(/\s+/g, " ")
     .trim();

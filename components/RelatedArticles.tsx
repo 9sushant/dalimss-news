@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { decodeEntities } from "@/lib/decodeEntities";
 import { formatDateIST } from "@/lib/seo";
 import { getCategoriesByDbValue } from "@/lib/categories";
 import { isOptimizableImageSrc } from "@/lib/optimizableImage";
@@ -37,6 +38,7 @@ export function RelatedArticles({
       </h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
         {articles.map((article) => {
+          const title = decodeEntities(article.title);
           const category = getCategoriesByDbValue(article.category)[0];
           const categoryName =
             itemLang === "hi" && category?.nameHi
@@ -54,7 +56,7 @@ export function RelatedArticles({
                 {isOptimizableImageSrc(article.mediaUrl) ? (
                   <Image
                     src={article.mediaUrl}
-                    alt={article.title}
+                    alt={title}
                     fill
                     sizes="112px"
                     quality={70}
@@ -63,7 +65,7 @@ export function RelatedArticles({
                 ) : (
                   <img
                     src={article.mediaUrl}
-                    alt={article.title}
+                    alt={title}
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     loading="lazy"
                     onError={(e) => {
@@ -83,7 +85,7 @@ export function RelatedArticles({
                 lang={itemLang}
                 className="mt-1 line-clamp-2 font-serif text-sm font-bold leading-snug text-gray-900 transition-colors group-hover:text-red-700"
               >
-                {article.title}
+                {title}
               </h3>
               <time
                 className="mt-1 block text-xs text-gray-500"

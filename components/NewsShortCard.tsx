@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Article } from "@/types";
 import ImageWithFallback from "@/components/ImageWithFallback";
+import { decodeEntities } from "@/lib/decodeEntities";
 import { formatDateIST } from "@/lib/seo";
 
 interface Props {
@@ -17,9 +18,10 @@ const NewsShortCard = ({ article }: Props) => {
     hour12: true,
   });
 
+  const title = decodeEntities(article.title);
   const cleanDescription = (html: string | null) => {
     if (!html) return "";
-    return html.replace(/<[^>]+>/g, "").slice(0, 250) + "...";
+    return decodeEntities(html.replace(/<[^>]+>/g, "")).slice(0, 250) + "...";
   };
 
   return (
@@ -38,7 +40,7 @@ const NewsShortCard = ({ article }: Props) => {
         {article.mediaUrl ? (
           <ImageWithFallback
             src={article.mediaUrl}
-            alt={article.title}
+            alt={title}
             className="w-full h-full object-cover"
           />
         ) : (
@@ -62,7 +64,7 @@ const NewsShortCard = ({ article }: Props) => {
         {/* Headline */}
         <Link href={`/articles/${article.slug}`}>
           <h2 className="text-[20px] leading-[1.3] font-bold text-gray-900 mb-2 font-serif tracking-tight hover:text-[#ff5722] transition-colors">
-            {article.title}
+            {title}
           </h2>
         </Link>
         

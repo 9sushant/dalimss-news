@@ -22,6 +22,7 @@ import {
   canonicalArticleSlug,
   canonicalAuthorName,
 } from "@/lib/seo";
+import { decodeEntities } from "@/lib/decodeEntities";
 import { setPublicPageCache } from "@/lib/publicCache";
 import { Article } from "@/types";
 
@@ -70,7 +71,7 @@ export default function HindiSectionPage({
         "@type": "ListItem",
         position: (page - 1) * LISTING_PAGE_SIZE + index + 1,
         url: `${SITE_URL}/articles/${canonicalArticleSlug(article.slug)}`,
-        name: article.title,
+        name: decodeEntities(article.title),
       })),
     },
   };
@@ -117,7 +118,9 @@ export default function HindiSectionPage({
         <meta name="twitter:description" content={PAGE_DESCRIPTION} />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(collectionSchema).replace(/</g, "\\u003c"),
+          }}
         />
       </Head>
 

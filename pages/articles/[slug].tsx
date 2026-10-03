@@ -11,6 +11,28 @@ const getDefault = (m: any) =>
 const ReactMarkdown = getDefault(RMarkdownModule);
 const rehypeRaw = getDefault(rRawModule);
 
+function rehypeDecodeEntities() {
+  const walk = (node: {
+    type?: string;
+    value?: string;
+    children?: unknown[];
+  }) => {
+    if (!node || typeof node !== "object") return;
+    if (node.type === "text" && typeof node.value === "string") {
+      node.value = decodeEntities(node.value);
+    }
+    if (Array.isArray(node.children)) {
+      for (const child of node.children) {
+        walk(child as { type?: string; value?: string; children?: unknown[] });
+      }
+    }
+  };
+
+  return (tree: { type?: string; value?: string; children?: unknown[] }) => {
+    walk(tree);
+  };
+}
+
 interface MediaItem {
   url: string;
   type: "image" | "video";
@@ -86,6 +108,7 @@ import {
   getAuthorPublicationStats,
   type AuthorPublicationStats,
 } from "@/lib/authorStats";
+import { decodeEntities } from "@/lib/decodeEntities";
 import { hreflangLinks } from "@/lib/hreflang";
 import Image from "next/image";
 import ArticleLeadImage from "@/components/ArticleLeadImage";
@@ -160,6 +183,10 @@ const ArticlePage: React.FC<Props> = ({
 
   const articleSlug = canonicalArticleSlug(article.slug);
   const canonicalUrl = `${SITE_URL}/articles/${articleSlug}`;
+  const plainTitle = decodeEntities(article.title);
+  const plainAlt = decodeEntities(article.imageAltText || article.title);
+  const breadcrumbTitle =
+    plainTitle.length > 60 ? `${plainTitle.slice(0, 57)}...` : plainTitle;
   const seoTitle = stripForMeta(article.metaTitle || article.title, 70);
   const isHindi = article.language === "hi";
   const categoryTags = categories.filter((category, index, list) => {
@@ -188,7 +215,7 @@ const ArticlePage: React.FC<Props> = ({
       lang={article.language === "hi" ? "hi" : "en"}
     >
       <Head>
-        <title>{article.metaTitle ? seoTitle : `${article.title} | Dalimss News`}</title>
+        <title>{article.metaTitle ? seoTitle : `${plainTitle} | Dalimss News`}</title>
         <meta name="description" content={seoDescription} />
         <link rel="canonical" href={canonicalUrl} />
         {alternates.map((alternate) => (
@@ -213,7 +240,7 @@ const ArticlePage: React.FC<Props> = ({
         <meta property="og:image:secure_url" content={ogImageUrl} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content={article.imageAltText || article.title} />
+        <meta property="og:image:alt" content={plainAlt} />
         <meta property="og:locale" content={article.language === "hi" ? "hi_IN" : "en_IN"} />
         
         {/* Article specific Meta tags */}
@@ -255,7 +282,7 @@ const ArticlePage: React.FC<Props> = ({
                 href: `/category/${breadcrumbCategory.slug}`,
               }]
             : []),
-          { name: article.title.length > 60 ? article.title.slice(0, 57) + "..." : article.title, href: `/articles/${articleSlug}` },
+          { name: breadcrumbTitle, href: `/articles/${articleSlug}` },
         ]}
       />
 
@@ -308,7 +335,7 @@ const ArticlePage: React.FC<Props> = ({
           </div>
         )}
         <h1 className="mb-3 font-serif text-4xl font-bold leading-tight text-gray-900 md:text-[2.6rem] md:leading-[1.15]">
-          {article.title}
+          {plainTitle}
         </h1>
         {isOpinion && (
           <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
@@ -360,7 +387,7 @@ const ArticlePage: React.FC<Props> = ({
           <div className="ml-auto shrink-0">
             <ShareButton
               url={`/articles/${articleSlug}`}
-              title={article.title}
+              title={plainTitle}
               variant="full"
             />
           </div>
@@ -401,13 +428,13 @@ const ArticlePage: React.FC<Props> = ({
               ) : (
                 <ArticleLeadImage
                   src={item.url}
-                  alt={article.imageAltText || article.title}
+                  alt={plainAlt}
                   priority
                 />
               )}
               {item.type === "image" && article.imageCaption && (
                 <figcaption className="mt-3 text-sm leading-relaxed text-gray-500">
-                  {article.imageCaption}
+                  {decodeEntities(article.imageCaption)}
                 </figcaption>
               )}
             </figure>
@@ -432,8 +459,8 @@ const ArticlePage: React.FC<Props> = ({
                       src={item.url}
                       alt={
                         idx === 0 && article.imageAltText
-                          ? article.imageAltText
-                          : `${article.title} - image ${idx + 1}`
+                          ? plainAlt
+                          : `${plainTitle} - image ${idx + 1}`
                       }
                       width={1536}
                       height={1024}
@@ -454,8 +481,8 @@ const ArticlePage: React.FC<Props> = ({
                       className="h-full max-h-[400px] w-full object-cover"
                       alt={
                         idx === 0 && article.imageAltText
-                          ? article.imageAltText
-                          : `${article.title} - image ${idx + 1}`
+                          ? plainAlt
+                          : `${plainTitle} - image ${idx + 1}`
                       }
                       loading={idx === 0 ? "eager" : "lazy"}
                     />
@@ -465,7 +492,7 @@ const ArticlePage: React.FC<Props> = ({
             </div>
             {article.imageCaption && (
               <figcaption className="mt-3 text-sm leading-relaxed text-gray-500">
-                {article.imageCaption}
+                {decodeEntities(article.imageCaption)}
               </figcaption>
             )}
           </figure>
@@ -475,7 +502,7 @@ const ArticlePage: React.FC<Props> = ({
       <div className="article-body prose max-w-none text-gray-800">
         {ReactMarkdown ? (
           <ReactMarkdown
-            rehypePlugins={[rehypeRaw]}
+            rehypePlugins={[rehypeRaw, rehypeDecodeEntities]}
             components={{
               p: ({ children }: any) => {
                 let text = "";
@@ -594,8 +621,10 @@ const ArticlePage: React.FC<Props> = ({
           </ReactMarkdown>
         ) : (
           <pre>
-            {article.content ||
-              (isHindi ? "सामग्री उपलब्ध नहीं है." : "No content available.")}
+            {decodeEntities(
+              article.content ||
+                (isHindi ? "सामग्री उपलब्ध नहीं है." : "No content available.")
+            )}
           </pre>
         )}
       </div>
@@ -707,6 +736,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     }
   } catch (err) {
     console.error("DB ERROR:", err);
+    throw err;
   }
 
   if (article?.customAuthor) {
