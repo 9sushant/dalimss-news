@@ -31,6 +31,7 @@ const HIDDEN_AUTHOR_SLUGS = new Set([
   "sushant-gaurav",
   "sushant-gauarav",
   "priyanka-kapoor",
+  "priyanak-kapoor",
   "gaurav-singh",
   "dalimss-editorial-team",
   "siddhart-srivastava",

@@ -16,17 +16,32 @@ const AUTHOR_NAME_CORRECTIONS: Record<string, string> = {
   "dalimss news desk": "Dalimss News Desk",
   "dalimss news desks": "Dalimss News Desk",
   "maahr madhok": "Maahir Madhok",
+  "priyanak kapoor": "Priyanka Kapoor",
+  "saura yadav": "Saurav Yadav",
+  "siddhart srivastava": "Siddharth Srivastava",
+  "sidharth srivastava": "Siddharth Srivastava",
+  "sushant gauarav": "Sushant Gaurav",
 };
+
+function knownAuthorSpelling(normalizedName: string): string | undefined {
+  const key = normalizedName.toLowerCase();
+  const corrected = AUTHOR_NAME_CORRECTIONS[key];
+  if (corrected) return corrected;
+  return Object.values(AUTHOR_NAME_CORRECTIONS).find(
+    (correctedName) => correctedName.toLowerCase() === key
+  );
+}
 
 export function canonicalAuthorName(name: string): string {
   const normalizedName = name.trim().replace(/\s+/g, " ");
-  return AUTHOR_NAME_CORRECTIONS[normalizedName.toLowerCase()] || normalizedName;
+  return knownAuthorSpelling(normalizedName) || normalizedName;
 }
 
 export function authorNameVariants(name: string): string[] {
   const canonicalName = canonicalAuthorName(name);
+  const canonicalKey = canonicalName.toLowerCase();
   const aliases = Object.entries(AUTHOR_NAME_CORRECTIONS)
-    .filter(([, correctedName]) => correctedName === canonicalName)
+    .filter(([, correctedName]) => correctedName.toLowerCase() === canonicalKey)
     .map(([alias]) =>
       alias.replace(/\b\w/g, (character) => character.toUpperCase())
     );

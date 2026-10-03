@@ -9,6 +9,7 @@ import {
   SITE_URL,
   absoluteImageUrl,
   canonicalArticleSlug,
+  canonicalAuthorName,
   stripForMeta,
 } from "@/lib/seo";
 import { cdata, xmlEscape } from "@/lib/xml";
@@ -97,7 +98,9 @@ export async function buildRssFeed(options?: {
   const items = (articles as FeedArticle[])
     .map((article) => {
       const articleUrl = `${SITE_URL}/articles/${canonicalArticleSlug(article.slug)}`;
-      const author = article.customAuthor || "Dalimss News Desk";
+      const author = canonicalAuthorName(
+        article.customAuthor || "Dalimss News Desk"
+      );
       const matchedCategory = getCategoryByDbValue(article.category || "");
       const section =
         (options?.language === "hi" && matchedCategory?.nameHi) ||
