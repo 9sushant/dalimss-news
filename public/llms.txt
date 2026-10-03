@@ -13,6 +13,7 @@ Dalimss News is an Indian digital news publication specialising in Varanasi, Eas
 - Uttar Pradesh: https://dalimss.news/category/uttar-pradesh
 - Education: https://dalimss.news/category/education
 - Technology: https://dalimss.news/category/technology
+- Automotive: https://dalimss.news/category/automotive
 - OTT: https://dalimss.news/ott
 - Hindi News: https://dalimss.news/hindi
 
