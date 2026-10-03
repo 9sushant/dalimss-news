@@ -117,12 +117,18 @@ export default function AuthorPage({
           "@id": ORGANIZATION_ID,
         },
     ...(curated?.jobTitle ? { jobTitle: curated.jobTitle } : {}),
-    ...(curated?.alumniOf
+    ...(curated?.alumniOf && curated.alumniOf.length > 0
       ? {
-          alumniOf: {
-            "@type": "CollegeOrUniversity",
-            name: curated.alumniOf,
-          },
+          alumniOf:
+            curated.alumniOf.length === 1
+              ? {
+                  "@type": "CollegeOrUniversity",
+                  name: curated.alumniOf[0],
+                }
+              : curated.alumniOf.map((school) => ({
+                  "@type": "CollegeOrUniversity",
+                  name: school,
+                })),
         }
       : {}),
     knowsAbout: beats,
