@@ -26,6 +26,88 @@ body {
     --font-serif-devanagari: var(--font-noto-serif-devanagari);
 }
 
+::selection {
+    background: #fde8e8;
+    color: #111827;
+}
+
+a {
+    text-underline-offset: 0.18em;
+}
+
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible {
+    outline: 2px solid #b91c1c;
+    outline-offset: 3px;
+}
+
+.skip-link {
+    position: absolute;
+    left: 1rem;
+    top: 0.75rem;
+    z-index: 200;
+    transform: translateY(-150%);
+    border-radius: 0.375rem;
+    background: #ffffff;
+    color: #111827;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.25rem;
+    padding: 0.75rem 1rem;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.12);
+}
+
+.skip-link:focus {
+    transform: none;
+}
+
+#main-content:focus {
+    outline: none;
+}
+
+.article-body.prose p {
+    line-height: 1.75;
+}
+
+.article-body.prose h2 {
+    font-family: var(--font-lora), var(--font-serif-devanagari), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.article-body.prose a {
+    text-decoration-line: underline;
+    text-underline-offset: 0.18em;
+    text-decoration-thickness: 1px;
+}
+
+@media (min-width: 768px) {
+    .article-body.prose p {
+        font-size: 1.125rem;
+        line-height: 1.75;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
 .podcast-range {
     height: 4px;
     cursor: pointer;

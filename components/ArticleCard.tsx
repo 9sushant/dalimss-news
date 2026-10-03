@@ -26,9 +26,9 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
   // Horizontal Card (Image Left, Content Right)
   if (variant === 'horizontal') {
     return (
-      <div className="group flex gap-4 py-4 border-b border-gray-200">
+      <div className="group flex gap-4 border-b border-gray-200 py-5 last:border-b-0">
         {article.mediaUrl && (
-          <div className="flex-shrink-0 w-32 h-24 md:w-48 md:h-32 overflow-hidden rounded-md relative">
+          <div className="relative aspect-[3/2] w-32 shrink-0 overflow-hidden rounded-lg bg-gray-100 md:w-48">
              <ArticleMediaPreview
                 src={article.mediaUrl}
                 mediaType={article.mediaType}
@@ -39,7 +39,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
               />
           </div>
         )}
-        <div className="flex flex-col justify-between">
+        <div className="flex min-w-0 flex-col justify-between">
           <Link href={`/articles/${articleSlug}`}>
             <h3 lang={titleLang} className="text-lg md:text-xl font-serif font-bold text-gray-900 leading-tight group-hover:text-[#E21B22] transition-colors">
               {article.title}
@@ -49,7 +49,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
             {snippet}
           </p>
           <div className="mt-2 flex items-center justify-between">
-            <time dateTime={article.createdAt} className="text-xs text-gray-400 uppercase font-semibold">
+            <time dateTime={article.createdAt} className="text-xs font-semibold uppercase text-gray-500">
               {formattedDate}
             </time>
             <ShareButton 
@@ -68,12 +68,12 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
     return (
       <div className="group py-3 border-b border-gray-100 last:border-0">
         <Link href={`/articles/${articleSlug}`} className="block">
-          <h4 lang={titleLang} className="text-sm md:text-base font-medium text-gray-800 group-hover:text-[#E21B22] leading-snug">
+          <h4 lang={titleLang} className="font-serif text-sm font-bold leading-snug text-gray-900 group-hover:text-[#E21B22] md:text-base">
             {article.title}
           </h4>
         </Link>
         <div className="flex items-center justify-between mt-1">
-          <time dateTime={article.createdAt} className="text-xs text-gray-400">
+          <time dateTime={article.createdAt} className="text-xs text-gray-500">
             {formattedDate}
           </time>
           <ShareButton 
@@ -88,9 +88,9 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
 
   // Default Vertical Card
   return (
-    <div className="group flex flex-col h-full border border-gray-100 rounded-lg overflow-hidden bg-white hover:shadow-md transition-shadow">
+    <div className="group flex h-full flex-col overflow-hidden rounded-lg border border-gray-200 bg-white transition-shadow hover:shadow-md">
       {article.mediaUrl && (
-        <div className="w-full h-48 overflow-hidden relative">
+        <div className="relative aspect-[3/2] w-full overflow-hidden bg-gray-100">
           <ArticleMediaPreview
             src={article.mediaUrl}
             mediaType={article.mediaType}
@@ -110,7 +110,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
         <p className="text-sm text-gray-600 line-clamp-3 mb-4 flex-grow">
           {snippet}
         </p>
-        <div className="flex items-center justify-between text-xs text-gray-500 border-t border-gray-100 pt-3">
+          <div className="flex items-center justify-between border-t border-gray-100 pt-3 text-xs text-gray-500">
           <div className="flex items-center gap-2">
             <time dateTime={article.createdAt}>
               {formattedDate}

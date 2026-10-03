@@ -23,14 +23,13 @@ const HOME_TITLE = "Dalimss News | Varanasi, Gurugram and India News";
 const SITE_URL = "https://dalimss.news";
 
 const SectionHeader = ({ title, href }: { title: string; href?: string }) => (
-  <div className="flex items-center justify-between border-b border-gray-200 pb-2 mb-4">
-    <h2 className="text-xl md:text-2xl font-bold font-serif text-black uppercase tracking-tight relative">
-      <span className="relative z-10 pr-4 bg-white">{title}</span>
-      <span className="absolute bottom-0 left-0 w-full h-[1px] bg-red-600 transform translate-y-[1px]"></span>
+  <div className="mb-5 flex items-end justify-between border-b border-gray-200">
+    <h2 className="border-b-2 border-red-600 pb-2 font-serif text-lg font-bold uppercase tracking-[0.08em] text-gray-900 md:text-xl">
+      {title}
     </h2>
     {href && (
-      <Link href={href} className="text-xs font-bold text-red-600 hover:text-red-700 uppercase flex items-center">
-        View All <ChevronRightIcon className="h-3 w-3 ml-1" />
+      <Link href={href} className="mb-2 flex items-center text-xs font-bold uppercase tracking-wide text-red-700 hover:text-red-800">
+        View All <ChevronRightIcon className="ml-1 h-3 w-3" />
       </Link>
     )}
   </div>
@@ -128,8 +127,11 @@ export default function HomePage({ articles, stories, searchQuery }: Props) {
 
   const heroArticle = articles[0];
   const topStories = articles.slice(1, 5);
-  // 🔥 UPDATED: Use newsList for pagination
-  const latestNews = newsList; 
+  // Keep the full list for pagination. Skip only the first row when it repeats the hero.
+  const latestNews =
+    newsList[0] && heroArticle && newsList[0].id === heroArticle.id
+      ? newsList.slice(1)
+      : newsList; 
   const sidebarNews = articles.slice(2, 8); // Just reusing for demo
 
   const siteUrl = "https://dalimss.news";
@@ -254,17 +256,17 @@ export default function HomePage({ articles, stories, searchQuery }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
       />
     </Head>
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-6 pt-0">
+    <div className="container mx-auto space-y-10 px-4 py-6 sm:px-6 md:space-y-12 md:py-8 lg:px-8">
         
         {/* WEB STORIES CAROUSEL */}
         {stories && stories.length > 0 && (
-          <section className="mb-8">
+          <section>
             <WebStoriesCarousel stories={stories} />
           </section>
         )}
 
         {/* HERO SECTION */}
-        <section className="mb-12">
+        <section>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
             {/* Main Hero Story */}
@@ -334,7 +336,7 @@ export default function HomePage({ articles, stories, searchQuery }: Props) {
               <SectionHeader 
                 title={searchQuery ? `Search Results: ${searchQuery} (${articles.length})` : "Latest News"} 
               />
-              <div className="flex flex-col gap-6">
+              <div className="flex flex-col">
                 {latestNews.map((article) => (
                   <ArticleCard key={article.id} article={article} variant="horizontal" />
                 ))}

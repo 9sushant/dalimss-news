@@ -4,6 +4,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { formatDateIST } from "@/lib/seo";
+import { getCategoriesByDbValue } from "@/lib/categories";
 import { isOptimizableImageSrc } from "@/lib/optimizableImage";
 
 interface RelatedArticle {
@@ -30,25 +31,32 @@ export function RelatedArticles({
   if (!articles || articles.length === 0) return null;
 
   return (
-    <section className="mt-12 pt-8 border-t border-gray-200">
-      <h2 className="text-xl font-bold font-serif text-gray-900 mb-6 uppercase tracking-tight">
+    <section className="mt-12 border-t border-gray-200 pt-8">
+      <h2 className="mb-5 font-serif text-xl font-bold uppercase tracking-[0.08em] text-gray-900">
         {heading}
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        {articles.map((article) => (
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
+        {articles.map((article) => {
+          const category = getCategoriesByDbValue(article.category)[0];
+          const categoryName =
+            itemLang === "hi" && category?.nameHi
+              ? category.nameHi
+              : category?.name || article.category;
+
+          return (
           <Link
             key={article.id}
             href={`/articles/${article.slug}`}
-            className="group flex gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+            className="group flex gap-4 rounded-lg border border-gray-100 bg-white p-3 transition-colors hover:border-gray-200 hover:bg-gray-50"
           >
             {article.mediaUrl && (
-              <div className="relative h-20 w-24 flex-shrink-0 overflow-hidden rounded-md bg-gray-100">
+              <div className="relative aspect-[3/2] w-28 shrink-0 overflow-hidden rounded-lg bg-gray-100">
                 {isOptimizableImageSrc(article.mediaUrl) ? (
                   <Image
                     src={article.mediaUrl}
                     alt={article.title}
                     fill
-                    sizes="96px"
+                    sizes="112px"
                     quality={70}
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
                   />
@@ -65,20 +73,20 @@ export function RelatedArticles({
                 )}
               </div>
             )}
-            <div className="flex-1 min-w-0">
-              {article.category && (
-                <span className="text-xs font-semibold text-red-600 uppercase tracking-wider">
-                  {article.category}
+            <div className="min-w-0 flex-1">
+              {categoryName && (
+                <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-red-700">
+                  {categoryName}
                 </span>
               )}
               <h3
                 lang={itemLang}
-                className="text-sm font-bold text-gray-900 group-hover:text-red-600 transition-colors line-clamp-2 mt-0.5"
+                className="mt-1 line-clamp-2 font-serif text-sm font-bold leading-snug text-gray-900 transition-colors group-hover:text-red-700"
               >
                 {article.title}
               </h3>
               <time
-                className="text-xs text-gray-400 mt-1 block"
+                className="mt-1 block text-xs text-gray-500"
                 dateTime={article.createdAt}
               >
                 {formatDateIST(article.createdAt, {
@@ -89,7 +97,8 @@ export function RelatedArticles({
               </time>
             </div>
           </Link>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
