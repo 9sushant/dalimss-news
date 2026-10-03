@@ -34,6 +34,61 @@ export function authorNameVariants(name: string): string[] {
   return Array.from(new Set([canonicalName, ...aliases]));
 }
 
+const NEWSROOM_BYLINE_WORDS = new Set([
+  "the",
+  "dalimss",
+  "news",
+  "new",
+  "desk",
+  "desks",
+  "editorial",
+  "team",
+  "staff",
+  "reporter",
+  "writer",
+  "writers",
+  "admin",
+  "administrator",
+  "newsroom",
+  "bureau",
+]);
+
+/**
+ * True for an empty byline or an organisation label such as Dalimss News,
+ * Dalimss Editorial Team, a desk, staff, or admin. Named reporters stay false.
+ */
+export function isNewsroomByline(name: string | null | undefined): boolean {
+  const normalized = canonicalAuthorName(name || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!normalized) return true;
+
+  const tokens = normalized.split(" ");
+  if (tokens.every((token) => NEWSROOM_BYLINE_WORDS.has(token))) return true;
+
+  if (
+    tokens.some(
+      (token) =>
+        token === "admin" ||
+        token === "administrator" ||
+        token === "staff" ||
+        token === "newsroom"
+    )
+  ) {
+    return true;
+  }
+
+  const lastToken = tokens[tokens.length - 1];
+  if (lastToken === "desk" || lastToken === "desks") {
+    const topical = tokens.filter((token) => !NEWSROOM_BYLINE_WORDS.has(token));
+    if (topical.length <= 2 && tokens.length <= 6) return true;
+  }
+
+  return false;
+}
+
 export function canonicalArticleSlug(slug: string): string {
   return ARTICLE_SLUG_REDIRECTS[slug] || slug;
 }

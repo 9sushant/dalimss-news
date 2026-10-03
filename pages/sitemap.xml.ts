@@ -314,7 +314,15 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     ];
   });
 
-  const categoryUrls: UrlEntry[] = CATEGORIES.map((category) => ({
+  // Keep empty category pages out of the sitemap until an English article matches.
+  const categoryUrls: UrlEntry[] = CATEGORIES.filter((category) =>
+    englishArticles.some((article) => {
+      const haystack = (article.category || "").toLowerCase();
+      return category.dbValues.some((value) =>
+        haystack.includes(value.toLowerCase())
+      );
+    })
+  ).map((category) => ({
     loc: absoluteUrl(`/category/${category.slug}`),
     lastmod: categoryLastMod.get(category.slug) || null,
     changefreq: "hourly",

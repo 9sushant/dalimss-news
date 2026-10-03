@@ -41,7 +41,7 @@ const Footer = () => {
               >
                 हिंदी
               </Link>
-              {NAV_CATEGORIES.slice(0, 10).map((cat) => (
+              {NAV_CATEGORIES.slice(0, 11).map((cat) => (
                 <Link
                   key={cat.slug}
                   href={`/category/${cat.slug}`}

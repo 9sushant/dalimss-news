@@ -54,6 +54,7 @@ interface Article {
 interface Props {
   article?: Article | null;
   relatedArticles: RelatedArticleData[];
+  authorStats?: AuthorPublicationStats | null;
 }
 
 import Head from "next/head";
@@ -76,13 +77,22 @@ import {
   articleModifiedAt,
   articleWasMeaningfullyUpdated,
   formatDateIST,
+  isNewsroomByline,
 } from "@/lib/seo";
 import { getCategoriesByDbValue } from "@/lib/categories";
 import { normalizeArticleSources } from "@/lib/articleSources";
 import { getAuthorBox } from "@/lib/authorBoxes";
+import {
+  getAuthorPublicationStats,
+  type AuthorPublicationStats,
+} from "@/lib/authorStats";
 import { hreflangLinks } from "@/lib/hreflang";
 
-const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
+const ArticlePage: React.FC<Props> = ({
+  article,
+  relatedArticles,
+  authorStats = null,
+}) => {
   const { data: session } = useSession();
   
   if (!article) {
@@ -137,11 +147,13 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
   const authorName = canonicalAuthorName(
     article.customAuthor || "Dalimss News Desk"
   );
-  const authorPath = article.customAuthor
+  const hasNamedByline = Boolean(article.customAuthor?.trim());
+  const newsroomByline = !hasNamedByline || isNewsroomByline(authorName);
+  const authorPath = hasNamedByline
     ? `/author/${authorSlug(authorName)}`
     : "/authors";
   const authorUrl = `${SITE_URL}${authorPath}`;
-  const authorBox = isOpinion ? getAuthorBox(authorName) : null;
+  const curatedAuthor = newsroomByline ? null : getAuthorBox(authorName);
 
   const articleSlug = canonicalArticleSlug(article.slug);
   const canonicalUrl = `${SITE_URL}/articles/${articleSlug}`;
@@ -212,7 +224,7 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
       <ArticleJsonLd
         article={article}
         authorUrl={authorUrl}
-        authorProfile={authorBox}
+        authorProfile={curatedAuthor}
         description={seoDescription}
       />
 
@@ -539,7 +551,22 @@ const ArticlePage: React.FC<Props> = ({ article, relatedArticles }) => {
         )}
       </div>
 
-      {authorBox && <AuthorBox author={authorBox} />}
+      {!newsroomByline && (
+        <AuthorBox
+          author={curatedAuthor}
+          language={article.language}
+          fallback={
+            curatedAuthor
+              ? null
+              : {
+                  name: authorName,
+                  href: authorPath,
+                  storyCount: authorStats?.storyCount ?? null,
+                  topCategory: authorStats?.topCategory ?? null,
+                }
+          }
+        />
+      )}
 
       {(article.reportingBasis || visibleSources.length > 0) && (
         <section className="mt-8 pt-5 border-t border-gray-200 text-sm text-gray-600">
@@ -592,6 +619,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   let article = null;
   let relatedArticles: any[] = [];
+  let authorStats: AuthorPublicationStats | null = null;
 
   try {
     article = await prisma.article.findFirst({
@@ -632,6 +660,20 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     console.error("DB ERROR:", err);
   }
 
+  if (article?.customAuthor) {
+    const statsName = canonicalAuthorName(article.customAuthor);
+    if (statsName && !isNewsroomByline(statsName) && !getAuthorBox(statsName)) {
+      try {
+        authorStats = await getAuthorPublicationStats(
+          statsName,
+          article.language
+        );
+      } catch (err) {
+        console.error("Author stats query failed:", err);
+      }
+    }
+  }
+
   if (!article) {
     return {
       notFound: true,
@@ -663,6 +705,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
           }))
         )
       ),
+      authorStats,
     },
     revalidate: 60,
   };
