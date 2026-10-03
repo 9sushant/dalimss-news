@@ -1,27 +1,21 @@
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Article } from "@/types";
 import ImageWithFallback from "@/components/ImageWithFallback";
+import { formatDateIST } from "@/lib/seo";
 
 interface Props {
   article: Article;
 }
 
 const NewsShortCard = ({ article }: Props) => {
-  const [formattedDate, setFormattedDate] = useState<string>('');
-
-  // Format date on client-side only to prevent hydration mismatch
-  useEffect(() => {
-    setFormattedDate(
-      new Date(article.createdAt).toLocaleDateString("en-IN", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    );
-  }, [article.createdAt]);
+  const formattedDate = formatDateIST(article.createdAt, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
 
   const cleanDescription = (html: string | null) => {
     if (!html) return "";

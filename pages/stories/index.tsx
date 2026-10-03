@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import prisma from "@/lib/prisma";
 import ImageWithFallback from "@/components/ImageWithFallback";
+import { formatDateIST } from "@/lib/seo";
 
 interface StoryPage {
   id: number;
@@ -117,8 +118,8 @@ export default function StoriesPage({ stories }: Props) {
                       <h3 className="text-white text-sm md:text-base font-bold leading-tight line-clamp-2 mb-2">
                         {story.title}
                       </h3>
-                      <p className="text-white/60 text-xs" suppressHydrationWarning>
-                        {new Date(story.createdAt).toLocaleDateString("en-IN", {
+                      <p className="text-white/60 text-xs">
+                        {formatDateIST(story.createdAt, {
                           day: "numeric",
                           month: "short",
                           year: "numeric",

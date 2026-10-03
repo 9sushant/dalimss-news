@@ -11,6 +11,7 @@ import {
   SITE_NAME,
   absoluteImageUrl,
   canonicalAuthorName,
+  formatDateIST,
 } from "@/lib/seo";
 import { getCategoryBySlug, Category } from "@/lib/categories";
 import { englishArticleWhere } from "@/lib/articleLanguage";
@@ -29,26 +30,11 @@ export default function CategoryPage({ category, articles, totalCount }: Props) 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(articles.length >= ARTICLES_PER_PAGE);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [heroDate, setHeroDate] = useState<string>("");
-
   // Sync when initial props change (navigation)
   useEffect(() => {
     setArticleList(articles);
     setPage(1);
     setHasMore(articles.length >= ARTICLES_PER_PAGE);
-  }, [articles]);
-
-  // Format hero date client-side to avoid hydration mismatch
-  useEffect(() => {
-    if (articles.length > 0) {
-      setHeroDate(
-        new Date(articles[0].createdAt).toLocaleDateString("en-IN", {
-          month: "long",
-          day: "numeric",
-          year: "numeric",
-        })
-      );
-    }
   }, [articles]);
 
   const loadMore = async () => {
@@ -219,15 +205,13 @@ export default function CategoryPage({ category, articles, totalCount }: Props) 
                           <span className="text-red-600 mr-2">
                             {category.name}
                           </span>
-                          <time
-                            dateTime={heroArticle.createdAt}
-                            suppressHydrationWarning
-                          >
+                          <time dateTime={heroArticle.createdAt}>
                             •{" "}
-                            {heroDate ||
-                              new Date(
-                                heroArticle.createdAt
-                              ).toLocaleDateString("en-IN")}
+                            {formatDateIST(heroArticle.createdAt, {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            })}
                           </time>
                         </div>
                       </div>

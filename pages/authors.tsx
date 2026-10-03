@@ -2,7 +2,15 @@ import Head from "next/head";
 import Link from "next/link";
 import { GetServerSideProps } from "next";
 import prisma from "@/lib/prisma";
-import { authorSlug, canonicalAuthorName } from "@/lib/seo";
+import {
+  DEFAULT_OG_IMAGE,
+  ORGANIZATION_ID,
+  SITE_NAME,
+  SITE_URL,
+  WEBSITE_ID,
+  authorSlug,
+  canonicalAuthorName,
+} from "@/lib/seo";
 
 interface Author {
   name: string;
@@ -38,15 +46,51 @@ const HIDDEN_AUTHOR_SLUGS = new Set([
 ]);
 
 export default function Authors({ authors }: AuthorsProps) {
+  const pageTitle = `Newsroom & Published Contributors | ${SITE_NAME}`;
+  const pageDescription =
+    "View the named contributors represented in Dalimss News bylines and explore their published reporting.";
+  const canonicalUrl = `${SITE_URL}/authors`;
+  const collectionSchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: pageTitle,
+    description: pageDescription,
+    url: canonicalUrl,
+    isPartOf: { "@id": WEBSITE_ID },
+    publisher: { "@id": ORGANIZATION_ID },
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: authors.length,
+      itemListElement: authors.map((author, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: author.name,
+        url: `${SITE_URL}/author/${authorSlug(author.name)}`,
+      })),
+    },
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
       <Head>
-        <title>Newsroom & Published Contributors | Dalimss News</title>
-        <meta
-          name="description"
-          content="View the named contributors represented in Dalimss News bylines and explore their published reporting."
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content={SITE_NAME} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content={DEFAULT_OG_IMAGE} />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:site" content="@dalimss_news" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDescription} />
+        <meta name="twitter:image" content={DEFAULT_OG_IMAGE} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
         />
-        <link rel="canonical" href="https://dalimss.news/authors" />
       </Head>
 
       <main className="container mx-auto px-4 py-12 max-w-4xl">

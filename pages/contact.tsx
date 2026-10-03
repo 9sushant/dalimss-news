@@ -3,13 +3,19 @@ import Head from "next/head";
 import Link from "next/link";
 import {
   EnvelopeIcon,
-  MapPinIcon,
   PhoneIcon,
   PaperAirplaneIcon,
   ChatBubbleLeftRightIcon,
   ClockIcon,
   NewspaperIcon,
 } from "@heroicons/react/24/outline";
+import {
+  ORGANIZATION_ADDRESS,
+  ORGANIZATION_ID,
+  ORGANIZATION_LANGUAGES,
+  SITE_NAME,
+  SITE_URL,
+} from "@/lib/seo";
 
 const contactCards = [
   {
@@ -27,14 +33,6 @@ const contactCards = [
     value: "+91 63927 52976",
     href: "tel:+916392752976",
     action: "Call Now",
-  },
-  {
-    icon: MapPinIcon,
-    title: "Visit Us",
-    description: "Our office location",
-    value: "Varanasi, Uttar Pradesh, India – 221001",
-    href: "https://maps.google.com/?q=Varanasi,+Uttar+Pradesh",
-    action: "View Map",
   },
 ];
 
@@ -62,6 +60,22 @@ const faqItems = [
 ];
 
 const ContactPage: React.FC = () => {
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "NewsMediaOrganization",
+    "@id": ORGANIZATION_ID,
+    name: SITE_NAME,
+    url: `${SITE_URL}/`,
+    email: "editor@dalimss.news",
+    address: ORGANIZATION_ADDRESS,
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "editorial",
+      email: "editor@dalimss.news",
+      telephone: "+91-6392752976",
+      availableLanguage: ORGANIZATION_LANGUAGES,
+    },
+  };
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -111,6 +125,10 @@ const ContactPage: React.FC = () => {
           property="og:description"
           content="Contact Dalimss News - Get in touch with us for news tips, feedback, and inquiries."
         />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
       </Head>
 
       {/* Hero Section */}
@@ -142,7 +160,7 @@ const ContactPage: React.FC = () => {
       {/* Contact Cards */}
       <section className="py-12 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
             {contactCards.map((card, index) => {
               const Icon = card.icon;
               return (
@@ -174,6 +192,9 @@ const ContactPage: React.FC = () => {
               );
             })}
           </div>
+          <p className="max-w-5xl mx-auto mt-8 text-center text-gray-700">
+            Newsroom: Gurugram, Haryana (headquarters). Bureau: Varanasi, Uttar Pradesh.
+          </p>
         </div>
       </section>
 

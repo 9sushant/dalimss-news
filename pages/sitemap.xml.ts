@@ -9,6 +9,7 @@ import {
   authorSlug,
   canonicalArticleSlug,
   canonicalAuthorName,
+  articleModifiedAt,
 } from "@/lib/seo";
 import { LISTING_PAGE_SIZE, listingPath } from "@/lib/pagination";
 import { activeStoryWhere } from "@/lib/storyLifetime";
@@ -88,10 +89,12 @@ function isAllowedSitemapLoc(loc: string): boolean {
   if (path === "/llms.txt" || path.endsWith("/feed.xml") || path === "/feed.xml") {
     return false;
   }
+  if (path === "/search" || path.startsWith("/search/")) return false;
   if (!query) return true;
+  if (/(^|&)search=/.test(query)) return false;
   return (
     /^page=([2-9]|[1-9]\d+)$/.test(query) &&
-    (path === "/articles" || path === "/hindi" || path.startsWith("/author/"))
+    (path === "/articles" || path === "/hindi")
   );
 }
 
@@ -102,8 +105,6 @@ function renderUrl(entry: UrlEntry): string {
   return `
       <url>
         <loc>${xmlEscape(entry.loc)}</loc>${lastmod}
-        <changefreq>${xmlEscape(entry.changefreq)}</changefreq>
-        <priority>${xmlEscape(entry.priority)}</priority>
       </url>`;
 }
 
@@ -184,7 +185,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     if (existing && !canonical) continue;
     articleUrls.set(loc, {
       loc,
-      lastmod: article.lastmod,
+      lastmod: articleModifiedAt(article.createdAt, article.updatedAt),
       changefreq: "daily",
       priority: "0.8",
       canonical,
@@ -279,13 +280,14 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     const ordered = [...rows].sort(
       (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
     );
-    return listingEntries(
+    const [firstPage] = listingEntries(
       `/author/${slug}`,
       ordered,
       ordered.length,
       "weekly",
       "0.5"
     );
+    return firstPage ? [firstPage] : [];
   });
 
   const storyUrls: UrlEntry[] = stories.flatMap((story) => {

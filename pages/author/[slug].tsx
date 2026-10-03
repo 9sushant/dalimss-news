@@ -12,6 +12,7 @@ import {
   authorSlug,
   canonicalAuthorName,
   authorNameVariants,
+  formatDateIST,
 } from "@/lib/seo";
 import { getCategoriesByDbValue } from "@/lib/categories";
 import prisma from "@/lib/prisma";
@@ -266,13 +267,10 @@ export default function AuthorPage({
                 {firstPublished && (
                   <div className="bg-gray-100 text-gray-600 px-4 py-2 rounded-full">
                     {hindiPage ? "लेखन शुरू: " : "Writing since "}
-                    {new Date(firstPublished).toLocaleDateString(
-                      hindiPage ? "hi-IN" : "en-IN",
-                      {
-                        month: "long",
-                        year: "numeric",
-                      }
-                    )}
+                    {formatDateIST(firstPublished, {
+                      month: "long",
+                      year: "numeric",
+                    })}
                   </div>
                 )}
                 <Link

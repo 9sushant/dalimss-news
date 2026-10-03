@@ -11,6 +11,8 @@ import {
   toISOWithTZ,
   stripForMeta,
   canonicalAuthorName,
+  articleMetaDescription,
+  articleModifiedAt,
 } from "@/lib/seo";
 import { normalizeArticleSources } from "@/lib/articleSources";
 import type { AuthorBoxProfile } from "@/lib/authorBoxes";
@@ -35,12 +37,14 @@ interface ArticleJsonLdProps {
   };
   authorUrl?: string;
   authorProfile?: AuthorBoxProfile | null;
+  description?: string;
 }
 
 export function ArticleJsonLd({
   article,
   authorUrl,
   authorProfile,
+  description: descriptionOverride,
 }: ArticleJsonLdProps) {
   const url = `${SITE_URL}/articles/${canonicalArticleSlug(article.slug)}`;
   const imageUrl = absoluteImageUrl(article.mediaUrl);
@@ -57,10 +61,10 @@ export function ArticleJsonLd({
       : []),
   ];
 
-  const description = stripForMeta(
-    article.metaDescription || article.excerpt || article.content || "",
-    160
-  );
+  const description = descriptionOverride ?? articleMetaDescription(article);
+  const modifiedAt =
+    articleModifiedAt(article.createdAt, article.updatedAt) ||
+    new Date(article.createdAt);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -73,7 +77,7 @@ export function ArticleJsonLd({
     description,
     image: imageUrl ? [imageUrl] : [],
     datePublished: toISOWithTZ(article.createdAt),
-    dateModified: toISOWithTZ(article.updatedAt || article.createdAt),
+    dateModified: toISOWithTZ(modifiedAt),
     inLanguage: article.language === "hi" ? "hi" : "en-IN",
     articleSection: article.category || "News",
     isAccessibleForFree: true,

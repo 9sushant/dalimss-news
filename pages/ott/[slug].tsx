@@ -17,6 +17,7 @@ import {
   socialPreviewImageUrl,
   stripForMeta,
   toISO8601Duration,
+  formatDateIST,
 } from "@/lib/seo";
 import {
   PodcastEpisodeData,
@@ -51,10 +52,11 @@ export default function PodcastEpisodePage({
     session?.user?.role === "editor" ||
     EDITOR_EMAILS.has(session?.user?.email || "");
   const canonicalUrl = `${SITE_URL}/ott/${episode.slug}`;
-  const publishedDate = new Date(episode.publishedAt).toLocaleDateString(
-    "en-IN",
-    { day: "numeric", month: "long", year: "numeric" }
-  );
+  const publishedDate = formatDateIST(episode.publishedAt, {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
   const displayShowName =
     episode.showName === "Dalimss News Podcasts"
       ? "Dalimss News OTT"

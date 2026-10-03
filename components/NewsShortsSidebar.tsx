@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Article } from "@/types";
+import { formatDateIST } from "@/lib/seo";
 
 interface Props {
   articles: Article[];
@@ -9,8 +10,6 @@ interface Props {
 const NewsShortsSidebar = ({ articles }: Props) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [formattedDate, setFormattedDate] = useState<string>('');
-
   // Auto-slide every 5 seconds
   useEffect(() => {
     if (articles.length <= 1) return;
@@ -21,21 +20,6 @@ const NewsShortsSidebar = ({ articles }: Props) => {
 
     return () => clearInterval(interval);
   }, [articles.length, currentIndex]);
-
-  // Format date on client-side only to prevent hydration mismatch
-  useEffect(() => {
-    if (articles && articles.length > 0 && articles[currentIndex]) {
-      setFormattedDate(
-        new Date(articles[currentIndex].createdAt).toLocaleDateString("en-IN", {
-          day: "numeric",
-          month: "short",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        })
-      );
-    }
-  }, [articles, currentIndex]);
 
   const handleNext = () => {
     setIsAnimating(true);
@@ -146,7 +130,14 @@ const NewsShortsSidebar = ({ articles }: Props) => {
                   {currentArticle.category || "News"}
                 </span>
                 <span className="text-[11px] text-gray-500 font-medium">
-                  {formattedDate}
+                  {formatDateIST(currentArticle.createdAt, {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                    hour12: true,
+                  })}
                 </span>
               </div>
 
