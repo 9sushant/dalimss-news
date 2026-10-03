@@ -170,21 +170,24 @@ export default function CategoryPage({ category, articles, totalCount }: Props) 
                   <div className="lg:col-span-8">
                     <div className="h-full border border-gray-100 rounded-lg overflow-hidden group bg-white hover:shadow-md transition-shadow">
                       {heroArticle.mediaUrl && (
-                        <div className="w-full h-64 md:h-[450px] bg-black overflow-hidden relative">
+                        <div className="relative h-64 w-full overflow-hidden bg-black md:h-[450px]">
                           {heroArticle.mediaType !== "video" && (
                             <div
-                              className="absolute inset-0 bg-cover bg-center opacity-50 blur-xl scale-110"
+                              className="absolute inset-0 hidden scale-110 bg-cover bg-center opacity-50 blur-xl md:block"
                               style={{
                                 backgroundImage: `url(${heroArticle.mediaUrl})`,
                               }}
+                              aria-hidden="true"
                             />
                           )}
                           <ArticleMediaPreview
                             src={heroArticle.mediaUrl}
                             mediaType={heroArticle.mediaType}
                             alt={heroArticle.title}
-                            loading="eager"
-                            className="relative z-10 w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+                            priority={heroArticle.mediaType !== "video"}
+                            sizes="(max-width: 768px) 100vw, 768px"
+                            quality={70}
+                            className="z-10 object-contain transition-transform duration-700 group-hover:scale-105"
                           />
                         </div>
                       )}

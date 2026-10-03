@@ -87,6 +87,7 @@ import {
   type AuthorPublicationStats,
 } from "@/lib/authorStats";
 import { hreflangLinks } from "@/lib/hreflang";
+import ArticleLeadImage from "@/components/ArticleLeadImage";
 
 const ArticlePage: React.FC<Props> = ({
   article,
@@ -213,11 +214,6 @@ const ArticlePage: React.FC<Props> = ({
         <meta name="twitter:title" content={seoTitle} />
         <meta name="twitter:description" content={seoDescription} />
         <meta name="twitter:image" content={ogImageUrl} />
-        
-        {/* Preload hero image for better LCP */}
-        {article.mediaUrl && (
-          <link rel="preload" as="image" href={article.mediaUrl} />
-        )}
       </Head>
 
       {/* JSON-LD Structured Data */}
@@ -375,13 +371,10 @@ const ArticlePage: React.FC<Props> = ({
                   onError={(e) => (e.currentTarget.style.display = "none")}
                 />
               ) : (
-                <img
+                <ArticleLeadImage
                   src={item.url}
-                  className="rounded-md w-full"
-                    alt={article.imageAltText || article.title}
-                  width={1200}
-                  height={630}
-                  onError={(e) => (e.currentTarget.style.display = "none")}
+                  alt={article.imageAltText || article.title}
+                  priority
                 />
               )}
               {item.type === "image" && article.imageCaption && (
@@ -398,22 +391,28 @@ const ArticlePage: React.FC<Props> = ({
           <figure className="my-6">
             <div className="grid grid-cols-2 gap-3">
               {items.map((item, idx) => (
-                <div key={idx} className={`rounded-lg overflow-hidden ${idx === 0 && items.length % 2 !== 0 ? 'col-span-2' : ''}`}>
+                <div key={idx} className={`overflow-hidden rounded-lg ${idx === 0 && items.length % 2 !== 0 ? "col-span-2" : ""}`}>
                   {item.type === "video" ? (
                     <video
                       src={item.url}
                       controls
-                      className="w-full h-full object-cover max-h-[400px]"
+                      className="max-h-[400px] h-full w-full object-cover"
                       onError={(e) => (e.currentTarget.style.display = "none")}
                     />
                   ) : (
-                    <img
+                    <ArticleLeadImage
                       src={item.url}
-                      className="w-full h-full object-cover max-h-[400px]"
-                      alt={idx === 0 && article.imageAltText
-                        ? article.imageAltText
-                        : `${article.title} - image ${idx + 1}`}
-                      onError={(e) => (e.currentTarget.style.display = "none")}
+                      alt={
+                        idx === 0 && article.imageAltText
+                          ? article.imageAltText
+                          : `${article.title} - image ${idx + 1}`
+                      }
+                      priority={idx === 0}
+                      sizes={
+                        idx === 0 && items.length % 2 !== 0
+                          ? "(max-width: 768px) 100vw, 768px"
+                          : "(max-width: 768px) 50vw, 384px"
+                      }
                     />
                   )}
                 </div>

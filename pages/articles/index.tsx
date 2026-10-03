@@ -101,13 +101,15 @@ export default function AllArticlesPage({
             <div className="lg:col-span-7">
               <div className="h-full border border-gray-100 rounded-lg overflow-hidden group relative">
                 {heroArticle.mediaUrl && (
-                  <div className="w-full h-64 md:h-96 overflow-hidden">
+                  <div className="relative h-64 w-full overflow-hidden md:h-96">
                     <ArticleMediaPreview
                       src={heroArticle.mediaUrl}
                       mediaType={heroArticle.mediaType}
                       alt={heroArticle.title}
-                      loading="eager"
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      priority={heroArticle.mediaType !== "video"}
+                      sizes="(max-width: 768px) 100vw, 720px"
+                      quality={70}
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                   </div>
                 )}

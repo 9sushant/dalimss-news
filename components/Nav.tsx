@@ -170,7 +170,7 @@ const Nav: React.FC = () => {
                 width={180}
                 height={60}
                 className="h-10 w-auto object-contain md:h-14"
-                priority
+                loading="eager"
               />
             </Link>
 
