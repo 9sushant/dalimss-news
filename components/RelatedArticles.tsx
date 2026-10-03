@@ -2,7 +2,9 @@
 // Displays 4-6 related articles for internal linking
 
 import Link from "next/link";
+import Image from "next/image";
 import { formatDateIST } from "@/lib/seo";
+import { isOptimizableImageSrc } from "@/lib/optimizableImage";
 
 interface RelatedArticle {
   id: number;
@@ -40,16 +42,27 @@ export function RelatedArticles({
             className="group flex gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors"
           >
             {article.mediaUrl && (
-              <div className="flex-shrink-0 w-24 h-20 rounded-md overflow-hidden bg-gray-100">
-                <img
-                  src={article.mediaUrl}
-                  alt={article.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  loading="lazy"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).style.display = "none";
-                  }}
-                />
+              <div className="relative h-20 w-24 flex-shrink-0 overflow-hidden rounded-md bg-gray-100">
+                {isOptimizableImageSrc(article.mediaUrl) ? (
+                  <Image
+                    src={article.mediaUrl}
+                    alt={article.title}
+                    fill
+                    sizes="96px"
+                    quality={70}
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                ) : (
+                  <img
+                    src={article.mediaUrl}
+                    alt={article.title}
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    loading="lazy"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).style.display = "none";
+                    }}
+                  />
+                )}
               </div>
             )}
             <div className="flex-1 min-w-0">
