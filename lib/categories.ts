@@ -94,6 +94,15 @@ export const CATEGORIES: Category[] = [
     priority: 0.8,
   },
   {
+    slug: "automotive",
+    name: "Automotive",
+    nameHi: "ऑटोमोबाइल",
+    description:
+      "Automotive news from India: new car, bike and scooter launches, electric vehicles, commercial vehicles, prices, road tests and industry updates.",
+    dbValues: ["Automotive", "automotive"],
+    priority: 0.8,
+  },
+  {
     slug: "education",
     name: "Education",
     nameHi: "शिक्षा",
@@ -216,6 +225,7 @@ export const NAV_CATEGORIES = [
   { slug: "education", name: "Education" },
   { slug: "business", name: "Business" },
   { slug: "technology", name: "Tech" },
+  { slug: "automotive", name: "Automotive" },
   { slug: "health", name: "Health" },
   { slug: "sports", name: "Sports" },
   { slug: "reviews", name: "Reviews" },
