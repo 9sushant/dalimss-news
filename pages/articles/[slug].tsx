@@ -159,14 +159,29 @@ const ArticlePage: React.FC<Props> = ({
   const canonicalUrl = `${SITE_URL}/articles/${articleSlug}`;
   const seoTitle = stripForMeta(article.metaTitle || article.title, 70);
   const isHindi = article.language === "hi";
+  const categoryTags = categories.filter((category, index, list) => {
+    const label = (isHindi && category.nameHi ? category.nameHi : category.name)
+      .trim()
+      .toLowerCase();
+    return (
+      list.findIndex((other) => {
+        const otherLabel = (
+          isHindi && other.nameHi ? other.nameHi : other.name
+        )
+          .trim()
+          .toLowerCase();
+        return otherLabel === label;
+      }) === index
+    );
+  });
   const alternates = hreflangLinks({
     path: `/articles/${articleSlug}`,
     language: isHindi ? "hi" : "en",
   });
 
   return (
-    <article
-      className="max-w-3xl mx-auto py-8 px-6 text-gray-900"
+      <article
+      className="mx-auto max-w-3xl px-6 py-8 text-gray-900"
       lang={article.language === "hi" ? "hi" : "en"}
     >
       <Head>
@@ -280,21 +295,23 @@ const ArticlePage: React.FC<Props> = ({
       )}
 
       {/* HEADER */}
-      <header className="mb-6">
-        {categories.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-2">
-            {categories.map((category) => (
+      <header>
+        {categoryTags.length > 0 && (
+          <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1">
+            {categoryTags.map((category) => (
               <a
                 key={category.slug}
                 href={`/category/${category.slug}`}
-                className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded hover:bg-blue-200 transition-colors"
+                className="text-[11px] font-semibold uppercase tracking-[0.14em] text-red-700 hover:text-red-800"
               >
                 {isHindi && category.nameHi ? category.nameHi : category.name}
               </a>
             ))}
           </div>
         )}
-        <h1 className="text-4xl font-bold mb-3 text-gray-900">{article.title}</h1>
+        <h1 className="mb-3 font-serif text-4xl font-bold leading-tight text-gray-900 md:text-[2.6rem] md:leading-[1.15]">
+          {article.title}
+        </h1>
         {isOpinion && (
           <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
             {isHindi ? (
@@ -311,32 +328,41 @@ const ArticlePage: React.FC<Props> = ({
             )}
           </div>
         )}
-        <div className="text-sm text-gray-600 flex flex-wrap items-center gap-2">
-          <a
-            href={authorPath}
-            className="hover:text-red-600 transition-colors"
-          >
-            {isHindi ? authorName : `By ${authorName}`}
-          </a>
-          <span>•</span>
-          <time dateTime={toISOWithTZ(article.createdAt)}>
-            {publishedLabel} IST
-          </time>
-          {showUpdated && modifiedAt && (
-            <>
-              <span>•</span>
-              <time dateTime={toISOWithTZ(modifiedAt)} className="text-gray-500 italic">
-                Updated: {updatedLabel} IST
-              </time>
-            </>
-          )}
-          {article.readTimeInMinutes
-            ? <><span>•</span><span>{isHindi ? `${article.readTimeInMinutes} मिनट` : `${article.readTimeInMinutes} min read`}</span></>
-            : null}
-          <div className="ml-auto">
-            <ShareButton 
+        <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+            <a
+              href={authorPath}
+              className="font-bold text-gray-900 hover:text-red-700 transition-colors"
+            >
+              {isHindi ? authorName : `By ${authorName}`}
+            </a>
+            <span className="text-gray-300" aria-hidden="true">·</span>
+            <time dateTime={toISOWithTZ(article.createdAt)} className="text-gray-500">
+              {publishedLabel} IST
+            </time>
+            {showUpdated && modifiedAt && (
+              <>
+                <span className="text-gray-300" aria-hidden="true">·</span>
+                <time dateTime={toISOWithTZ(modifiedAt)} className="text-gray-500">
+                  Updated: {updatedLabel} IST
+                </time>
+              </>
+            )}
+            {article.readTimeInMinutes ? (
+              <>
+                <span className="text-gray-300" aria-hidden="true">·</span>
+                <span className="text-gray-500">
+                  {isHindi
+                    ? `${article.readTimeInMinutes} मिनट`
+                    : `${article.readTimeInMinutes} min read`}
+                </span>
+              </>
+            ) : null}
+          </div>
+          <div className="ml-auto shrink-0">
+            <ShareButton
               url={`/articles/${articleSlug}`}
-              title={article.title} 
+              title={article.title}
               variant="full"
             />
           </div>
@@ -366,18 +392,18 @@ const ArticlePage: React.FC<Props> = ({
         if (items.length === 1) {
           const item = items[0];
           return (
-            <figure className="my-6">
+            <figure className="mt-6 mb-6">
               {item.type === "video" ? (
                 <video
                   src={item.url}
                   controls
-                  className="rounded-md w-full max-h-[500px]"
+                  className="w-full max-h-[500px] rounded-lg bg-gray-100"
                   onError={(e) => (e.currentTarget.style.display = "none")}
                 />
               ) : (
                 <img
                   src={item.url}
-                  className="rounded-md w-full"
+                  className="w-full rounded-lg bg-gray-100"
                     alt={article.imageAltText || article.title}
                   width={1200}
                   height={630}
@@ -385,7 +411,7 @@ const ArticlePage: React.FC<Props> = ({
                 />
               )}
               {item.type === "image" && article.imageCaption && (
-                <figcaption className="mt-2 text-sm leading-relaxed text-gray-500">
+                <figcaption className="mt-3 text-sm leading-relaxed text-gray-500">
                   {article.imageCaption}
                 </figcaption>
               )}
@@ -395,10 +421,10 @@ const ArticlePage: React.FC<Props> = ({
 
         // Multiple media: show a gallery grid
         return (
-          <figure className="my-6">
+          <figure className="mt-6 mb-6">
             <div className="grid grid-cols-2 gap-3">
               {items.map((item, idx) => (
-                <div key={idx} className={`rounded-lg overflow-hidden ${idx === 0 && items.length % 2 !== 0 ? 'col-span-2' : ''}`}>
+                <div key={idx} className={`overflow-hidden rounded-lg bg-gray-100 ${idx === 0 && items.length % 2 !== 0 ? 'col-span-2' : ''}`}>
                   {item.type === "video" ? (
                     <video
                       src={item.url}
@@ -420,7 +446,7 @@ const ArticlePage: React.FC<Props> = ({
               ))}
             </div>
             {article.imageCaption && (
-              <figcaption className="mt-2 text-sm leading-relaxed text-gray-500">
+              <figcaption className="mt-3 text-sm leading-relaxed text-gray-500">
                 {article.imageCaption}
               </figcaption>
             )}
@@ -428,7 +454,7 @@ const ArticlePage: React.FC<Props> = ({
         );
       })()}
 
-      <div className="prose max-w-none text-gray-800">
+      <div className="article-body prose max-w-none text-gray-800">
         {ReactMarkdown ? (
           <ReactMarkdown
             rehypePlugins={[rehypeRaw]}
@@ -489,8 +515,13 @@ const ArticlePage: React.FC<Props> = ({
                   }
                 }
 
-                return <p className="mb-4 whitespace-pre-line">{children}</p>;
+                return <p className="mb-4 whitespace-pre-line leading-[1.75] md:text-[1.125rem]">{children}</p>;
               },
+              h2: ({ children }: any) => (
+                <h2 className="mb-3 mt-8 font-serif text-2xl font-bold leading-tight text-gray-900">
+                  {children}
+                </h2>
+              ),
               // Make sure links also work if they are auto-linked
               a: ({ href, children }: any) => {
                 const text = href || "";
@@ -536,7 +567,7 @@ const ArticlePage: React.FC<Props> = ({
                  );
                }
                
-               return <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{children}</a>
+               return <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-700 underline underline-offset-2 decoration-1 hover:decoration-2">{children}</a>
               }
             }}
           >

@@ -10,44 +10,55 @@ interface Props {
 const NewsShortsSidebar = ({ articles }: Props) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
-  // Auto-slide every 5 seconds
+  const motionOk = () =>
+    typeof window !== "undefined" &&
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const swapSlide = (update: () => void) => {
+    if (!motionOk()) {
+      update();
+      return;
+    }
+    setIsAnimating(true);
+    setTimeout(() => {
+      update();
+      setIsAnimating(false);
+    }, 300);
+  };
+
+  const handleNext = () => {
+    swapSlide(() => {
+      setCurrentIndex((prev) => (prev + 1) % articles.length);
+    });
+  };
+
+  const handlePrev = () => {
+    swapSlide(() => {
+      setCurrentIndex((prev) => (prev - 1 + articles.length) % articles.length);
+    });
+  };
+
+  const handleShuffle = () => {
+    swapSlide(() => {
+      let newIndex = Math.floor(Math.random() * articles.length);
+      while (newIndex === currentIndex && articles.length > 1) {
+        newIndex = Math.floor(Math.random() * articles.length);
+      }
+      setCurrentIndex(newIndex);
+    });
+  };
+
+  // Auto-slide every 5 seconds, unless the reader prefers reduced motion.
   useEffect(() => {
     if (articles.length <= 1) return;
-    
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
     const interval = setInterval(() => {
       handleNext();
     }, 5000);
 
     return () => clearInterval(interval);
   }, [articles.length, currentIndex]);
-
-  const handleNext = () => {
-    setIsAnimating(true);
-    setTimeout(() => {
-      setCurrentIndex((prev) => (prev + 1) % articles.length);
-      setIsAnimating(false);
-    }, 300);
-  };
-
-  const handlePrev = () => {
-    setIsAnimating(true);
-    setTimeout(() => {
-      setCurrentIndex((prev) => (prev - 1 + articles.length) % articles.length);
-      setIsAnimating(false);
-    }, 300);
-  };
-
-  const handleShuffle = () => {
-    setIsAnimating(true);
-    setTimeout(() => {
-      let newIndex = Math.floor(Math.random() * articles.length);
-      while (newIndex === currentIndex && articles.length > 1) {
-        newIndex = Math.floor(Math.random() * articles.length);
-      }
-      setCurrentIndex(newIndex);
-      setIsAnimating(false);
-    }, 300);
-  };
 
   // Reset currentIndex when articles array changes to avoid accessing undefined indices
   useEffect(() => {
@@ -174,11 +185,7 @@ const NewsShortsSidebar = ({ articles }: Props) => {
                     <button
                       key={idx}
                       onClick={() => {
-                        setIsAnimating(true);
-                        setTimeout(() => {
-                          setCurrentIndex(idx);
-                          setIsAnimating(false);
-                        }, 300);
+                        swapSlide(() => setCurrentIndex(idx));
                       }}
                       className={`w-2 h-2 rounded-full transition-all ${
                         idx === currentIndex % 5 ? 'bg-[#dc2626] w-4' : 'bg-gray-300'

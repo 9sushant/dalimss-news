@@ -32,8 +32,13 @@ const Layout = ({ children }: LayoutProps) => (
       {/* Google AdSense */}
       <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7477796529453554" crossOrigin="anonymous"></script>
     </Head>
+    <a className="skip-link" href="#main-content">
+      Skip to main content
+    </a>
     <Nav />
-    <main>{children}</main>
+    <main id="main-content" tabIndex={-1}>
+      {children}
+    </main>
     <Footer />
   </div>
 );
