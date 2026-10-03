@@ -3,6 +3,7 @@
 
 import { GetServerSideProps } from "next";
 import prisma from "@/lib/prisma";
+import { decodeEntities } from "@/lib/decodeEntities";
 import { xmlEscape } from "@/lib/xml";
 import { SITE_URL, canonicalArticleSlug, toISOWithTZ } from "@/lib/seo";
 import { validDate } from "@/lib/sitemapDates";
@@ -44,7 +45,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   >();
 
   for (const article of articles) {
-    const title = article.title?.trim();
+    const title = decodeEntities(article.title).trim();
     const publishedAt = validDate(article.createdAt);
     const slug = canonicalArticleSlug(article.slug);
     if (!title || !publishedAt || !isPublicSlug(slug)) continue;

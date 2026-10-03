@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Article } from '../types';
 import ShareButton from './ShareButton';
 import ArticleMediaPreview from './ArticleMediaPreview';
+import { decodeEntities } from '@/lib/decodeEntities';
 import { canonicalArticleSlug, formatDateIST } from '@/lib/seo';
 
 interface ArticleCardProps {
@@ -16,10 +17,11 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
     day: 'numeric',
   });
   const titleLang = article.language === "hi" ? "hi" : undefined;
+  const title = decodeEntities(article.title);
 
   const snippet =
     typeof article.content === "string"
-      ? article.content.replace(/<[^>]+>/g, '').split('\n')[0].slice(0, 100) + "..."
+      ? decodeEntities(article.content.replace(/<[^>]+>/g, "")).split("\n")[0].slice(0, 100) + "..."
       : "";
   const articleSlug = canonicalArticleSlug(article.slug);
 
@@ -32,7 +34,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
              <ArticleMediaPreview
                 src={article.mediaUrl}
                 mediaType={article.mediaType}
-                alt={article.title}
+                alt={title}
                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 loading="lazy"
                 sizes="(max-width: 768px) 128px, 192px"
@@ -42,7 +44,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
         <div className="flex min-w-0 flex-col justify-between">
           <Link href={`/articles/${articleSlug}`}>
             <h3 lang={titleLang} className="text-lg md:text-xl font-serif font-bold text-gray-900 leading-tight group-hover:text-[#E21B22] transition-colors">
-              {article.title}
+              {title}
             </h3>
           </Link>
           <p className="hidden md:block text-sm text-gray-600 mt-2 line-clamp-2">
@@ -54,7 +56,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
             </time>
             <ShareButton 
               url={`/articles/${articleSlug}`}
-              title={article.title} 
+              title={title} 
               variant="minimal"
             />
           </div>
@@ -69,7 +71,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
       <div className="group py-3 border-b border-gray-100 last:border-0">
         <Link href={`/articles/${articleSlug}`} className="block">
           <h4 lang={titleLang} className="font-serif text-sm font-bold leading-snug text-gray-900 group-hover:text-[#E21B22] md:text-base">
-            {article.title}
+            {title}
           </h4>
         </Link>
         <div className="flex items-center justify-between mt-1">
@@ -78,7 +80,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
           </time>
           <ShareButton 
             url={`/articles/${articleSlug}`}
-            title={article.title} 
+            title={title} 
             variant="minimal"
           />
         </div>
@@ -94,7 +96,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
           <ArticleMediaPreview
             src={article.mediaUrl}
             mediaType={article.mediaType}
-            alt={article.title}
+            alt={title}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
             sizes="(max-width: 640px) 100vw, 320px"
@@ -104,7 +106,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
       <div className="p-4 flex flex-col flex-grow">
         <Link href={`/articles/${articleSlug}`} className="block mb-2">
           <h3 lang={titleLang} className="text-xl font-serif font-bold text-gray-900 leading-tight group-hover:text-[#E21B22] transition-colors">
-            {article.title}
+            {title}
           </h3>
         </Link>
         <p className="text-sm text-gray-600 line-clamp-3 mb-4 flex-grow">
@@ -119,7 +121,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
           </div>
           <ShareButton 
             url={`/articles/${articleSlug}`}
-            title={article.title} 
+            title={title} 
             variant="minimal"
           />
         </div>

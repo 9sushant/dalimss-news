@@ -10,6 +10,7 @@ import { Article } from "@/types";
 import Link from "next/link";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import { useSession } from "next-auth/react";
+import { decodeEntities } from "@/lib/decodeEntities";
 import { ORGANIZATION_ADDRESS, ORGANIZATION_ID, ORGANIZATION_LANGUAGES, WEBSITE_ID, formatDateIST } from "@/lib/seo";
 import { setPublicPageCache } from "@/lib/publicCache";
 
@@ -126,6 +127,11 @@ export default function HomePage({ articles, stories, searchQuery }: Props) {
 
 
   const heroArticle = articles[0];
+  const heroTitle = decodeEntities(heroArticle.title);
+  const heroExcerpt =
+    typeof heroArticle.content === "string"
+      ? `${decodeEntities(heroArticle.content.replace(/<[^>]+>/g, "")).slice(0, 200)}...`
+      : "";
   const topStories = articles.slice(1, 5);
   // Keep the full list for pagination. Skip only the first row when it repeats the hero.
   const latestNews =
@@ -284,7 +290,7 @@ export default function HomePage({ articles, stories, searchQuery }: Props) {
                     <ArticleMediaPreview
                       src={heroArticle.mediaUrl}
                       mediaType={heroArticle.mediaType}
-                      alt={heroArticle.title}
+                      alt={heroTitle}
                       priority={heroArticle.mediaType !== "video"}
                       sizes="(max-width: 768px) 100vw, 720px"
                       quality={70}
@@ -295,11 +301,11 @@ export default function HomePage({ articles, stories, searchQuery }: Props) {
                 <div className="p-6 flex flex-col">
                   <Link href={`/articles/${heroArticle.slug}`}>
                     <h1 className="text-3xl md:text-4xl font-serif font-bold leading-tight mb-3 text-gray-900 hover:text-red-600 transition-colors">
-                      {heroArticle.title}
+                      {heroTitle}
                     </h1>
                   </Link>
                   <p className="hidden md:block text-gray-600 text-base line-clamp-3 max-w-full">
-                    {typeof heroArticle.content === 'string' ? heroArticle.content.replace(/<[^>]+>/g, '').slice(0, 200) + '...' : ''}
+                    {heroExcerpt}
                   </p>
                   
                   <div className="mt-4 flex items-center text-xs text-gray-500 font-semibold uppercase tracking-wider">

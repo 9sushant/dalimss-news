@@ -6,6 +6,7 @@ import ArticleCard from "@/components/ArticleCard";
 import ArticleMediaPreview from "@/components/ArticleMediaPreview";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Article } from "@/types";
+import { decodeEntities } from "@/lib/decodeEntities";
 import {
   SITE_URL,
   SITE_NAME,
@@ -74,6 +75,11 @@ export default function CategoryPage({ category, articles, totalCount }: Props) 
   const canonicalUrl = `${SITE_URL}/category/${category.slug}`;
   const pageTitle = `${category.name} News - Latest ${category.name} Headlines | ${SITE_NAME}`;
   const heroArticle = articleList[0];
+  const heroTitle = heroArticle ? decodeEntities(heroArticle.title) : "";
+  const heroExcerpt =
+    heroArticle && typeof heroArticle.content === "string"
+      ? `${decodeEntities(heroArticle.content.replace(/<[^>]+>/g, "")).slice(0, 200)}...`
+      : "";
   const gridArticles = articleList.slice(1);
   const heroOgImage = heroArticle
     ? absoluteImageUrl(heroArticle.mediaUrl)
@@ -183,7 +189,7 @@ export default function CategoryPage({ category, articles, totalCount }: Props) 
                           <ArticleMediaPreview
                             src={heroArticle.mediaUrl}
                             mediaType={heroArticle.mediaType}
-                            alt={heroArticle.title}
+                            alt={heroTitle}
                             priority={heroArticle.mediaType !== "video"}
                             sizes="(max-width: 768px) 100vw, 768px"
                             quality={70}
@@ -194,15 +200,11 @@ export default function CategoryPage({ category, articles, totalCount }: Props) 
                       <div className="p-6 flex flex-col">
                         <Link href={`/articles/${heroArticle.slug}`}>
                           <h2 className="text-3xl md:text-4xl font-serif font-bold leading-tight mb-3 text-gray-900 hover:text-red-600 transition-colors">
-                            {heroArticle.title}
+                            {heroTitle}
                           </h2>
                         </Link>
                         <p className="hidden md:block text-gray-600 text-base line-clamp-3 max-w-full">
-                          {typeof heroArticle.content === "string"
-                            ? heroArticle.content
-                                .replace(/<[^>]+>/g, "")
-                                .slice(0, 200) + "..."
-                            : ""}
+                          {heroExcerpt}
                         </p>
                         <div className="mt-4 flex items-center text-xs text-gray-500 font-semibold uppercase tracking-wider">
                           <span className="text-red-600 mr-2">

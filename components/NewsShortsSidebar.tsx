@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Article } from "@/types";
+import { decodeEntities } from "@/lib/decodeEntities";
 import { formatDateIST } from "@/lib/seo";
 import { isOptimizableImageSrc } from "@/lib/optimizableImage";
 
@@ -80,9 +81,10 @@ const NewsShortsSidebar = ({ articles }: Props) => {
     return null;
   }
 
+  const title = decodeEntities(currentArticle.title);
   const cleanDescription = (html: string | null) => {
     if (!html) return "";
-    return html.replace(/<[^>]+>/g, "").slice(0, 280);
+    return decodeEntities(html.replace(/<[^>]+>/g, "")).slice(0, 280);
   };
 
   return (
@@ -107,7 +109,7 @@ const NewsShortsSidebar = ({ articles }: Props) => {
                 isOptimizableImageSrc(currentArticle.mediaUrl) ? (
                   <Image
                     src={currentArticle.mediaUrl}
-                    alt={currentArticle.title}
+                    alt={title}
                     fill
                     sizes="380px"
                     quality={70}
@@ -116,7 +118,7 @@ const NewsShortsSidebar = ({ articles }: Props) => {
                 ) : (
                   <img
                     src={currentArticle.mediaUrl}
-                    alt={currentArticle.title}
+                    alt={title}
                     className="h-full w-full object-cover"
                     loading="lazy"
                   />
@@ -145,7 +147,7 @@ const NewsShortsSidebar = ({ articles }: Props) => {
               {/* Title */}
               <Link href={`/articles/${currentArticle.slug}`}>
                 <h2 className="text-[18px] leading-[1.35] font-bold text-gray-900 mb-3 font-serif hover:text-[#dc2626] transition-colors line-clamp-3">
-                  {currentArticle.title}
+                  {title}
                 </h2>
               </Link>
 

@@ -8,6 +8,7 @@ import Link from "next/link";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import prisma from "@/lib/prisma";
 import { englishArticleWhere } from "@/lib/articleLanguage";
+import { decodeEntities } from "@/lib/decodeEntities";
 import { canonicalAuthorName } from "@/lib/seo";
 import {
   LISTING_PAGE_SIZE,
@@ -51,6 +52,11 @@ export default function AllArticlesPage({
   }
 
   const heroArticle = articles[0];
+  const heroTitle = decodeEntities(heroArticle.title);
+  const heroExcerpt =
+    typeof heroArticle.content === "string"
+      ? `${decodeEntities(heroArticle.content.replace(/<[^>]+>/g, "")).slice(0, 150)}...`
+      : "";
   const topStories = articles.slice(1, 5);
   const latestNews = articles.slice(5);
   const sidebarNews = articles.slice(2, 8); // Just reusing for demo
@@ -105,7 +111,7 @@ export default function AllArticlesPage({
                     <ArticleMediaPreview
                       src={heroArticle.mediaUrl}
                       mediaType={heroArticle.mediaType}
-                      alt={heroArticle.title}
+                      alt={heroTitle}
                       priority={heroArticle.mediaType !== "video"}
                       sizes="(max-width: 768px) 100vw, 720px"
                       quality={70}
@@ -116,11 +122,11 @@ export default function AllArticlesPage({
                 <div className="p-6 bg-white absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-20 text-white">
                   <Link href={`/articles/${heroArticle.slug}`}>
                     <h1 className="text-3xl md:text-4xl font-serif font-bold leading-tight mb-2 hover:text-red-400 transition-colors">
-                      {heroArticle.title}
+                      {heroTitle}
                     </h1>
                   </Link>
                   <p className="hidden md:block text-gray-200 text-sm line-clamp-2 max-w-2xl">
-                    {typeof heroArticle.content === 'string' ? heroArticle.content.replace(/<[^>]+>/g, '').slice(0, 150) + '...' : ''}
+                    {heroExcerpt}
                   </p>
                 </div>
               </div>

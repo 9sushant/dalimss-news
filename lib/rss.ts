@@ -12,6 +12,7 @@ import {
   canonicalAuthorName,
   stripForMeta,
 } from "@/lib/seo";
+import { decodeEntities } from "@/lib/decodeEntities";
 import { cdata, xmlEscape } from "@/lib/xml";
 
 type FeedArticle = {
@@ -30,10 +31,12 @@ function contentToHtml(content: string): string {
   return content
     .split(/\n\s*\n/)
     .map((paragraph) =>
-      paragraph
-        .replace(/!\[.*?\]\(.*?\)/g, "")
-        .replace(/\[(.*?)\]\(.*?\)/g, "$1")
-        .replace(/<[^>]+>/g, "")
+      decodeEntities(
+        paragraph
+          .replace(/!\[.*?\]\(.*?\)/g, "")
+          .replace(/\[(.*?)\]\(.*?\)/g, "$1")
+          .replace(/<[^>]+>/g, "")
+      )
         .replace(/[#*`_~]/g, "")
         .trim()
     )
@@ -107,13 +110,14 @@ export async function buildRssFeed(options?: {
         matchedCategory?.name ||
         article.category ||
         (options?.language === "hi" ? "समाचार" : "News");
-      const description =
-        article.metaDescription || stripForMeta(article.content || "", 250);
+      const description = article.metaDescription
+        ? decodeEntities(article.metaDescription)
+        : stripForMeta(article.content || "", 250);
       const imageUrl = article.mediaUrl ? absoluteImageUrl(article.mediaUrl) : "";
 
       return `
     <item>
-      <title>${xmlEscape(article.title)}</title>
+      <title>${xmlEscape(decodeEntities(article.title))}</title>
       <link>${articleUrl}</link>
       <guid isPermaLink="true">${articleUrl}</guid>
       <pubDate>${new Date(article.createdAt).toUTCString()}</pubDate>
