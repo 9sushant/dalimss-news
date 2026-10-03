@@ -167,9 +167,9 @@ const Nav: React.FC = () => {
               <Image
                 src="/logo.png"
                 alt="Dalimss News"
-                width={180}
-                height={60}
-                className="h-10 w-auto object-contain md:h-14"
+                width={226}
+                height={100}
+                className="h-10 w-[90px] object-contain md:h-14 md:w-[127px]"
                 loading="eager"
               />
             </Link>

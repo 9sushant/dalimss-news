@@ -16,12 +16,12 @@ const config: Config = {
       fontFamily: {
         sans: [
           "var(--font-inter)",
-          "var(--font-noto-sans-devanagari)",
+          "var(--font-sans-devanagari)",
           ...fontFamily.sans,
         ],
         serif: [
           "var(--font-lora)",
-          "var(--font-noto-serif-devanagari)",
+          "var(--font-serif-devanagari)",
           ...fontFamily.serif,
         ],
       },
@@ -39,7 +39,7 @@ const config: Config = {
             "--tw-prose-invert-links": theme("colors.blue.400"),
 
             "p, ul, ol, blockquote": {
-              fontFamily: theme("fontFamily.serif"),
+              fontFamily: theme("fontFamily.serif").join(", "),
             },
           },
         },

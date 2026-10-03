@@ -36,23 +36,9 @@ const Layout = ({ children }: LayoutProps) => (
       strategy="lazyOnload"
       src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7477796529453554"
       crossOrigin="anonymous"
-      onLoad={() => {
-        const win = window as Window & { adsbygoogle?: object[] };
-        win.adsbygoogle = win.adsbygoogle || [];
-        win.adsbygoogle.push({});
-      }}
     />
     <Nav />
     <main>{children}</main>
-    <div className="ad-slot mx-auto w-full max-w-3xl px-4 py-3">
-      <ins
-        className="adsbygoogle"
-        style={{ display: "block", minHeight: 100 }}
-        data-ad-client="ca-pub-7477796529453554"
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-      />
-    </div>
     <Footer />
   </div>
 );

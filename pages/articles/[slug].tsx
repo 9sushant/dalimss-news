@@ -87,7 +87,9 @@ import {
   type AuthorPublicationStats,
 } from "@/lib/authorStats";
 import { hreflangLinks } from "@/lib/hreflang";
+import Image from "next/image";
 import ArticleLeadImage from "@/components/ArticleLeadImage";
+import { isOptimizableImageSrc } from "@/lib/optimizableImage";
 
 const ArticlePage: React.FC<Props> = ({
   article,
@@ -399,20 +401,37 @@ const ArticlePage: React.FC<Props> = ({
                       className="max-h-[400px] h-full w-full object-cover"
                       onError={(e) => (e.currentTarget.style.display = "none")}
                     />
-                  ) : (
-                    <ArticleLeadImage
+                  ) : isOptimizableImageSrc(item.url) ? (
+                    <Image
                       src={item.url}
                       alt={
                         idx === 0 && article.imageAltText
                           ? article.imageAltText
                           : `${article.title} - image ${idx + 1}`
                       }
-                      priority={idx === 0}
+                      width={1536}
+                      height={1024}
+                      quality={70}
                       sizes={
                         idx === 0 && items.length % 2 !== 0
                           ? "(max-width: 768px) 100vw, 768px"
                           : "(max-width: 768px) 50vw, 384px"
                       }
+                      className="h-full max-h-[400px] w-full object-cover"
+                      {...(idx === 0
+                        ? { priority: true }
+                        : { loading: "lazy" as const })}
+                    />
+                  ) : (
+                    <img
+                      src={item.url}
+                      className="h-full max-h-[400px] w-full object-cover"
+                      alt={
+                        idx === 0 && article.imageAltText
+                          ? article.imageAltText
+                          : `${article.title} - image ${idx + 1}`
+                      }
+                      loading={idx === 0 ? "eager" : "lazy"}
                     />
                   )}
                 </div>

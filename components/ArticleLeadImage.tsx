@@ -9,8 +9,9 @@ interface ArticleLeadImageProps {
 }
 
 /**
- * Article lead image. Dimensions are not stored, so the image fills a fixed
- * 16:9 box and cannot shift layout when the file arrives.
+ * Article lead image. Dimensions are not stored. Most files are 3:2
+ * (1536x1024), so the image fills that box. object-contain keeps the
+ * whole photo visible, and the fixed box does not shift when it loads.
  */
 export default function ArticleLeadImage({
   src,
@@ -19,7 +20,10 @@ export default function ArticleLeadImage({
   sizes = "(max-width: 768px) 100vw, 768px",
 }: ArticleLeadImageProps) {
   return (
-    <div className="relative aspect-video w-full overflow-hidden rounded-md bg-neutral-100">
+    <div
+      className="relative aspect-[3/2] w-full overflow-hidden rounded-md bg-neutral-100"
+      style={{ aspectRatio: "3 / 2" }}
+    >
       {isOptimizableImageSrc(src) ? (
         <Image
           src={src}
@@ -34,8 +38,11 @@ export default function ArticleLeadImage({
         <img
           src={src}
           alt={alt}
+          width={1536}
+          height={1024}
           className="h-full w-full object-contain"
           loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : "auto"}
         />
       )}
     </div>

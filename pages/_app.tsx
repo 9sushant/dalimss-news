@@ -8,7 +8,7 @@ import Layout from "@/components/Layout";
 import { NextPage } from "next";
 import { ReactElement, ReactNode, useEffect } from "react";
 import { useRouter } from "next/router";
-import { fontRootStyle, fontVariableClassName } from "@/lib/fonts";
+import { fontRootStyle } from "@/lib/fonts";
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
@@ -34,6 +34,10 @@ export default function App({
   useEffect(() => {
     document.documentElement.lang = htmlLang;
   }, [htmlLang]);
+
+  useEffect(() => {
+    document.documentElement.classList.add("fonts-ready");
+  }, []);
 
   // Suppress common Next.js navigation errors
   // These are expected behaviors when navigation is interrupted or same-URL navigation occurs
@@ -89,7 +93,7 @@ export default function App({
       <Head>
         <style>{fontRootStyle}</style>
       </Head>
-      <div className={fontVariableClassName}>
+      <div>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-2N4BWSS6GL"
           strategy="afterInteractive"

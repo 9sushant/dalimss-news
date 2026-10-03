@@ -8,6 +8,7 @@ import {
 export const inter = Inter({
   subsets: ["latin"],
   display: "swap",
+  preload: false,
   variable: "--font-inter",
 });
 
@@ -15,6 +16,7 @@ export const lora = Lora({
   subsets: ["latin"],
   style: ["normal", "italic"],
   display: "swap",
+  preload: false,
   variable: "--font-lora",
 });
 
@@ -34,11 +36,20 @@ export const notoSerifDevanagari = Noto_Serif_Devanagari({
   variable: "--font-noto-serif-devanagari",
 });
 
-export const fontVariableClassName = [
-  inter.variable,
-  lora.variable,
-  notoSansDevanagari.variable,
-  notoSerifDevanagari.variable,
-].join(" ");
+/**
+ * next/font quotes these names. A React style child would escape the
+ * quotes, so they are removed. The names are CSS identifiers.
+ * First paint uses only the size-adjusted fallback. The font files are
+ * applied after hydration, which keeps them off the LCP path.
+ */
+function fontNames(family: string) {
+  const parts = family.replace(/['"]/g, "").split(",").map((part) => part.trim());
+  return { fallback: parts[1] ?? parts[0], stack: parts.join(", ") };
+}
 
-export const fontRootStyle = `:root{--font-inter:${inter.style.fontFamily};--font-lora:${lora.style.fontFamily};--font-noto-sans-devanagari:${notoSansDevanagari.style.fontFamily};--font-noto-serif-devanagari:${notoSerifDevanagari.style.fontFamily}}`;
+const interNames = fontNames(inter.style.fontFamily);
+const loraNames = fontNames(lora.style.fontFamily);
+const notoSansNames = fontNames(notoSansDevanagari.style.fontFamily);
+const notoSerifNames = fontNames(notoSerifDevanagari.style.fontFamily);
+
+export const fontRootStyle = `:root{--font-inter:${interNames.fallback};--font-lora:${loraNames.fallback};--font-noto-sans-devanagari:${notoSansNames.stack};--font-noto-serif-devanagari:${notoSerifNames.stack}}.fonts-ready{--font-inter:${interNames.stack};--font-lora:${loraNames.stack}}`;
