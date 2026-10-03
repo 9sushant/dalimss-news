@@ -391,6 +391,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   if (page === null) return { notFound: true };
 
   const authorName = canonicalAuthorName(slugToName(slug));
+  const canonicalSlug = authorSlug(authorName);
+  if (slug !== canonicalSlug) {
+    return {
+      redirect: {
+        destination: listingPath(`/author/${canonicalSlug}`, page),
+        permanent: true,
+      },
+    };
+  }
   const authorVariants = authorNameVariants(authorName);
   const where = {
     OR: authorVariants.map((name) => ({
