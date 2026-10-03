@@ -165,6 +165,15 @@ export const CATEGORIES: Category[] = [
     dbValues: ["Entertainment", "entertainment", "Bollywood", "bollywood"],
     priority: 0.7,
   },
+  {
+    slug: "lifestyle",
+    name: "Lifestyle",
+    nameHi: "लाइफस्टाइल",
+    description:
+      "Lifestyle from Gurugram and across India: restaurants and cafes, fitness and wellness, shopping, events and everyday city guides.",
+    dbValues: ["Lifestyle", "lifestyle"],
+    priority: 0.7,
+  },
 ];
 
 /**
@@ -230,4 +239,5 @@ export const NAV_CATEGORIES = [
   { slug: "sports", name: "Sports" },
   { slug: "reviews", name: "Reviews" },
   { slug: "entertainment", name: "Entertainment" },
+  { slug: "lifestyle", name: "Lifestyle" },
 ];

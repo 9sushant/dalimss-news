@@ -1,6 +1,7 @@
 import {useEffect,useState} from 'react';
 import {upload} from '@vercel/blob/client';
 import {useSession,signIn} from 'next-auth/react';
+import {CATEGORIES} from '@/lib/categories';
 export default function MobileAdmin(){
  const {data:session,status}=useSession();const [items,setItems]=useState<any[]>([]),[comments,setComments]=useState<any[]>([]),[reports,setReports]=useState<any[]>([]),[message,setMessage]=useState('');
  const empty={kind:'short',title:'',description:'',category:'Varanasi',imageUrl:'',videoUrl:'',captionUrl:'',seriesName:'',published:false};
@@ -29,7 +30,15 @@ export default function MobileAdmin(){
  return <main style={{maxWidth:1000,margin:'40px auto',padding:24}}><h1>Mobile newsroom</h1><p>Publish team posts, portrait shorts (9:16), and ongoing news series. OTT stays in the existing OTT editor.</p><a href="/api/mobile/admin/readers">Download registered readers CSV (up to 10,000)</a><p role="status">{message}</p>
  <form onSubmit={async e=>{e.preventDefault();try{await call('content',form);setForm(empty);setMessage('Content saved.');await load();}catch(err){setMessage(String(err));}}}>
  <select value={form.kind} onChange={e=>setForm({...form,kind:e.target.value})}>{['short','post','series'].map(k=><option key={k}>{k}</option>)}</select>
- {['title','description','category','imageUrl','videoUrl','captionUrl',...(form.kind==='series'?['seriesName']:[])].map(k=><label key={k} style={{display:'block',margin:'12px 0'}}>{k}<input style={{display:'block',width:'100%',border:'1px solid #aaa',padding:8}} value={form[k]} required={['title','description','category'].includes(k)} onChange={e=>setForm({...form,[k]:e.target.value})}/></label>)}
+ {['title','description'].map(k=><label key={k} style={{display:'block',margin:'12px 0'}}>{k}<input style={{display:'block',width:'100%',border:'1px solid #aaa',padding:8}} value={form[k]} required onChange={e=>setForm({...form,[k]:e.target.value})}/></label>)}
+ <label style={{display:'block',margin:'12px 0'}}>category
+  <select style={{display:'block',width:'100%',border:'1px solid #aaa',padding:8,marginTop:4}} value={CATEGORIES.some(c=>c.name===form.category)?form.category:''} onChange={e=>{if(e.target.value)setForm({...form,category:e.target.value});}}>
+   <option value="">Pick a category</option>
+   {CATEGORIES.map(c=><option key={c.slug} value={c.name}>{c.name}</option>)}
+  </select>
+  <input style={{display:'block',width:'100%',border:'1px solid #aaa',padding:8,marginTop:8}} value={form.category} required onChange={e=>setForm({...form,category:e.target.value})} placeholder="Comma-separated. The first category is primary."/>
+ </label>
+ {['imageUrl','videoUrl','captionUrl',...(form.kind==='series'?['seriesName']:[])].map(k=><label key={k} style={{display:'block',margin:'12px 0'}}>{k}<input style={{display:'block',width:'100%',border:'1px solid #aaa',padding:8}} value={form[k]} onChange={e=>setForm({...form,[k]:e.target.value})}/></label>)}
  <fieldset disabled={uploading}><legend>Upload media</legend>{[['videoUrl','Video','video/mp4,video/webm'],['imageUrl','Cover image','image/jpeg,image/png,image/webp'],['captionUrl','Captions (.vtt)','.vtt']].map(([field,label,accept])=><label key={field} style={{display:'block',margin:12}}>{label}<input type="file" accept={accept} onChange={e=>{const file=e.target.files?.[0];if(file)void uploadFile(file,field);e.target.value='';}}/></label>)}</fieldset>
  <p>Use HTTPS URLs from your media hosting for video, cover and optional WebVTT captions. Shorts should be portrait 9:16. Comma-separated categories use the first category as primary.</p>
  <label><input type="checkbox" checked={form.published} onChange={e=>setForm({...form,published:e.target.checked})}/> Published</label><button disabled={uploading} style={{margin:16}} type="submit">Save content</button></form>

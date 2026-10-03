@@ -38,7 +38,9 @@ const Footer = () => {
               <Link href="/hindi" className={footerAccentLinkClass}>
                 हिंदी
               </Link>
-              {NAV_CATEGORIES.slice(0, 11).map((cat) => (
+              {NAV_CATEGORIES.filter(
+                (cat, index) => index < 11 || cat.slug === "lifestyle"
+              ).map((cat) => (
                 <Link
                   key={cat.slug}
                   href={`/category/${cat.slug}`}
