@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { NAV_CATEGORIES } from "@/lib/categories";
+import { formatDateIST } from "@/lib/seo";
 
 const Footer = () => {
   return (
@@ -99,7 +100,7 @@ const Footer = () => {
         {/* Bottom Utility / Copyright & Socials */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
           <p>
-            © {new Date().getFullYear()} Dalimss News. All rights reserved.
+            © {formatDateIST(new Date(), { year: "numeric" })} Dalimss News. All rights reserved.
           </p>
 
           <div className="flex gap-4">

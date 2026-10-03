@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { Article } from '../types';
 import ShareButton from './ShareButton';
 import ArticleMediaPreview from './ArticleMediaPreview';
-import { canonicalArticleSlug } from '@/lib/seo';
+import { canonicalArticleSlug, formatDateIST } from '@/lib/seo';
 
 interface ArticleCardProps {
   article: Article;
@@ -11,19 +11,11 @@ interface ArticleCardProps {
 }
 
 const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical' }) => {
-  const [formattedDate, setFormattedDate] = useState<string>('');
-  const dateLocale = article.language === "hi" ? "hi-IN" : "en-IN";
+  const formattedDate = formatDateIST(article.createdAt, {
+    month: 'short',
+    day: 'numeric',
+  });
   const titleLang = article.language === "hi" ? "hi" : undefined;
-
-  useEffect(() => {
-    // Format date only on client side to avoid hydration mismatch
-    setFormattedDate(
-      new Date(article.createdAt).toLocaleDateString(dateLocale, {
-        month: 'short',
-        day: 'numeric',
-      })
-    );
-  }, [article.createdAt, dateLocale]);
 
   const snippet =
     typeof article.content === "string"
@@ -56,8 +48,8 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
             {snippet}
           </p>
           <div className="mt-2 flex items-center justify-between">
-            <time dateTime={article.createdAt} className="text-xs text-gray-400 uppercase font-semibold" suppressHydrationWarning>
-              {formattedDate || new Date(article.createdAt).toLocaleDateString(dateLocale, { month: 'short', day: 'numeric' })}
+            <time dateTime={article.createdAt} className="text-xs text-gray-400 uppercase font-semibold">
+              {formattedDate}
             </time>
             <ShareButton 
               url={`/articles/${articleSlug}`}
@@ -80,8 +72,8 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
           </h4>
         </Link>
         <div className="flex items-center justify-between mt-1">
-          <time dateTime={article.createdAt} className="text-xs text-gray-400" suppressHydrationWarning>
-            {formattedDate || new Date(article.createdAt).toLocaleDateString(dateLocale, { month: 'short', day: 'numeric' })}
+          <time dateTime={article.createdAt} className="text-xs text-gray-400">
+            {formattedDate}
           </time>
           <ShareButton 
             url={`/articles/${articleSlug}`}
@@ -118,8 +110,8 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'vertical'
         </p>
         <div className="flex items-center justify-between text-xs text-gray-500 border-t border-gray-100 pt-3">
           <div className="flex items-center gap-2">
-            <time dateTime={article.createdAt} suppressHydrationWarning>
-              {formattedDate || new Date(article.createdAt).toLocaleDateString(dateLocale, { month: 'short', day: 'numeric' })}
+            <time dateTime={article.createdAt}>
+              {formattedDate}
             </time>
             {article.authorName && <span className="font-medium text-gray-700">• {article.authorName}</span>}
           </div>

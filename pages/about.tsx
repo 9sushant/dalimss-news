@@ -10,7 +10,13 @@ import {
   ShieldCheckIcon,
   UserGroupIcon,
 } from "@heroicons/react/24/outline";
-import { ORGANIZATION_ID, SITE_NAME, SITE_URL } from "@/lib/seo";
+import {
+  ORGANIZATION_ADDRESS,
+  ORGANIZATION_ID,
+  ORGANIZATION_LANGUAGES,
+  SITE_NAME,
+  SITE_URL,
+} from "@/lib/seo";
 
 const facts = [
   {
@@ -51,27 +57,36 @@ export default function AboutPage() {
     "@context": "https://schema.org",
     "@type": "NewsMediaOrganization",
     "@id": ORGANIZATION_ID,
+    name: SITE_NAME,
+    url: `${SITE_URL}/`,
+    email: "editor@dalimss.news",
+    address: ORGANIZATION_ADDRESS,
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "editorial",
+      email: "editor@dalimss.news",
+      telephone: "+91-6392752976",
+      availableLanguage: ORGANIZATION_LANGUAGES,
+    },
   };
+  const pageTitle = `About ${SITE_NAME} | Varanasi, Gurugram & India News`;
+  const pageDescription =
+    "Learn about Dalimss News, a digital news publication reporting from Varanasi, Eastern Uttar Pradesh, Gurugram and Delhi-NCR, with coverage of major developments across India.";
 
   return (
     <>
       <Head>
-        <title>About Dalimss News | Varanasi, Gurugram &amp; India News</title>
-        <meta
-          name="description"
-          content="Learn about Dalimss News, a digital news publication reporting from Varanasi, Eastern Uttar Pradesh, Gurugram and Delhi-NCR, with coverage of major developments across India."
-        />
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
         <link rel="canonical" href={canonicalUrl} />
-        <meta
-          property="og:title"
-          content="About Dalimss News | Varanasi, Gurugram & India News"
-        />
-        <meta
-          property="og:description"
-          content="Learn about Dalimss News, a digital news publication reporting from Varanasi, Eastern Uttar Pradesh, Gurugram and Delhi-NCR, with coverage of major developments across India."
-        />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:site" content="@dalimss_news" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDescription} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
@@ -254,24 +269,14 @@ export default function AboutPage() {
               <div>
                 <EnvelopeIcon className="h-6 w-6 text-red-500 mb-3" />
                 <h3 className="text-white font-semibold mb-2">Email</h3>
-                <div className="space-y-2">
-                  <p>
-                    <span className="block text-sm text-gray-400">
-                      News tips and editorial enquiries
-                    </span>
-                    <a className="hover:text-white" href="mailto:editor@dalimss.news">
-                      editor@dalimss.news
-                    </a>
-                  </p>
-                  <p>
-                    <span className="block text-sm text-gray-400">
-                      General enquiries
-                    </span>
-                    <a className="hover:text-white" href="mailto:info@dalimss.news">
-                      info@dalimss.news
-                    </a>
-                  </p>
-                </div>
+                <p>
+                  <span className="block text-sm text-gray-400">
+                    News tips and editorial enquiries
+                  </span>
+                  <a className="hover:text-white" href="mailto:editor@dalimss.news">
+                    editor@dalimss.news
+                  </a>
+                </p>
               </div>
               <div>
                 <PhoneIcon className="h-6 w-6 text-red-500 mb-3" />

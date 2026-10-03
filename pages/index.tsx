@@ -10,12 +10,16 @@ import { Article } from "@/types";
 import Link from "next/link";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import { useSession } from "next-auth/react";
-import { ORGANIZATION_ID, WEBSITE_ID } from "@/lib/seo";
+import { ORGANIZATION_ADDRESS, ORGANIZATION_ID, ORGANIZATION_LANGUAGES, WEBSITE_ID, formatDateIST } from "@/lib/seo";
 
 interface Props {
   articles: Article[];
   stories: any[];
+  searchQuery: string;
 }
+
+const HOME_TITLE = "Dalimss News | Varanasi, Gurugram and India News";
+const SITE_URL = "https://dalimss.news";
 
 const SectionHeader = ({ title, href }: { title: string; href?: string }) => (
   <div className="flex items-center justify-between border-b border-gray-200 pb-2 mb-4">
@@ -34,10 +38,9 @@ const SectionHeader = ({ title, href }: { title: string; href?: string }) => (
 // ... imports
 import { useRouter } from "next/router";
 
-export default function HomePage({ articles, stories }: Props) {
+export default function HomePage({ articles, stories, searchQuery }: Props) {
   const { data: session } = useSession();
   const router = useRouter(); // <--- Added router
-  const [heroDate, setHeroDate] = useState<string>('');
   
   // Pagination State
   const [newsList, setNewsList] = useState<Article[]>(Array.isArray(articles) ? articles : []);
@@ -95,16 +98,17 @@ export default function HomePage({ articles, stories }: Props) {
     }
   };
 
-  // Format hero article date on client-side only to avoid hydration mismatch
-  useEffect(() => {
-    if (Array.isArray(articles) && articles.length > 0) {
-      setHeroDate(new Date(articles[0].createdAt).toLocaleDateString());
-    }
-  }, [articles]);
-
   // Fallback if no articles
   if (!articles || !Array.isArray(articles) || articles.length === 0) {
     return (
+      <>
+      <Head>
+        <title>{HOME_TITLE}</title>
+        <link rel="canonical" href={SITE_URL} />
+        {searchQuery ? (
+          <meta name="robots" key="robots" content="noindex, follow" />
+        ) : null}
+      </Head>
       <div className="container mx-auto px-4 py-20 text-center">
         <h1 className="text-2xl font-bold text-gray-400">No articles found.</h1>
         {session && session.user && (session.user.role === "admin" || session.user.email === "admin@dalimss.com" || session.user.email === "sushantgaurav@dalimss.com" || session.user.email === "dalimsssushant@gmail.com") && (
@@ -116,6 +120,7 @@ export default function HomePage({ articles, stories }: Props) {
           </Link>
         )}
       </div>
+      </>
     );
   }
 
@@ -138,6 +143,7 @@ export default function HomePage({ articles, stories }: Props) {
     "@type": "WebSite",
     "@id": WEBSITE_ID,
     name: "Dalimss News",
+    alternateName: "Dalimss",
     url: `${siteUrl}/`,
     inLanguage: "en-IN",
     publisher: {
@@ -167,12 +173,7 @@ export default function HomePage({ articles, stories }: Props) {
       "Dalimss News is a digital news publication based in Gurugram, Haryana, reporting from Varanasi, Eastern Uttar Pradesh, Gurugram and Delhi-NCR, with coverage of major developments across India.",
     foundingDate: "2024-02",
     email: "editor@dalimss.news",
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: "Gurugram",
-      addressRegion: "Haryana",
-      addressCountry: "IN",
-    },
+    address: ORGANIZATION_ADDRESS,
     areaServed: [
       "Varanasi",
       "Eastern Uttar Pradesh",
@@ -185,7 +186,7 @@ export default function HomePage({ articles, stories }: Props) {
         "@type": "ContactPoint",
         contactType: "editorial",
         email: "editor@dalimss.news",
-        availableLanguage: ["English"],
+        availableLanguage: ORGANIZATION_LANGUAGES,
       },
     ],
     publishingPrinciples: `${siteUrl}/editorial-policy`,
@@ -207,10 +208,13 @@ export default function HomePage({ articles, stories }: Props) {
   return (
     <>
     <Head>
-      <title>Dalimss News — Varanasi, Gurugram &amp; India News</title>
+      <title>{HOME_TITLE}</title>
       <meta name="description" content="Dalimss News is a digital news publication covering Varanasi, Gurugram, Delhi-NCR and major stories from across India, including crime, civic affairs, education, business, culture and lifestyle." />
       <meta name="keywords" content="Varanasi news, वाराणसी समाचार, Purvanchal news, Banaras news, Varanasi civic news, BHU news, Dalimss News" />
       <link rel="canonical" href={siteUrl} />
+      {searchQuery ? (
+        <meta name="robots" key="robots" content="noindex, follow" />
+      ) : null}
 
       {/* Geo Targeting */}
       <meta name="geo.region" content="IN-UP" />
@@ -223,7 +227,7 @@ export default function HomePage({ articles, stories }: Props) {
       {/* Open Graph */}
       <meta property="og:type" content="website" />
       <meta property="og:site_name" content="Dalimss News" />
-      <meta property="og:title" content="Dalimss News — Varanasi, Gurugram & India News" />
+      <meta property="og:title" content={HOME_TITLE} />
       <meta property="og:description" content="Dalimss News is a digital news publication covering Varanasi, Gurugram, Delhi-NCR and major stories from across India, including crime, civic affairs, education, business, culture and lifestyle." />
       <meta property="og:url" content={siteUrl} />
       <meta property="og:image" content={heroOgImage} />
@@ -235,7 +239,7 @@ export default function HomePage({ articles, stories }: Props) {
       {/* Twitter Card */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:site" content="@dalimss_news" />
-      <meta name="twitter:title" content="Dalimss News — Varanasi, Gurugram & India News" />
+      <meta name="twitter:title" content={HOME_TITLE} />
       <meta name="twitter:description" content="Dalimss News is a digital news publication covering Varanasi, Gurugram, Delhi-NCR and major stories from across India, including crime, civic affairs, education, business, culture and lifestyle." />
       <meta name="twitter:image" content={heroOgImage} />
 
@@ -295,8 +299,12 @@ export default function HomePage({ articles, stories }: Props) {
                   
                   <div className="mt-4 flex items-center text-xs text-gray-500 font-semibold uppercase tracking-wider">
                      <span className="text-red-600 mr-2">Latest Story</span>
-                     <time dateTime={heroArticle.createdAt} suppressHydrationWarning>
-                       • {heroDate || new Date(heroArticle.createdAt).toLocaleDateString("en-IN")}
+                     <time dateTime={heroArticle.createdAt}>
+                       • {formatDateIST(heroArticle.createdAt, {
+                         day: "numeric",
+                         month: "short",
+                         year: "numeric",
+                       })}
                      </time>
                   </div>
                 </div>
@@ -321,7 +329,7 @@ export default function HomePage({ articles, stories }: Props) {
             {/* Left Column: Latest News */}
             <div className="lg:col-span-8">
               <SectionHeader 
-                title={router.query.search ? `Search Results: ${router.query.search} (${articles.length})` : "Latest News"} 
+                title={searchQuery ? `Search Results: ${searchQuery} (${articles.length})` : "Latest News"} 
               />
               <div className="flex flex-col gap-6">
                 {latestNews.map((article) => (
@@ -371,9 +379,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       : "http://localhost:3000");
 
   const { category, search } = context.query;
+  const searchQuery = Array.isArray(search) ? search[0] || "" : search || "";
   const params = new URLSearchParams();
   if (category) params.append("category", String(category));
-  if (search) params.append("search", String(search));
+  if (searchQuery) params.append("search", searchQuery);
   
   // Set initial pagination
   params.append("page", "1");
@@ -402,9 +411,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       console.error("Error fetching stories:", e);
     }
 
-    return { props: { articles, stories } };
+    return { props: { articles, stories, searchQuery } };
   } catch (error) {
     console.error("Error fetching articles:", error);
-    return { props: { articles: [], stories: [] } };
+    return { props: { articles: [], stories: [], searchQuery } };
   }
 };

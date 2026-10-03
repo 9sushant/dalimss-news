@@ -14,6 +14,7 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { NAV_CATEGORIES } from "@/lib/categories";
+import { formatDateIST } from "@/lib/seo";
 
 const EDITOR_EMAILS = new Set([
   "admin@dalimss.com",
@@ -60,7 +61,7 @@ const Nav: React.FC = () => {
 
   useEffect(() => {
     setCurrentDate(
-      new Date().toLocaleDateString("en-IN", {
+      formatDateIST(new Date(), {
         weekday: "long",
         year: "numeric",
         month: "long",

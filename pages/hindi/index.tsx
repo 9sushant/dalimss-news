@@ -14,10 +14,12 @@ import {
 } from "@/lib/pagination";
 import prisma from "@/lib/prisma";
 import {
+  DEFAULT_OG_IMAGE,
   ORGANIZATION_ID,
   SITE_NAME,
   SITE_URL,
   WEBSITE_ID,
+  canonicalArticleSlug,
   canonicalAuthorName,
 } from "@/lib/seo";
 import { Article } from "@/types";
@@ -31,7 +33,7 @@ interface Props {
 }
 
 const PAGE_DESCRIPTION =
-  "Dalimss News पर वाराणसी, पूर्वांचल, गुरुग्राम और भारत की ताजा हिंदी खबरें पढ़ें.";
+  "Dalimss News पर वाराणसी, पूर्वांचल, गुरुग्राम और भारत की ताजा हिंदी खबरें पढ़ें: नागरिक मुद्दे, शिक्षा, व्यापार और स्थानीय घटनाओं की रिपोर्ट।";
 
 export default function HindiSectionPage({
   articles,
@@ -59,6 +61,16 @@ export default function HindiSectionPage({
     },
     publisher: {
       "@id": ORGANIZATION_ID,
+    },
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: articles.length,
+      itemListElement: articles.map((article, index) => ({
+        "@type": "ListItem",
+        position: (page - 1) * LISTING_PAGE_SIZE + index + 1,
+        url: `${SITE_URL}/articles/${canonicalArticleSlug(article.slug)}`,
+        name: article.title,
+      })),
     },
   };
 
@@ -96,6 +108,7 @@ export default function HindiSectionPage({
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={PAGE_DESCRIPTION} />
         <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content={DEFAULT_OG_IMAGE} />
         <meta property="og:locale" content="hi_IN" />
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:site" content="@dalimss_news" />

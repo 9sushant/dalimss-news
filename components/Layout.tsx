@@ -12,11 +12,11 @@ import Head from "next/head";
 const Layout = ({ children }: LayoutProps) => (
   <div className="bg-white min-h-screen text-gray-900 font-sans">
     <Head>
-      <title>Dalimss News — Varanasi, Gurugram &amp; India News</title>
+      <title>Dalimss News | Varanasi, Gurugram and India News</title>
       <meta name="description" content="Dalimss News is a digital news publication covering Varanasi, Gurugram, Delhi-NCR and major stories from across India, including crime, civic affairs, education, business, culture and lifestyle." />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <meta name="theme-color" content="#E21B22" />
-      <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+      <meta name="robots" key="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
       <link rel="icon" href="/favicon.png" type="image/png" />
       <link rel="icon" href="/favicon.ico" sizes="any" />
       <link rel="apple-touch-icon" href="/favicon.png" />

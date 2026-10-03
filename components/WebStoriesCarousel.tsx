@@ -1,5 +1,6 @@
 import Link from "next/link";
 import ImageWithFallback from "./ImageWithFallback";
+import { formatDateIST } from "@/lib/seo";
 
 interface StoryPage {
   id: number;
@@ -62,8 +63,8 @@ const WebStoriesCarousel = ({ stories }: Props) => {
                 <h3 className="text-white text-sm font-bold leading-tight line-clamp-2">
                   {story.title}
                 </h3>
-                <p className="text-white/60 text-[10px] mt-1" suppressHydrationWarning>
-                  {new Date(story.createdAt).toLocaleDateString("en-IN", {
+                <p className="text-white/60 text-[10px] mt-1">
+                  {formatDateIST(story.createdAt, {
                     day: "numeric",
                     month: "short",
                     year: "numeric",

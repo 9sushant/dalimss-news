@@ -28,12 +28,12 @@ const sections = [
     icon: WrenchScrewdriverIcon,
     title: "How We Handle Corrections",
     content: [
-      "When an error is brought to our attention — by a reader, source, or our own editorial team — we follow a consistent process:",
+      "When an error is brought to our attention by a reader, source, or our own editorial team, we follow a consistent process:",
     ],
     list: [
       "Review: The editorial team reviews the reported issue to verify whether a correction is warranted. This typically happens within 24–48 hours of receiving the report.",
       "Correct: Once confirmed, we update the article with the accurate information immediately.",
-      "Document: A correction notice is added to the article, clearly describing what was changed and when. The original error is not hidden — we believe in transparency over perfection.",
+      "Document: A correction notice is added to the article, clearly describing what was changed and when. The original error is not hidden. We believe in transparency over perfection.",
       "Notify: If the error significantly affected a person, organization, or the public understanding of an event, we may reach out directly to affected parties.",
     ],
   },
@@ -127,7 +127,7 @@ const CorrectionsPolicyPage: React.FC = () => {
               <span className="text-red-500">Top Priority</span>
             </h1>
             <p className="text-lg md:text-xl text-gray-300 mb-4 max-w-3xl mx-auto">
-              When we make a mistake, we fix it — promptly, clearly, and
+              When we make a mistake, we fix it promptly, clearly, and
               transparently. Here&apos;s how our corrections process works.
             </p>
             <p className="text-sm text-gray-400">

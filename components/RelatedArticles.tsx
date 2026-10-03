@@ -2,6 +2,7 @@
 // Displays 4-6 related articles for internal linking
 
 import Link from "next/link";
+import { formatDateIST } from "@/lib/seo";
 
 interface RelatedArticle {
   id: number;
@@ -16,14 +17,12 @@ interface RelatedArticle {
 interface RelatedArticlesProps {
   articles: RelatedArticle[];
   heading?: string;
-  locale?: string;
   itemLang?: string;
 }
 
 export function RelatedArticles({
   articles,
   heading = "Related Stories",
-  locale = "en-IN",
   itemLang,
 }: RelatedArticlesProps) {
   if (!articles || articles.length === 0) return null;
@@ -68,9 +67,8 @@ export function RelatedArticles({
               <time
                 className="text-xs text-gray-400 mt-1 block"
                 dateTime={article.createdAt}
-                suppressHydrationWarning
               >
-                {new Date(article.createdAt).toLocaleDateString(locale, {
+                {formatDateIST(article.createdAt, {
                   day: "numeric",
                   month: "short",
                   year: "numeric",

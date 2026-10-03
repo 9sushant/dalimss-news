@@ -15,6 +15,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [canNativeShare, setCanNativeShare] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -29,15 +30,21 @@ const ShareButton: React.FC<ShareButtonProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    setCanNativeShare(
+      typeof navigator !== "undefined" && typeof navigator.share === "function"
+    );
+  }, []);
+
   const fullUrl = url.startsWith('http') ? url : `https://dalimss.news${url}`;
-  // Add cache-busting parameter to force WhatsApp/Facebook to refetch preview
-  const shareUrl = fullUrl.includes('?') ? `${fullUrl}&v=${Date.now()}` : `${fullUrl}?v=${Date.now()}`;
-  const encodedUrl = encodeURIComponent(shareUrl);
-  const encodedTitle = encodeURIComponent(title);
+  // Cache-bust only when the reader shares, not during render.
+  const versionedShareUrl = () =>
+    fullUrl.includes("?") ? `${fullUrl}&v=${Date.now()}` : `${fullUrl}?v=${Date.now()}`;
 
   const handleCopy = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    const shareUrl = versionedShareUrl();
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
@@ -71,7 +78,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({
         await navigator.share({
           title: title,
           text: title,
-          url: shareUrl,
+          url: versionedShareUrl(),
         });
       } catch (err) {
         // User cancelled or share failed
@@ -80,16 +87,21 @@ const ShareButton: React.FC<ShareButtonProps> = ({
     setIsOpen(false);
   };
 
-  const shareLinks = {
-    whatsapp: `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`,
-    twitter: `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`,
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
-    telegram: `https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`,
-  };
-
-  const handleShareClick = (e: React.MouseEvent, platform: keyof typeof shareLinks) => {
+  const handleShareClick = (
+    e: React.MouseEvent,
+    platform: "whatsapp" | "twitter" | "facebook" | "telegram"
+  ) => {
     e.preventDefault();
     e.stopPropagation();
+    const shareUrl = versionedShareUrl();
+    const encodedUrl = encodeURIComponent(shareUrl);
+    const encodedTitle = encodeURIComponent(title);
+    const shareLinks = {
+      whatsapp: `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`,
+      twitter: `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+      telegram: `https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`,
+    };
     window.open(shareLinks[platform], '_blank', 'width=600,height=400');
     setIsOpen(false);
   };
@@ -226,7 +238,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({
             </button>
 
             {/* Native Share (Mobile) */}
-            {'share' in navigator && (
+            {canNativeShare && (
               <>
                 <div className="border-t border-gray-100 my-1"></div>
                 <button

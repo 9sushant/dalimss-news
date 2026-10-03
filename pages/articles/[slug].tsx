@@ -37,6 +37,7 @@ interface Article {
   mediaType?: string | null;
   mediaItems?: MediaItem[] | null;
   readTimeInMinutes?: number | null;
+  corrections?: { id?: string | number; date?: string | null; note?: string | null; text?: string | null }[] | null;
   customAuthor?: string | null;
   category?: string | null;
   sourceUrl?: string | null;
@@ -59,6 +60,7 @@ interface Props {
 import Head from "next/head";
 import ShareButton from "@/components/ShareButton";
 import { ArticleJsonLd } from "@/components/ArticleJsonLd";
+import { CorrectionNotice } from "@/components/CorrectionNotice";
 import { AuthorBox } from "@/components/AuthorBox";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { RelatedArticles } from "@/components/RelatedArticles";
@@ -71,6 +73,10 @@ import {
   ARTICLE_SLUG_REDIRECTS,
   toISOWithTZ,
   canonicalAuthorName,
+  articleMetaDescription,
+  articleModifiedAt,
+  articleWasMeaningfullyUpdated,
+  formatDateIST,
   isNewsroomByline,
 } from "@/lib/seo";
 import { getCategoriesByDbValue } from "@/lib/categories";
@@ -97,11 +103,30 @@ const ArticlePage: React.FC<Props> = ({
     );
   }
 
-  // Create clean description for SEO
-  const seoDescription = stripForMeta(
-    article.metaDescription || article.content || "",
-    160
+  const seoDescription = articleMetaDescription(article);
+  const modifiedAt = articleModifiedAt(article.createdAt, article.updatedAt);
+  const showUpdated = articleWasMeaningfullyUpdated(
+    article.createdAt,
+    article.updatedAt
   );
+  const publishedLabel = formatDateIST(article.createdAt, {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+  const updatedLabel = modifiedAt
+    ? formatDateIST(modifiedAt, {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      })
+    : "";
 
   // OG image
   const ogImageUrl = absoluteImageUrl(article.mediaUrl);
@@ -134,7 +159,6 @@ const ArticlePage: React.FC<Props> = ({
   const canonicalUrl = `${SITE_URL}/articles/${articleSlug}`;
   const seoTitle = stripForMeta(article.metaTitle || article.title, 70);
   const isHindi = article.language === "hi";
-  const dateLocale = isHindi ? "hi-IN" : "en-IN";
   const alternates = hreflangLinks({
     path: `/articles/${articleSlug}`,
     language: isHindi ? "hi" : "en",
@@ -176,7 +200,7 @@ const ArticlePage: React.FC<Props> = ({
         
         {/* Article specific Meta tags */}
         <meta property="article:published_time" content={toISOWithTZ(article.createdAt)} />
-        <meta property="article:modified_time" content={toISOWithTZ(article.updatedAt || article.createdAt)} />
+        <meta property="article:modified_time" content={toISOWithTZ(modifiedAt || article.createdAt)} />
         {article.customAuthor && <meta property="article:author" content={authorName} />}
         {article.category && <meta property="article:section" content={article.category} />}
         {article.tags && article.tags.split(",").map((t: string, i: number) => (
@@ -201,6 +225,7 @@ const ArticlePage: React.FC<Props> = ({
         article={article}
         authorUrl={authorUrl}
         authorProfile={curatedAuthor}
+        description={seoDescription}
       />
 
       {/* Breadcrumbs */}
@@ -294,22 +319,14 @@ const ArticlePage: React.FC<Props> = ({
             {isHindi ? authorName : `By ${authorName}`}
           </a>
           <span>•</span>
-          <time dateTime={toISOWithTZ(article.createdAt)} suppressHydrationWarning>
-            {new Date(article.createdAt).toLocaleString(dateLocale, {
-              dateStyle: "long",
-              timeStyle: "short",
-              timeZone: "Asia/Kolkata",
-            })}{" "}IST
+          <time dateTime={toISOWithTZ(article.createdAt)}>
+            {publishedLabel} IST
           </time>
-          {article.updatedAt && new Date(article.updatedAt).getTime() - new Date(article.createdAt).getTime() > 60000 && (
+          {showUpdated && modifiedAt && (
             <>
               <span>•</span>
-              <time dateTime={toISOWithTZ(article.updatedAt)} className="text-gray-500 italic" suppressHydrationWarning>
-                {isHindi ? "अपडेट:" : "Updated:"} {new Date(article.updatedAt).toLocaleString(dateLocale, {
-                  dateStyle: "long",
-                  timeStyle: "short",
-                  timeZone: "Asia/Kolkata",
-                })} IST
+              <time dateTime={toISOWithTZ(modifiedAt)} className="text-gray-500 italic">
+                Updated: {updatedLabel} IST
               </time>
             </>
           )}
@@ -325,6 +342,8 @@ const ArticlePage: React.FC<Props> = ({
           </div>
         </div>
       </header>
+
+      <CorrectionNotice corrections={article.corrections} />
 
       {/* MEDIA RENDERER */}
       {(() => {
@@ -578,7 +597,6 @@ const ArticlePage: React.FC<Props> = ({
       <RelatedArticles
         articles={relatedArticles}
         heading={isHindi ? "संबंधित खबरें" : "Related Stories"}
-        locale={dateLocale}
         itemLang={isHindi ? "hi" : undefined}
       />
     </article>
@@ -673,9 +691,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
             : null,
           metaTitle: article.metaTitle
             ? stripForMeta(article.metaTitle, 70)
-            : null,
-          metaDescription: article.metaDescription
-            ? stripForMeta(article.metaDescription, 160)
             : null,
         })
       ),

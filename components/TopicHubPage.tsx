@@ -8,6 +8,7 @@ import {
   SITE_URL,
   WEBSITE_ID,
   absoluteImageUrl,
+  formatDateIST,
 } from "@/lib/seo";
 import { TopicHubProps } from "@/lib/topicHubs";
 
@@ -23,7 +24,7 @@ export default function TopicHubPage({
     ? absoluteImageUrl(heroArticle.mediaUrl)
     : `${SITE_URL}/logo.png`;
   const latestUpdateLabel = latestUpdate
-    ? new Date(latestUpdate).toLocaleDateString("en-IN", {
+    ? formatDateIST(latestUpdate, {
         day: "numeric",
         month: "long",
         year: "numeric",
