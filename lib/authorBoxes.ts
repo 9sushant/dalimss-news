@@ -10,8 +10,8 @@ export interface AuthorBoxProfile {
 }
 
 /**
- * Opinion author boxes, keyed by canonical author name.
- * Add another writer by inserting one entry under that name.
+ * Curated author boxes, keyed by canonical author name.
+ * Add a writer by inserting one entry under that name.
  */
 export const authorBoxes: Record<string, AuthorBoxProfile> = {
   "Fizaa Madhok": {
